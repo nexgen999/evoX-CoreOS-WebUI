@@ -314,6 +314,24 @@
   "services": {
     "items": [
       {
+        "name": "Pippo Releases",
+        "description": "ps5 exfat releases, Passw : pippo.",
+        "icon": "globe",
+        "url": "https://pippo26442999.github.io/.exFAT/
+      },
+      {
+        "name": "pegasus-catalog",
+        "description": "pegasus-catalog.",
+        "icon": "globe",
+        "url": "https://pegasus-catalog.fly.dev"
+      },
+      {
+        "name": "GitHub",
+        "description": "Code source et dépôts.",
+        "icon": "github",
+        "url": "https://github.com/"
+      },
+      {
         "name": "GitHub",
         "description": "Code source et dépôts.",
         "icon": "github",
