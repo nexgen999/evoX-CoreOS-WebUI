@@ -124,6 +124,6 @@ function theme(){document.documentElement.dataset.theme=state.theme}
 async function init(){
  try{cfg=await loadConfig();repo=cfg.repository; if(cfg.themeColors) for(const [k,v] of Object.entries(cfg.themeColors)) document.documentElement.style.setProperty(`--${k.replace(/[A-Z]/g,m=>"-"+m.toLowerCase())}`,v); [profile,repository]=await Promise.all([cfg.profile?.enabled?getProfile(cfg):null,getRepo(cfg)]);
   if(repository?.default_branch && (cfg.repository.branch==="auto" || !cfg.repository.branch)) cfg.repository.branch=repository.default_branch;
-  repo=cfg.repository; shell(); theme(); window.addEventListener("hashchange",render);$("#mobile-menu").onclick=()=>$("#sidebar").classList.toggle("open");$("#theme-toggle").onclick=()=>{state.theme=state.theme==="dark"?"light":"dark";document.body.classList.toggle("light",state.theme==="light")};await render()}catch(e){content.innerHTML=`<div class="error"><h2>evoX Core OS</h2><p>Impossible de charger la configuration.</p><pre>${esc(e.stack||e.message||e)}</pre></div>`}
+  repo=cfg.repository; shell(); theme(); window.addEventListener("hashchange",render); $("#mobile-menu")?.addEventListener("click",()=>$("#sidebar")?.classList.toggle("open")); await render()}catch(e){content.innerHTML=`<div class="error"><h2>evoX Core OS</h2><p>Impossible de charger la configuration.</p><pre>${esc(e.stack||e.message||e)}</pre></div>`}
 }
 init();
