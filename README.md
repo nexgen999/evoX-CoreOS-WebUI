@@ -8,7 +8,7 @@ Le projet est pensé pour `evoX Core OS`, mais **aucun nom, dépôt, URL ou cont
 
 - 🧭 Dashboard Home avec hero, raccourcis et statistiques.
 - 👤 Détection automatique du propriétaire GitHub, du dépôt, de l'avatar, de la bio et des statistiques.
-- 📰 Lecteur RSS/XML avec affichage façon blog.
+- 📰 Lecteur RSS/XML/OPML avec affichage façon blog.
 - 📥 Page Download avec liste de fichiers configurable.
 - 🛒 Store dynamique lisant un ou plusieurs JSON.
 - 🔎 Recherche instantanée.
@@ -674,7 +674,7 @@ Exemple de structure JSON compatible avec le Store.
 
 ### `news.sample.xml`
 
-Exemple de flux RSS minimal.
+Exemple de flux RSS/OPML minimal.
 
 ---
 
@@ -715,3 +715,40 @@ Ainsi, le moteur peut être distribué avec différents dépôts sans devoir ré
 ## 📜 Licence
 
 À adapter selon la licence choisie pour votre projet.
+
+## OPML
+
+Le moteur supporte les fichiers `.opml` contenant des éléments `<outline xmlUrl="...">`.
+Ils peuvent être déclarés dans `news.opmlFiles` ou détectés automatiquement dans le dossier RSS lorsque `news.autoDiscoverOpml` est activé.
+
+## Home : sources RSS / OPML dédiées
+
+La page **Home** peut utiliser une source différente de la page **News** grâce au bloc `homeNews` dans `web/data/config.json`.
+
+```json
+"homeNews": {
+  "enabled": true,
+  "maxItems": 4,
+  "sourceMode": "auto",
+  "feeds": [],
+  "opmlFiles": [],
+  "autoDiscover": true,
+  "autoDiscoverOpml": true
+}
+```
+
+- `feeds` permet de sélectionner des flux RSS uniquement pour la Home.
+- `opmlFiles` permet d'indiquer un ou plusieurs fichiers OPML uniquement pour la Home.
+- `autoDiscoverOpml: true` recherche automatiquement les `.opml` dans `/rss/`.
+- `autoDiscover: true` recherche automatiquement les `.xml` dans `/rss/`.
+- La page **News** continue d'utiliser le bloc `news` indépendamment.
+
+## Barre supérieure et encart de sidebar
+
+La barre supérieure est entièrement configurable avec `topbar.quickDownloads` et `socials`. Elle peut afficher les raccourcis AIO, les réseaux sociaux et automatiquement l'avatar GitHub.
+
+L'encart décoratif situé en bas de la sidebar est configuré avec `sidebar.promo`.
+
+## Direction graphique Home
+
+La Home utilise une seule charte sombre evoX Core OS : barre supérieure pleine largeur, logo en haut, sidebar sous la barre, panneaux bleu/cyan, illustrations SVG intégrées, encart Bienvenue, Store compact, ressources rapides, bandeau de remerciement, statistiques sur une ligne et footer configurable. Aucun mode clair n'est nécessaire.
