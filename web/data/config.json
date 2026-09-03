@@ -115,7 +115,7 @@
       {
         "id": "payloads",
         "label": "Payloads",
-        "url": "/rss/payloads_rss.xml",
+        "url": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/blob/main/rss/payloads/payloads.xml",
         "enabled": true
       },
       {
