@@ -21,7 +21,7 @@
     "name": "PS5-Super-PLDMGR-Auto-Updater-Core_OS",
     "branch": "auto",
     "baseUrl": "",
-    "githubUrl": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/",
+    "githubUrl": "",
     "pagesUrl": "",
     "apiBase": "https://api.github.com"
   },
