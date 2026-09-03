@@ -317,26 +317,38 @@
         "name": "Pippo Releases",
         "description": "ps5 exfat releases, Passw : pippo.",
         "icon": "globe",
-        "url": "https://pippo26442999.github.io/.exFAT/
+        "url": "https://pippo26442999.github.io/.exFAT/"
       },
       {
-        "name": "pegasus-catalog",
+        "name": "Pegasus-Catalog",
         "description": "pegasus-catalog.",
         "icon": "globe",
         "url": "https://pegasus-catalog.fly.dev"
       },
       {
-        "name": "GitHub",
-        "description": "Code source et dépôts.",
-        "icon": "github",
-        "url": "https://github.com/"
+        "name": "dlpsgame",
+        "description": "PS5 Scene Source.",
+        "icon": "globe",
+        "url": "https://dlpsgame.com/category/ps5/"
       },
       {
-        "name": "GitHub",
-        "description": "Code source et dépôts.",
+        "name": "PS5 Webkit",
+        "description": "nexgen999 ps5 webkit.",
         "icon": "github",
-        "url": "https://github.com/"
+        "url": "https://nexgen999.github.io/ps5webkit"
       },
+      {
+        "name": "PS5-Super-PLDMGR-Auto-Updater",
+        "description": "PS5 homebrew & Apps Store.",
+        "icon": "github",
+        "url": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater"
+      },
+      {
+        "name": "evoX Store Direct",
+        "description": "PS5 homebrew & Apps Store WebUI.",
+        "icon": "globe",
+        "url": "https://nexgen999.github.io/PS5-Super-PLDMGR-Auto-Updater/evox-store.html"
+      },      
       {
         "name": "GitHub Pages",
         "description": "Hébergement web.",
