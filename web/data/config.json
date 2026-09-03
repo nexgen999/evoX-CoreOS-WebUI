@@ -30,7 +30,7 @@
     "rssDir": "/rss/",
     "docsDir": "/docs/",
     "assetsDir": "/web/assets/",
-    "archivesDir": "/archives/"
+    "archivesDir": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/releases/download/latest/"
   },
   "profile": {
     "enabled": true,
@@ -115,26 +115,26 @@
       {
         "id": "payloads",
         "label": "Payloads",
-        "url": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/blob/main/rss/payloads/payloads.xml",
+        "url": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/rss/payloads/payloads.xml",
         "enabled": true
       },
       {
         "id": "pkg",
         "label": "Packages",
         "url": "/rss/pkg_rss.xml",
-        "enabled": true
+        "enabled": false
       },
       {
         "id": "ffpfsc",
         "label": "FFPFSC",
         "url": "/rss/ffpfsc_rss.xml",
-        "enabled": true
+        "enabled": false
       },
       {
         "id": "apps",
         "label": "Applications",
         "url": "/rss/apps_rss.xml",
-        "enabled": true
+        "enabled": false
       }
     ],
     "autoDiscover": true
@@ -156,28 +156,28 @@
         "description": "Pack complet des packages.",
         "filename": "PS5_pkg_aio_latest.zip",
         "category": "Packages",
-        "url": "/archives/PS5_pkg_aio_latest.zip"
+        "url": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/releases/download/latest/PS5_pkg_aio_latest.zip"
       },
       {
         "name": "FFPFSC AIO",
         "description": "Pack complet des fichiers FFPFSC.",
         "filename": "PS5_ffpfsc_aio_latest.zip",
         "category": "FFPFSC",
-        "url": "/archives/PS5_ffpfsc_aio_latest.zip"
+        "url": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/releases/download/latest/PS5_ffpfsc_aio_latest.zip"
       },
       {
         "name": "Apps AIO",
         "description": "Pack complet des applications.",
         "filename": "PS5_apps_aio_latest.zip",
         "category": "Applications",
-        "url": "/archives/PS5_apps_aio_latest.zip"
+        "url": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/releases/download/latest/PS5_apps_aio_latest.zip"
       },
       {
         "name": "Ultimate Pack",
         "description": "Pack ultime regroupant les ressources disponibles.",
         "filename": "PS5_ultimate_pack_latest.zip",
         "category": "Ultimate",
-        "url": "/archives/PS5_ultimate_pack_latest.zip"
+        "url": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/releases/download/latest/PS5_ultimate_pack_latest.zip"
       }
     ],
     "autoDiscover": false
