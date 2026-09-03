@@ -17,11 +17,11 @@
     "branch": "auto"
   },
   "repository": {
-    "owner": "",
-    "name": "",
+    "owner": "nexgen999",
+    "name": "PS5-Super-PLDMGR-Auto-Updater-Core_OS",
     "branch": "auto",
     "baseUrl": "",
-    "githubUrl": "",
+    "githubUrl": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/",
     "pagesUrl": "",
     "apiBase": "https://api.github.com"
   },
@@ -149,7 +149,7 @@
         "description": "Pack complet des payloads.",
         "filename": "PS5_payloads_aio_latest.zip",
         "category": "Payloads",
-        "url": "/archives/PS5_payloads_aio_latest.zip"
+        "url": "https://github.com/nexgen999/PS5-Super-PLDMGR-Auto-Updater-Core_OS/releases/download/latest/PS5_payloads_aio_latest.zip"
       },
       {
         "name": "PKG AIO",
