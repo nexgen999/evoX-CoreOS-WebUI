@@ -1,0 +1,18 @@
+// Exemple de source Store.
+// Vous pouvez dupliquer une entrée et modifier les champs.
+{
+  "name": "Mon Store",
+  "items": [
+    {
+      "name": "Exemple",
+      "filename": "example.elf",
+      "url": "https://example.com/example.elf",
+      "description": "Description de l'élément.",
+      "version": "1.0",
+      "author": "Auteur",
+      "category": "Tools",
+      "subcategory": "Utilities",
+      "icon": "./web/assets/custom-icon.svg"
+    }
+  ]
+}
