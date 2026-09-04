@@ -499,6 +499,26 @@
           ]
         },
         {
+          "name": "FreeSHop Management",
+          "icon": "folder",
+          "items": [
+            {
+              "name": "Pegasus-DL",
+              "description": "Pegasus-DL Webui.",
+              "icon": "link",
+              "port": 6970,
+              "path": "/"
+            },
+            {
+              "name": "Spectrum-Library",
+              "description": "Spectrum-Library Webui.",
+              "icon": "link",
+              "port": 7575,
+              "path": "/"
+            }
+          ]
+        },
+        {
           "name": "Outils locaux",
           "icon": "folder",
           "items": [
