@@ -457,17 +457,24 @@
           "icon": "store",
           "items": [
             {
-              "name": "WebUI principale",
-              "description": "Interface web principale de la console.",
+              "name": "PLDMGR WebUI",
+              "description": "Interface web de PLDMGR.",
               "icon": "globe",
-              "port": 12800,
+              "port": 8084,
               "path": "/"
             },
             {
-              "name": "Payload Sender",
-              "description": "Interface locale d’envoi.",
+              "name": "EVOX WebUI",
+              "description": "Interface web de EVOX.",
               "icon": "download",
-              "port": 9000,
+              "port": 8085,
+              "path": "/"
+            },
+            {
+              "name": "ShadowMountPlus WebUI",
+              "description": "Interface web de ShadowMountPlus.",
+              "icon": "globe",
+              "port": 10101,
               "path": "/"
             }
           ]
