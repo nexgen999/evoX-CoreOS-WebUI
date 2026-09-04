@@ -445,6 +445,25 @@
         }
       ]
     },
+    "external": {
+      "enabled": true,
+      "title": "Webkit",
+      "description": "selectionnez votre Webkit.",
+      "items": [
+        {
+          "name": "Master UMTX2",
+          "description": "UMTX2 Webkit Jailbreak.",
+          "icon": "github",
+          "url": "https://masterps0.github.io/UMTX2/"
+        },
+        {
+          "name": "evoX W2JB",
+          "description": "nexgen999 webkit Jailbreak.",
+          "icon": "globe",
+          "url": "https://nexgen999.github.io/ps5webkit"
+        }
+      ]
+    },
     "local": {
       "enabled": true,
       "title": "WebUI locale / Console",
