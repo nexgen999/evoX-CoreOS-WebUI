@@ -1,0 +1,19 @@
+{
+  "site":{"name":"evoX Core OS","language":"fr","defaultPage":"home"},
+  "autoDetect":{"enabled":true,"githubPages":true,"owner":true,"repository":true,"branch":"auto"},
+  "repository":{"owner":"","name":"","branch":"auto","pagesUrl":"","githubUrl":"","apiBase":"https://api.github.com"},
+  "sourceSite":{"baseUrl":"","useForRelativeSources":true},
+  "paths":{"jsonDir":"/json/","rssDir":"/rss/","opmlDir":"/rss/","docsDir":"/docs/","archivesDir":"/archives/","assetsDir":"/web/assets/"},
+  "navigation":[{"id":"home","label":"Home","icon":"home","enabled":true},{"id":"news","label":"News","icon":"rss","enabled":true},{"id":"downloads","label":"Download","icon":"download","enabled":true},{"id":"store","label":"Store","icon":"store","enabled":true},{"id":"services","label":"Services","icon":"link","enabled":true},{"id":"docs","label":"Documentation","icon":"book","enabled":true},{"id":"about","label":"About","icon":"info","enabled":true},{"id":"thanks","label":"Remerciements","icon":"heart","enabled":true}],
+  "socials":[{"id":"github","label":"GitHub","url":"https://github.com/OWNER","icon":"github","enabled":true}],
+  "header":{"quickDownloads":[]},
+  "homeNews":{"enabled":true,"maxItems":4,"feeds":[],"opmlFiles":["/rss/home.opml"],"autoDiscover":false,"autoDiscoverOpml":false},
+  "news":{"enabled":true,"feeds":[],"opmlFiles":["/rss/sources.opml"],"autoDiscover":true,"autoDiscoverOpml":true},
+  "downloads":{"enabled":true,"items":[],"otherDownloads":{"enabled":true,"items":[]}},
+  "store":{"enabled":true,"sources":[],"fieldMap":{"name":["name","title","filename"],"url":["url","download","download_url"],"description":["description","desc"],"category":["category","type"],"subcategory":["subcategory","subCategory"],"icon":["icon","image"]}},
+  "services":{"title":"Services","tabs":[{"id":"webkit","label":"WebKit","icon":"globe","type":"links","items":[]},{"id":"webui","label":"WebUI","icon":"store","type":"webui","groups":[]},{"id":"scene","label":"Scene Sites","icon":"link","type":"links","items":[]},{"id":"other","label":"Autres","icon":"folder","type":"links","items":[]}]},
+  "docs":{"enabled":true,"path":"docs","recursive":true,"order":[]},
+  "about":{"title":"About","cards":[]},"thanks":{"title":"Remerciements","items":[]},
+  "footer":{"enabled":true,"text":"evoX Core OS","showYear":true,"links":[],"badges":[]},
+  "themeColors":{"accent":"#10cfff","accent2":"#1268d9","background":"#020a12","panel":"#061421","panel2":"#081b2d","text":"#ecf8ff","muted":"#80a8bd","line":"#0b4568","good":"#31dc91","danger":"#ff668c"}
+}

@@ -1,0 +1,1 @@
+{"items":[{"name":"Payload Demo","description":"Exemple d'entrée du catalogue.","category":"Payloads","subcategory":"Demo","version":"1.0","url":"https://example.com/file.bin","icon":"./web/assets/custom-icon.svg"},{"name":"Tool Demo","description":"Deuxième exemple.","category":"Tools","subcategory":"Utilities","version":"2.0","url":"https://example.com/tool.zip"}]}

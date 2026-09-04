@@ -1,0 +1,354 @@
+{
+  // ================================================================
+  // 01 — CONFIGURATION GÉNÉRALE
+  // ================================================================
+  "site": {
+    "name": "evoX Core OS",
+    "shortName": "evoX",
+    "tagline": "One place. All your needs.",
+    "language": "fr",
+    "defaultPage": "home"
+  },
+
+  // ================================================================
+  // 02 — AUTO-DÉTECTION GITHUB
+  // ================================================================
+  // Sur GitHub Pages, si owner/name/pagesUrl sont vides, le moteur
+  // récupère automatiquement owner + nom du dépôt depuis l'URL courante.
+  // Pour séparer l'interface du dépôt de données, renseignez repository
+  // manuellement (recommandé quand WebUI et Core OS sont deux dépôts).
+  "autoDetect": {
+    "enabled": true,
+    "githubPages": true,
+    "owner": true,
+    "repository": true,
+    "branch": "auto"
+  },
+
+  // ================================================================
+  // 03 — DÉPÔT SOURCE / SITE DE DONNÉES
+  // ================================================================
+  // C'est ici que se trouvent /json, /rss, /docs et /archives.
+  // base URL doit être l'URL COMPLÈTE du site source.
+  "repository": {
+    "owner": "OWNER",
+    "name": "REPOSITORY",
+    "branch": "main",
+    "pagesUrl": "https://OWNER.github.io/REPOSITORY",
+    "githubUrl": "https://github.com/OWNER/REPOSITORY",
+    "apiBase": "https://api.github.com"
+  },
+
+  // Optionnel : dépôt qui héberge l'interface graphique.
+  "uiRepository": {
+    "owner": "OWNER",
+    "name": "REPOSITORY-WebUI",
+    "githubUrl": "https://github.com/OWNER/REPOSITORY-WebUI"
+  },
+
+  // Alternative lisible pour toutes les sources relatives.
+  "sourceSite": {
+    "baseUrl": "https://OWNER.github.io/REPOSITORY",
+    "useForRelativeSources": true
+  },
+
+  // ================================================================
+  // 04 — DOSSIERS
+  // ================================================================
+  "paths": {
+    "jsonDir": "/json/",
+    "rssDir": "/rss/",
+    "opmlDir": "/rss/",
+    "docsDir": "/docs/",
+    "assetsDir": "/web/assets/",
+    "archivesDir": "/archives/"
+  },
+
+  // ================================================================
+  // 05 — NAVIGATION SIDEBAR
+  // ================================================================
+  // L'ordre du tableau est l'ordre visuel de la sidebar.
+  // Vous pouvez ajouter une entrée future ici si le moteur possède
+  // déjà la page correspondante, ou préparer un onglet personnalisé.
+  "navigation": [
+    {"id":"home","label":"Home","icon":"home","enabled":true},
+    {"id":"news","label":"News","icon":"rss","enabled":true},
+    {"id":"downloads","label":"Download","icon":"download","enabled":true},
+    {"id":"store","label":"Store","icon":"store","enabled":true},
+    {"id":"services","label":"Services","icon":"link","enabled":true},
+    {"id":"docs","label":"Documentation","icon":"book","enabled":true},
+    {"id":"about","label":"About","icon":"info","enabled":true},
+    {"id":"thanks","label":"Remerciements","icon":"heart","enabled":true}
+  ],
+
+  // ================================================================
+  // 06 — PROFIL GITHUB
+  // ================================================================
+  "profile": {
+    "enabled": true,
+    "showAvatar": true,
+    "showBio": true,
+    "showLocation": true,
+    "showStats": true,
+    "avatar": "",
+    "bioFallback": "Votre bio si GitHub n'est pas disponible.",
+    "locationFallback": ""
+  },
+
+  // ================================================================
+  // 07 — RÉSEAUX SOCIAUX
+  // ================================================================
+  // Icône standard : utilisez icon + le nom disponible dans icons.js.
+  // Icône personnalisée : iconType=image et icon=/web/assets/mon-logo.svg
+  // Les mêmes réseaux sont affichés dans le header et dans Suivez-moi.
+  "socials": [
+    {"id":"github","label":"GitHub","url":"https://github.com/OWNER","icon":"github","enabled":true},
+    {"id":"x","label":"X","url":"https://x.com/OWNER","icon":"x","enabled":true},
+    {"id":"bluesky","label":"Bluesky","url":"https://bsky.app/","icon":"bluesky","enabled":true},
+    {"id":"custom","label":"Mon réseau","url":"https://example.com/","iconType":"image","icon":"./web/assets/custom-social.svg","enabled":false}
+  ],
+
+  // ================================================================
+  // 08 — HEADER / TÉLÉCHARGEMENTS RAPIDES
+  // ================================================================
+  "header": {
+    "quickDownloads": [
+      {"label":"AIO Payloads (.zip)","url":"https://github.com/OWNER/REPOSITORY/releases/download/latest/PS5_payloads_aio_latest.zip","icon":"download","enabled":true},
+      {"label":"AIO PKG (.zip)","url":"https://github.com/OWNER/REPOSITORY/releases/download/latest/PS5_pkg_aio_latest.zip","icon":"download","enabled":true}
+    ]
+  },
+
+  // ================================================================
+  // 09 — SIDEBAR / SUIVEZ-MOI / PROMO
+  // ================================================================
+  "sidebar": {
+    "followMe": {"enabled":true,"title":"Suivez-moi"},
+    "promo": {
+      "enabled":true,
+      "title":"evoX Core OS",
+      "text":"One place. All your needs.",
+      "background":"./web/assets/sidebar-bg.svg"
+    }
+  },
+
+  // ================================================================
+  // 10 — SOURCES RSS/OPML COMMUNES
+  // ================================================================
+  "rss": {
+    "autoDiscoverOpml": true,
+    "opmlFiles": []
+  },
+
+  // ================================================================
+  // 11 — NEWS DE LA HOME (INDÉPENDANT DE NEWS)
+  // ================================================================
+  "homeNews": {
+    "enabled": true,
+    "maxItems": 4,
+    "autoDiscover": false,
+    "autoDiscoverOpml": false,
+    "feeds": [
+      {"id":"home1","label":"Flux Home","url":"/rss/home.xml","enabled":true}
+    ],
+    "opmlFiles": ["/rss/home.opml"]
+  },
+
+  // ================================================================
+  // 12 — PAGE NEWS : RSS + ATOM + OPML
+  // ================================================================
+  // Cette section peut avoir des sources complètement différentes de Home.
+  "news": {
+    "enabled": true,
+    "title": "News",
+    "eyebrow": "RSS / ATOM / OPML",
+    "description": "Lecteur de flux présenté comme un blog.",
+    "background": "./web/assets/news-bg.svg",
+    "maxItems": 150,
+    "autoDiscover": true,
+    "autoDiscoverOpml": true,
+    "feeds": [
+      {"id":"main","label":"Flux principal","url":"/rss/news.xml","enabled":true}
+    ],
+    "opmlFiles": ["/rss/sources.opml"]
+  },
+
+  // ================================================================
+  // 13 — DOWNLOAD
+  // ================================================================
+  // Pour les releases GitHub, le tag 'latest' est volontairement utilisé.
+  "downloads": {
+    "enabled": true,
+    "title": "Download",
+    "description": "Packs et fichiers prêts à télécharger.",
+    "search": true,
+    "items": [
+      {"name":"Payloads AIO","description":"Pack complet.","filename":"PS5_payloads_aio_latest.zip","category":"Payloads","url":"https://github.com/OWNER/REPOSITORY/releases/download/latest/PS5_payloads_aio_latest.zip","icon":"download"},
+      {"name":"PKG AIO","description":"Pack complet.","filename":"PS5_pkg_aio_latest.zip","category":"Packages","url":"https://github.com/OWNER/REPOSITORY/releases/download/latest/PS5_pkg_aio_latest.zip","icon":"download"},
+      {"name":"FFPFSC AIO","description":"Pack complet.","filename":"PS5_ffpfsc_aio_latest.zip","category":"FFPFSC","url":"https://github.com/OWNER/REPOSITORY/releases/download/latest/PS5_ffpfsc_aio_latest.zip","icon":"download"},
+      {"name":"Apps AIO","description":"Pack complet.","filename":"PS5_apps_aio_latest.zip","category":"Applications","url":"https://github.com/OWNER/REPOSITORY/releases/download/latest/PS5_apps_aio_latest.zip","icon":"download"},
+      {"name":"Ultimate Pack AIO","description":"Pack ultime.","filename":"PS5_ultimate_pack_latest.zip","category":"Ultimate","url":"https://github.com/OWNER/REPOSITORY/releases/download/latest/PS5_ultimate_pack_latest.zip","icon":"download"}
+    ],
+
+    // Autres packs + catalogues Pegasus. copyOnly=true ajoute le bouton Copier.
+    "otherDownloads": {
+      "enabled": true,
+      "title": "Other Downloads & Catalogues",
+      "eyebrow": "AUTRES RESSOURCES",
+      "description": "Ajoutez ici vos autres archives et catalogues.",
+      "items": [
+        // Les trois URLs des packs cheat n'ont pas été fournies : laissez-les
+        // désactivés jusqu'à ce que vous mettiez vos URLs réelles.
+        {"name":"Cheat Pack #1","url":"","description":"À configurer.","enabled":false,"icon":"download"},
+        {"name":"Cheat Pack #2","url":"","description":"À configurer.","enabled":false,"icon":"download"},
+        {"name":"Cheat Pack #3","url":"","description":"À configurer.","enabled":false,"icon":"download"},
+        {"name":"DLPSGame catalogue","url":"https://pegasus-catalog.fly.dev/catalogs/dlps.json","description":"URL de catalogue Pegasus-DLCatalogue.","copyOnly":true,"enabled":true,"icon":"code"},
+        {"name":"Pippo-exfat catalogue","url":"https://pegasus-catalog.fly.dev/catalogs/pippo.json","description":"URL de catalogue Pegasus-DLCatalogue.","copyOnly":true,"enabled":true,"icon":"code"},
+        {"name":"PFS catalogue","url":"https://pegasus-catalog.fly.dev/catalogs/pfs.json","description":"URL de catalogue Pegasus-DLCatalogue.","copyOnly":true,"enabled":true,"icon":"code"}
+      ]
+    }
+  },
+
+  // ================================================================
+  // 14 — STORE JSON
+  // ================================================================
+  // Une source peut être interne (/json/x.json) ou HTTPS complète.
+  // fieldMap permet d'adapter le moteur aux noms de champs de vos JSON.
+  "store": {
+    "enabled": true,
+    "layout": "list",
+    "search": true,
+    "pageSize": 60,
+    "showChecksum": true,
+    "autoDiscover": true,
+    "sources": [
+      {"id":"payloads","label":"Payloads","type":"json","url":"/json/payloads.json","arrayKeys":["payloads","items","data"]},
+      {"id":"packages","label":"Packages","type":"json","url":"/json/pkg.json","arrayKeys":["packages","pkgs","items","data"]},
+      {"id":"ffpfsc","label":"FFPFSC","type":"json","url":"/json/ffpfsc.json","arrayKeys":["ffpfsc","files","items","data"]},
+      {"id":"apps","label":"Applications","type":"json","url":"/json/apps.json","arrayKeys":["apps","applications","items","data"]}
+    ],
+    "fieldMap": {
+      "name":["name","title","filename"],
+      "filename":["filename","file","name"],
+      "url":["url","download","download_url","href"],
+      "description":["description","desc","summary"],
+      "version":["version","ver"],
+      "author":["author","developer","creator"],
+      "category":["category","type","group"],
+      "subcategory":["subcategory","sub_category","subCategory"],
+      "icon":["icon","image","logo"],
+      "checksum":["checksum","sha256","sha-256"]
+    }
+  },
+
+  // ================================================================
+  // 15 — SERVICES / ONGLETS EXTENSIBLES
+  // ================================================================
+  // Ajoutez simplement un nouvel objet dans tabs pour créer un nouvel onglet.
+  // type=links : URLs externes / WebKit / Scene Sites / futur.
+  // type=webui : IP PS5 + ports/path définis individuellement.
+  "services": {
+    "title":"Services",
+    "description":"Services externes, WebKit, WebUI PS5 et sites de scène.",
+    "background":"./web/assets/services-bg.svg",
+    "webui":{"defaultIp":"192.168.1.50"},
+    "tabs":[
+      {"id":"webkit","label":"WebKit","icon":"globe","type":"links","items":[{"name":"WebKit exemple","description":"URL de redirection.","url":"https://example.com/","icon":"globe"}]},
+      {"id":"webui","label":"WebUI","icon":"store","type":"webui","groups":[{"name":"WebUI PS5","icon":"store","items":[{"name":"WebUI principale","port":12800,"path":"/","protocol":"http","icon":"globe"},{"name":"Payload Sender","port":9000,"path":"/","protocol":"http","icon":"download"}]}]},
+      {"id":"scene","label":"Scene Sites","icon":"link","type":"links","items":[{"name":"GitHub","url":"https://github.com/","icon":"github"}]},
+      {"id":"other","label":"Autres","icon":"folder","type":"links","items":[]}
+    ]
+  },
+
+  // ================================================================
+  // 16 — DOCUMENTATION WIKI
+  // ================================================================
+  // Le dossier est récursif. order accepte des chemins relatifs.
+  "docs": {
+    "enabled": true,
+    "title": "Documentation",
+    "path": "docs",
+    "recursive": true,
+    "branch": "auto",
+    "sourceBaseUrl": "https://raw.githubusercontent.com/OWNER/REPOSITORY/main/docs",
+    "order": ["README.md","getting-started.md","configuration.md","menus/home.md","menus/news.md"],
+    "files": []
+  },
+
+  // ================================================================
+  // 17 — ABOUT
+  // ================================================================
+  "about": {
+    "title":"About",
+    "description":"Présentation du projet.",
+    "background":"./web/assets/about-bg.svg",
+    "cards":[{"title":"Carte","text":"Votre contenu.","icon":"check"}]
+  },
+
+  // ================================================================
+  // 18 — REMERCIEMENTS
+  // ================================================================
+  "thanks": {
+    "title":"Remerciements",
+    "description":"Merci à la communauté.",
+    "background":"./web/assets/thanks-bg.svg",
+    "message":"Un immense merci !",
+    "text":"Votre message.",
+    "items":[{"title":"Communauté","text":"Merci !","icon":"heart"}]
+  },
+
+  // ================================================================
+  // 19 — HOME
+  // ================================================================
+  // La Home ne répète pas ce Hero sur les autres pages.
+  "home": {
+    "hero": {
+      "eyebrow":"evoX CORE OS",
+      "title":"Bienvenue sur evoX Core OS",
+      "text":"Un espace unique pour accéder à mes projets, ressources, news et bien plus encore. Explore, télécharge, découvre !",
+      "logo":"./web/assets/logo.svg",
+      "background":"./web/assets/hero-bg.svg",
+      "links":[{"label":"Payloads PS5","url":"#store","icon":"code"},{"label":"Store","url":"#store","icon":"store"},{"label":"News RSS","url":"#news","icon":"rss"},{"label":"Documentation","url":"#docs","icon":"book"},{"label":"Open Source","url":"https://github.com/OWNER/REPOSITORY","icon":"github"}]
+    },
+    "welcome":{"title":"👋 Bienvenue !","text":"Votre message.","signature":"OWNER","background":"./web/assets/welcome-bg.svg"},
+    "storeSubtitle":"Accédez à tous mes outils et fichiers",
+    "quickLinks":[{"label":"Documentation","text":"Guides & tutos","url":"#docs","icon":"book"},{"label":"Services","text":"Mes services / redirections","url":"#services","icon":"link"}],
+    "thanks":{"title":"Un immense merci !","text":"Merci à toutes les personnes qui soutiennent le projet.","slogan":"Keep the spirit alive !","background":"./web/assets/thanks-bg.svg"}
+  },
+
+  // ================================================================
+  // 20 — FOOTER / BADGES
+  // ================================================================
+  // Chaque badge est une image cliquable. Vous pouvez utiliser shields.io,
+  // votre propre PNG/SVG, ou une image hébergée dans web/assets.
+  "footer": {
+    "enabled": true,
+    "text":"evoX Core OS • Open Source • Configurable",
+    "showYear":true,
+    "links":[
+      {"label":"GitHub","url":"https://github.com/OWNER/REPOSITORY","newTab":true},
+      {"label":"WebUI","url":"https://github.com/OWNER/REPOSITORY-WebUI","newTab":true}
+    ],
+    "badges":[
+      {"label":"License","href":"https://github.com/OWNER/REPOSITORY","image":"https://img.shields.io/badge/LICENSE-CUSTOM-666?style=for-the-badge","alt":"License","enabled":true},
+      {"label":"GitHub Pages","href":"https://OWNER.github.io/REPOSITORY-WebUI/","image":"https://img.shields.io/badge/GITHUB%20PAGES-READY-0b5cff?style=for-the-badge","alt":"GitHub Pages","enabled":true}
+    ]
+  },
+
+  // ================================================================
+  // 21 — COULEURS
+  // ================================================================
+  "themeColors": {
+    "accent":"#10cfff","accent2":"#1268d9","background":"#020a12","panel":"#061421","panel2":"#081b2d","text":"#ecf8ff","muted":"#80a8bd","line":"#0b4568","good":"#31dc91","danger":"#ff668c"
+  },
+
+  // ================================================================
+  // 22 — OPTIONS AVANCÉES
+  // ================================================================
+  "advanced": {
+    "cacheMinutes":10,
+    "requestTimeoutMs":12000,
+    "githubApiEnabled":true,
+    "allowExternalJson":true,
+    "allowExternalRss":true
+  }
+}
