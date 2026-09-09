@@ -1,0 +1,14 @@
+{
+  // Catalogue de démonstration.
+  "items": [
+    {
+      "name": "Example Payload",
+      "description": "Description affichée dans le Store.",
+      "category": "Payloads",
+      "subcategory": "PS5",
+      "version": "1.0",
+      "url": "https://example.com/file.bin",
+      "icon": "✦"
+    }
+  ]
+}
