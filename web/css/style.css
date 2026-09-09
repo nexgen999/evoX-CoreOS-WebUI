@@ -69,3 +69,70 @@ body { background: var(--bg-main); color: var(--text-main); font-family: var(--f
 .footer-socials a { color: var(--text-muted); transition: 0.2s; }
 .footer-socials a:hover { color: var(--accent); }
 .badge { background: var(--bg-hover); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; border: 1px solid var(--border); }
+
+/* --- REGLES AJOUTEES : STORE CONTROLS & VUE LISTE --- */
+.store-controls {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 0.25rem;
+    margin-left: auto;
+}
+
+.view-toggle .btn {
+    padding: 0.5rem 0.75rem;
+}
+
+.view-toggle .btn.active {
+    background-color: var(--accent);
+    color: #fff;
+}
+
+/* Tableau / Vue Liste Détaillée */
+.store-list-view {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--bg-panel);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.store-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.store-table th, 
+.store-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.store-table th {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.store-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.store-table .table-desc {
+    color: var(--text-muted);
+    font-size: 0.825rem;
+    max-width: 350px;
+}
+
+.btn-sm {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+}
