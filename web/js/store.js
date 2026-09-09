@@ -1,13 +1,13 @@
 let rawStoreData = [];
+let currentViewMode = 'grid'; // 'grid' ou 'list'
 
-// Fonction utilitaire pour extraire les tableaux récursifs ou imbriqués dans les JSON
+// Extraire les tableaux récursifs ou imbriqués quel que soit le format du JSON
 function extractItemsFromJSON(data) {
     if (Array.isArray(data)) return data;
     if (typeof data === 'object' && data !== null) {
         for (const key of ['items', 'files', 'payloads', 'pkgs', 'apps', 'ffpfsc', 'data', 'list']) {
             if (Array.isArray(data[key])) return data[key];
         }
-        // Recherche de la première propriété qui contient un tableau
         for (const key in data) {
             if (Array.isArray(data[key])) return data[key];
         }
@@ -30,15 +30,18 @@ async function loadStoreData(sources) {
             const data = await res.json();
             const items = extractItemsFromJSON(data);
 
-            if (counts.hasOwnProperty(source.name)) {
-                counts[source.name] = items.length;
+            // La catégorie principale est exclusivement limitée aux 4 JSON maîtres
+            const masterCategory = source.name;
+
+            if (counts.hasOwnProperty(masterCategory)) {
+                counts[masterCategory] = items.length;
             }
 
             items.forEach(item => {
                 rawStoreData.push({
                     title: item.title || item.name || item.filename || item.app_name || 'Sans nom',
-                    category: item.category || source.name,
-                    subcategory: item.subcategory || item.sub_category || item.type || item.section || 'Général',
+                    masterCategory: masterCategory, // 1 des 4 JSON maîtres
+                    subcategory: item.subcategory || item.sub_category || item.type || item.section || item.category || 'Non spécifié',
                     description: item.description || item.desc || item.info || 'Aucune description fournie.',
                     url: item.url || item.download || item.download_url || item.link || item.path || '#',
                     version: item.version || item.ver || '',
@@ -51,34 +54,32 @@ async function loadStoreData(sources) {
         }
     }
 
-    // Mise à jour synchrone des compteurs sur la Home
+    // Mise à jour des compteurs sur l'accueil
     if (document.getElementById('stat-payloads')) document.getElementById('stat-payloads').textContent = counts.Payloads;
     if (document.getElementById('stat-pkgs')) document.getElementById('stat-pkgs').textContent = counts.PKGs;
     if (document.getElementById('stat-ffpfsc')) document.getElementById('stat-ffpfsc').textContent = counts.FFPFSC;
     if (document.getElementById('stat-apps')) document.getElementById('stat-apps').textContent = counts.Apps;
 
-    populateFilters();
-    renderStoreItems(rawStoreData);
+    populateMasterCategories(sources);
+    updateSubcategories();
+    filterStore();
 }
 
-function populateFilters() {
+// Remplit le menu des catégories principales UNIQUEMENT avec les 4 JSON maîtres
+function populateMasterCategories(sources) {
     const catSelect = document.getElementById('store-category-filter');
-    const subCatSelect = document.getElementById('store-subcategory-filter');
-    
     if (!catSelect) return;
 
-    const categories = new Set(rawStoreData.map(i => i.category || i.sourceName).filter(Boolean));
-    catSelect.innerHTML = '<option value="all">Toutes les catégories</option>';
-    categories.forEach(cat => {
+    catSelect.innerHTML = '<option value="all">Tous les JSON (Global)</option>';
+    sources.forEach(src => {
         const opt = document.createElement('option');
-        opt.value = cat;
-        opt.textContent = cat;
+        opt.value = src.name;
+        opt.textContent = src.name; // Ex: Payloads, PKGs, FFPFSC, Apps
         catSelect.appendChild(opt);
     });
-
-    updateSubcategories();
 }
 
+// Remplit le menu des sous-catégories en fonction du JSON maître sélectionné
 function updateSubcategories() {
     const catSelect = document.getElementById('store-category-filter');
     const subCatSelect = document.getElementById('store-subcategory-filter');
@@ -86,14 +87,19 @@ function updateSubcategories() {
 
     const selectedCat = catSelect ? catSelect.value : 'all';
     
+    // Filtrer les éléments par le JSON maître sélectionné
     const filteredItems = selectedCat === 'all' 
         ? rawStoreData 
-        : rawStoreData.filter(i => (i.category || i.sourceName) === selectedCat);
+        : rawStoreData.filter(i => i.masterCategory === selectedCat);
 
-    const subcategories = new Set(filteredItems.map(i => i.subcategory).filter(Boolean));
+    // Extraire les sous-catégories uniques
+    const subcategories = new Set();
+    filteredItems.forEach(i => {
+        if (i.subcategory) subcategories.add(i.subcategory);
+    });
 
     subCatSelect.innerHTML = '<option value="all">Toutes les sous-catégories</option>';
-    subcategories.forEach(sub => {
+    Array.from(subcategories).sort().forEach(sub => {
         const opt = document.createElement('option');
         opt.value = sub;
         opt.textContent = sub;
@@ -108,33 +114,70 @@ function renderStoreItems(items) {
     container.innerHTML = '';
 
     if (items.length === 0) {
-        container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 2rem;">Aucun paquet correspondant trouvé.</p>';
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 2rem;">Aucun paquet ne correspond à votre recherche.</p>';
         return;
     }
 
-    items.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'item-card';
-        card.innerHTML = `
-            <div>
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-                    <h3>${item.title}</h3>
-                    ${item.version ? `<span class="badge" style="background:var(--bg-hover); color:var(--accent); font-size:0.75rem;">v${item.version}</span>` : ''}
+    if (currentViewMode === 'grid') {
+        container.className = 'cards-grid';
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
+                        <h3>${item.title}</h3>
+                        ${item.version ? `<span class="badge" style="background:var(--bg-hover); color:var(--accent); font-size:0.75rem;">v${item.version}</span>` : ''}
+                    </div>
+                    <div style="margin: 0.4rem 0; display:flex; gap:0.4rem; flex-wrap:wrap;">
+                        <span class="badge">${item.masterCategory}</span>
+                        ${item.subcategory !== 'Non spécifié' ? `<span class="badge" style="opacity:0.8; background:rgba(255,255,255,0.08);">${item.subcategory}</span>` : ''}
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top:0.5rem;">
+                        ${item.description}
+                    </p>
                 </div>
-                <div style="margin: 0.4rem 0;">
-                    <span class="badge">${item.category}</span>
-                    ${item.subcategory !== 'Général' ? `<span class="badge" style="opacity:0.8;">${item.subcategory}</span>` : ''}
-                </div>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top:0.5rem;">
-                    ${item.description}
-                </p>
-            </div>
-            <a href="${item.url}" target="_blank" class="btn btn-secondary" style="margin-top: 0.75rem; text-align:center;">
-                <i class="fa-solid fa-download"></i> Télécharger
-            </a>
+                <a href="${item.url}" target="_blank" class="btn btn-secondary" style="margin-top: 0.75rem; text-align:center;">
+                    <i class="fa-solid fa-download"></i> Télécharger
+                </a>
+            `;
+            container.appendChild(card);
+        });
+    } else {
+        // Vue en Liste Détaillée (Tableau)
+        container.className = 'store-list-view';
+        const table = document.createElement('table');
+        table.className = 'store-table';
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Fichier JSON</th>
+                    <th>Sous-Catégorie</th>
+                    <th>Version</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${items.map(item => `
+                    <tr>
+                        <td><strong>${item.title}</strong></td>
+                        <td><span class="badge">${item.masterCategory}</span></td>
+                        <td>${item.subcategory !== 'Non spécifié' ? `<span class="badge" style="opacity:0.8;">${item.subcategory}</span>` : '<span style="opacity:0.4;">-</span>'}</td>
+                        <td>${item.version ? `v${item.version}` : '-'}</td>
+                        <td class="table-desc">${item.description}</td>
+                        <td>
+                            <a href="${item.url}" target="_blank" class="btn btn-secondary btn-sm">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
         `;
-        container.appendChild(card);
-    });
+        container.appendChild(table);
+    }
 }
 
 function filterStore() {
@@ -144,13 +187,21 @@ function filterStore() {
 
     const filtered = rawStoreData.filter(i => {
         const matchesQuery = i.title.toLowerCase().includes(query) || i.description.toLowerCase().includes(query);
-        const matchesCat = (cat === 'all') || ((i.category || i.sourceName) === cat);
+        const matchesCat = (cat === 'all') || (i.masterCategory === cat);
         const matchesSubCat = (subcat === 'all') || (i.subcategory === subcat);
 
         return matchesQuery && matchesCat && matchesSubCat;
     });
 
     renderStoreItems(filtered);
+}
+
+// Changement du mode de vue (Grille / Liste)
+function setStoreViewMode(mode) {
+    currentViewMode = mode;
+    document.getElementById('btn-view-grid')?.classList.toggle('active', mode === 'grid');
+    document.getElementById('btn-view-list')?.classList.toggle('active', mode === 'list');
+    filterStore();
 }
 
 // Événements
@@ -162,3 +213,6 @@ document.getElementById('store-category-filter')?.addEventListener('change', () 
 });
 
 document.getElementById('store-subcategory-filter')?.addEventListener('change', filterStore);
+
+document.getElementById('btn-view-grid')?.addEventListener('click', () => setStoreViewMode('grid'));
+document.getElementById('btn-view-list')?.addEventListener('click', () => setStoreViewMode('list'));
