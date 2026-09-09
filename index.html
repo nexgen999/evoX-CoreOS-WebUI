@@ -40,23 +40,22 @@
                 </div>
             </div>
 
-            <!-- 4 Compteurs d'éléments tirés des JSON -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <i class="fa-solid fa-cubes"></i>
-                    <div class="stat-info"><span class="stat-value" id="stat-payloads">...</span><span class="stat-label">Payloads</span></div>
+                    <div class="stat-info"><span class="stat-value" id="stat-payloads">0</span><span class="stat-label">Payloads</span></div>
                 </div>
                 <div class="stat-card">
                     <i class="fa-solid fa-box"></i>
-                    <div class="stat-info"><span class="stat-value" id="stat-pkgs">...</span><span class="stat-label">PKGs</span></div>
+                    <div class="stat-info"><span class="stat-value" id="stat-pkgs">0</span><span class="stat-label">PKGs</span></div>
                 </div>
                 <div class="stat-card">
                     <i class="fa-solid fa-bolt"></i>
-                    <div class="stat-info"><span class="stat-value" id="stat-ffpfsc">...</span><span class="stat-label">FFPFSC</span></div>
+                    <div class="stat-info"><span class="stat-value" id="stat-ffpfsc">0</span><span class="stat-label">FFPFSC</span></div>
                 </div>
                 <div class="stat-card">
                     <i class="fa-solid fa-code-fork"></i>
-                    <div class="stat-info"><span class="stat-value" id="stat-apps">...</span><span class="stat-label">Apps</span></div>
+                    <div class="stat-info"><span class="stat-value" id="stat-apps">0</span><span class="stat-label">Apps</span></div>
                 </div>
             </div>
 
@@ -74,8 +73,8 @@
 
         <!-- TAB: NEWS & FEEDS -->
         <section id="tab-news" class="tab-content">
-            <h2><i class="fa-solid fa-rss"></i> Actualités & Flux RSS (depuis OPML)</h2>
-            <div id="news-container" class="news-grid">Chargement des flux OPML...</div>
+            <h2><i class="fa-solid fa-rss"></i> Flux d'Actualités (OPML)</h2>
+            <div id="news-container">Chargement des actualités...</div>
         </section>
 
         <!-- TAB: DOWNLOADS -->
@@ -91,6 +90,9 @@
                 <select id="store-category-filter" class="select-filter">
                     <option value="all">Toutes les catégories</option>
                 </select>
+                <select id="store-subcategory-filter" class="select-filter">
+                    <option value="all">Toutes les sous-catégories</option>
+                </select>
             </div>
             <div id="store-grid" class="cards-grid"></div>
         </section>
@@ -98,7 +100,7 @@
         <!-- TAB: PEGASUS -->
         <section id="tab-pegasus" class="tab-content">
             <h2><i class="fa-solid fa-copy"></i> Catalogues Pegasus</h2>
-            <p class="section-desc">Ces fichiers JSON sont destinés à être ajoutés à l'application <strong>Pegasus-DL</strong>. Ils contiennent les bases de données d'éléments et de catalogues tenues à jour.</p>
+            <p class="section-desc">Ces fichiers JSON sont destinés à être ajoutés à l'application <strong>Pegasus-DL</strong>. Ils contiennent les bases de données d'éléments à jour.</p>
             <div id="pegasus-container" class="cards-grid" style="margin-top: 1rem;"></div>
         </section>
 
@@ -119,10 +121,11 @@
 
     <footer class="footer">
         <div class="footer-socials" id="footer-socials"></div>
-        <div class="footer-badges" id="footer-badges"></div>
         <p class="footer-copy">&copy; 2026 evoX CoreOS — Powered by GitHub Pages</p>
     </footer>
 
+    <!-- JS SBRIPTS -->
+    <script src="web/js/rss-reader.js"></script>
     <script src="web/js/store.js"></script>
     <script src="web/js/app.js"></script>
 </body>
