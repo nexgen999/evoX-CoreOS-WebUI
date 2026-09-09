@@ -1,6 +1,6 @@
 /**
- * Lecteur RSS surpuissant autonome pour evoX-CoreOS
- * Analyse OPML + Multi-Proxy CORS Fallback + Rendu réactif
+ * Lecteur RSS/Atom Surpuissant pour evoX-CoreOS
+ * Optimisé pour les flux GitHub (Releases / Commits) & Fichiers OPML
  */
 
 class EvoXRSSReader {
@@ -18,8 +18,9 @@ class EvoXRSSReader {
         if (!container) return;
 
         container.innerHTML = `
-            <div class="rss-loading" style="padding: 1.5rem; text-align: center;">
-                <i class="fa-solid fa-spinner fa-spin accent"></i> Chargement et analyse des flux OPML...
+            <div class="rss-loading" style="padding: 2rem; text-align: center;">
+                <i class="fa-solid fa-circle-notch fa-spin accent" style="font-size: 2rem;"></i>
+                <p style="margin-top: 1rem;">Chargement du fichier OPML et analyse des flux GitHub...</p>
             </div>`;
 
         try {
@@ -27,22 +28,34 @@ class EvoXRSSReader {
             const feedUrls = this.parseOPML(xmlText);
 
             if (feedUrls.length === 0) {
-                container.innerHTML = '<p class="rss-error">Aucun flux valide trouvé dans le fichier OPML.</p>';
+                container.innerHTML = '<p class="rss-error" style="padding:1rem; color:#ff5555;">Aucun flux valide trouvé dans le fichier OPML.</p>';
                 return;
             }
 
-            container.innerHTML = `<p style="padding: 1rem;"><i class="fa-solid fa-sync fa-spin"></i> Récupération de ${feedUrls.length} sources RSS en cours...</p>`;
-            
+            container.innerHTML = `
+                <div style="padding: 1rem; background: var(--bg-panel); border-radius: 8px; margin-bottom: 1rem;">
+                    <i class="fa-solid fa-sync fa-spin accent"></i> Analyse de <strong>${feedUrls.length}</strong> sources en cours...
+                </div>`;
+
             this.articles = [];
-            const fetchPromises = feedUrls.map(feed => this.fetchFeed(feed));
-            await Promise.allSettled(fetchPromises);
+            
+            // Traitement par lots (batching) pour éviter d'être bloqué par GitHub / Proxies
+            const batchSize = 5;
+            for (let i = 0; i < feedUrls.length; i += batchSize) {
+                const batch = feedUrls.slice(i, i + batchSize);
+                await Promise.allSettled(batch.map(feed => this.fetchFeed(feed)));
+            }
 
             this.articles.sort((a, b) => b.date - a.date);
             this.render(container);
 
         } catch (err) {
             console.error('Erreur globale RSS:', err);
-            container.innerHTML = `<p class="rss-error" style="color: #ff5555; padding: 1rem;"><i class="fa-solid fa-triangle-exclamation"></i> Échec du chargement des flux OPML. Vérifiez la connexion ou les règles CORS.</p>`;
+            container.innerHTML = `
+                <div class="rss-error" style="color: #ff5555; padding: 1.5rem; background: var(--bg-panel); border-radius: 8px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Échec du chargement du fichier OPML (<code>${opmlUrl}</code>). 
+                    Vérifiez que le fichier existe bien à la racine ou dans le sous-dossier spécifié.
+                </div>`;
         }
     }
 
@@ -54,8 +67,15 @@ class EvoXRSSReader {
 
         outlines.forEach(outline => {
             const url = outline.getAttribute('xmlUrl');
-            const title = outline.getAttribute('title') || outline.getAttribute('text') || 'Feed RSS';
-            if (url) feeds.push({ title, url });
+            let title = outline.getAttribute('title') || outline.getAttribute('text') || 'Dépôt GitHub';
+            
+            if (url) {
+                // Nettoyage du nom pour afficher le nom du repo GitHub proprement
+                if (title.includes('Release notes from') || title.includes('Commits to')) {
+                    title = title.replace('Release notes from ', '').replace('Commits to ', '').replace('master', '').replace('main', '');
+                }
+                feeds.push({ title: title.trim(), url: url.trim() });
+            }
         });
 
         return feeds;
@@ -65,14 +85,14 @@ class EvoXRSSReader {
         try {
             const content = await this.fetchWithFallback(feed.url);
             
-            // Si la réponse est un JSON (proxy rss2json)
+            // Format JSON (si renvoyé par un service comme rss2json)
             if (content.startsWith('{')) {
                 const data = JSON.parse(content);
                 if (data.items) {
                     data.items.forEach(item => {
                         this.articles.push({
-                            title: item.title,
-                            link: item.link,
+                            title: item.title || 'Nouvelle release',
+                            link: item.link || '#',
                             date: new Date(item.pubDate || Date.now()),
                             feed: feed.title,
                             description: this.cleanDescription(item.description || item.content || '')
@@ -82,77 +102,107 @@ class EvoXRSSReader {
                 return;
             }
 
-            // Sinon analyse du document XML Atom / RSS
+            // Document XML (RSS ou Atom de GitHub)
             const parser = new DOMParser();
             const xml = parser.parseFromString(content, "text/xml");
-            const items = xml.querySelectorAll("item, entry");
+            
+            // Support RSS (<item>) et Atom (<entry>)
+            const items = xml.querySelectorAll("entry, item");
 
             items.forEach(item => {
-                const title = item.querySelector("title")?.textContent || "Sans titre";
-                const link = item.querySelector("link")?.getAttribute("href") || item.querySelector("link")?.textContent || "#";
-                const pubDate = item.querySelector("pubDate, updated, published")?.textContent;
-                const desc = item.querySelector("description, summary, content")?.textContent || "";
+                const title = item.querySelector("title")?.textContent || "Nouvelle mise à jour";
+                
+                // Extraction du lien GitHub
+                let link = "#";
+                const linkElem = item.querySelector("link");
+                if (linkElem) {
+                    link = linkElem.getAttribute("href") || linkElem.textContent || "#";
+                }
+
+                // Date
+                const pubDate = item.querySelector("updated, published, pubDate")?.textContent;
+                
+                // Description / Release notes
+                const desc = item.querySelector("content, summary, description")?.textContent || "";
 
                 this.articles.push({
-                    title,
-                    link,
+                    title: title.trim(),
+                    link: link.trim(),
                     date: pubDate ? new Date(pubDate) : new Date(),
                     feed: feed.title,
                     description: this.cleanDescription(desc)
                 });
             });
         } catch (e) {
-            console.warn(`Erreur sur le flux RSS [${feed.title}]:`, e);
+            console.warn(`[RSS] Échec pour ${feed.title}:`, e);
         }
     }
 
     async fetchWithFallback(url) {
-        // Essai direct d'abord
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 sec max par requête
+
+        // 1. Tentative directe
         try {
-            const direct = await fetch(url);
+            const direct = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (direct.ok) return await direct.text();
         } catch (_) {}
 
-        // Fallback sur les proxies
+        // 2. Proxies Fallback
         for (const proxyFn of this.proxies) {
             try {
-                const res = await fetch(proxyFn(url));
-                if (res.ok) return await res.text();
+                const pController = new AbortController();
+                const pTimeout = setTimeout(() => pController.abort(), 6000);
+                const res = await fetch(proxyFn(url), { signal: pController.signal });
+                clearTimeout(pTimeout);
+                if (res.ok) {
+                    const text = await res.text();
+                    if (text && text.length > 50) return text;
+                }
             } catch (_) {}
         }
-        throw new Error(`Impossible de récupérer : ${url}`);
+
+        throw new Error(`Impossible de récupérer le flux: ${url}`);
     }
 
     cleanDescription(html) {
+        if (!html) return 'Pas de détails fournis.';
         const tmp = document.createElement("DIV");
         tmp.innerHTML = html;
         const text = tmp.textContent || tmp.innerText || "";
-        return text.trim().substring(0, 180) + (text.length > 180 ? '...' : '');
+        const cleaned = text.replace(/\s+/g, ' ').trim();
+        return cleaned.length > 200 ? cleaned.substring(0, 200) + '...' : cleaned;
     }
 
     render(container) {
         if (this.articles.length === 0) {
-            container.innerHTML = '<p>Aucune actualité disponible pour le moment.</p>';
+            container.innerHTML = `
+                <div style="padding: 2rem; text-align: center; background: var(--bg-panel); border-radius: 8px;">
+                    <i class="fa-solid fa-circle-exclamation accent" style="font-size: 1.5rem;"></i>
+                    <p style="margin-top: 0.5rem;">Aucun article ou release n'a pu être récupéré depuis le fichier OPML.</p>
+                </div>`;
             return;
         }
 
         container.innerHTML = `
-            <div class="news-stats-bar" style="margin-bottom: 1rem;">
-                <span><i class="fa-solid fa-newspaper accent"></i> <strong>${this.articles.length}</strong> articles récupérés</span>
+            <div class="news-stats-bar" style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <span><i class="fa-solid fa-rss accent"></i> Flux Actifs : <strong>${this.articles.length}</strong> actualités extraites</span>
+                <button onclick="window.evoXRSS.init(config.sources.opml, 'news-container')" class="btn btn-secondary btn-sm"><i class="fa-solid fa-rotate"></i> Actualiser</button>
             </div>
-            <div class="news-grid-cards cards-grid">
+            <div class="cards-grid">
                 ${this.articles.map(art => `
                     <div class="item-card news-card">
                         <div>
-                            <div class="news-card-header" style="display:flex; justify-content:space-between; margin-bottom: 0.5rem;">
-                                <span class="badge">${art.feed}</span>
-                                <span class="news-date" style="font-size: 0.8rem; opacity: 0.7;"><i class="fa-regular fa-clock"></i> ${isNaN(art.date) ? '' : art.date.toLocaleDateString()}</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                                <span class="badge" style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><i class="fa-brands fa-github"></i> ${art.feed}</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> ${isNaN(art.date) ? 'Récents' : art.date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
                             </div>
-                            <h3><a href="${art.link}" target="_blank" class="news-title-link" style="text-decoration:none; color:inherit;">${art.title}</a></h3>
-                            <p class="news-desc" style="color: var(--text-muted); font-size: 0.85rem; margin-top:0.5rem;">${art.description}</p>
+                            <h3 style="font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.3;">${art.title}</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.4;">${art.description}</p>
                         </div>
-                        <a href="${art.link}" target="_blank" class="btn btn-secondary btn-sm" style="margin-top: 0.75rem; display:inline-block; text-align:center;">
-                            Lire l'article <i class="fa-solid fa-arrow-right"></i>
+                        <a href="${art.link}" target="_blank" class="btn btn-secondary btn-sm" style="margin-top: 1rem; text-align:center; display:block;">
+                            Voir sur GitHub <i class="fa-solid fa-arrow-up-right-from-square"></i>
                         </a>
                     </div>
                 `).join('')}
