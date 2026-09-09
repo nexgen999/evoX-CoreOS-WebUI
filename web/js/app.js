@@ -13,9 +13,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadStoreData(config.sources.json);
     }
 
-    // Chargement du lecteur RSS dédié
-    if (window.evoXRSS && config.sources?.opml) {
-        window.evoXRSS.init(config.sources.opml, 'news-container');
+    // Chargement du Changelog / News
+    if (window.evoXChangelog) {
+        const changelogUrl = config.sources?.changelog || 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/CHANGELOG.md';
+        window.evoXChangelog.init(changelogUrl, 'news-container');
     }
 });
 
