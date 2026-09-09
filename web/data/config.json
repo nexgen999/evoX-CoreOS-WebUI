@@ -12,7 +12,7 @@
       { "name": "FFPFSC", "url": "https://nexgen999.github.io/evoX-CoreOS/json/ffpfsc.json" },
       { "name": "Apps", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" }
     ],
-    "opml": "https://nexgen999.github.io/evoX-CoreOS/rss/source_aio.opml",
+    "changelog": "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/CHANGELOG.md",
     "pegasus": [
       { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" },
       { "name": "Pippo Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pippo.json" },
@@ -29,7 +29,7 @@
       { "name": "Ultimate Pack AIO", "file": "PS5_ultimate_pack_latest.zip", "icon": "fa-crown" }
     ]
   },
-  "credits": ["nexgen999", "ItsPLK for PLDMGR", "Master", "Mustafa", "ArkSama", "Pippo", "DLPS Team", "All Scene Community"],
+  "credits": ["nexgen999", "ItsPLK for PLDMGR", "Master, Mustafa, ArkSama", "Pippo, DLPS Team", "All Scene Community"],
   "socials": [
     { "platform": "github", "url": "https://github.com/nexgen999", "icon": "fa-brands fa-github" },
     { "platform": "discord", "url": "https://discord.gg", "icon": "fa-brands fa-discord" }
