@@ -3,10 +3,10 @@ let config = {};
 document.addEventListener('DOMContentLoaded', async () => {
     await loadConfig();
     initNavigation();
-    initPS5Config();
     loadDashboardInfo();
     loadReleases();
     loadPegasusCatalogs();
+    loadOpmlFeeds();
     loadWikiTree();
     
     if (window.loadStoreData && config.sources?.json) {
@@ -24,11 +24,9 @@ async function loadConfig() {
 }
 
 function initNavigation() {
-    const buttons = document.querySelectorAll('.nav-btn');
-    buttons.forEach(btn => {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const tab = btn.getAttribute('data-tab');
-            switchTab(tab);
+            switchTab(btn.getAttribute('data-tab'));
         });
     });
 }
@@ -51,20 +49,17 @@ function loadDashboardInfo() {
     }
 
     if (config.credits) {
-        const creditsList = document.getElementById('credits-list');
-        creditsList.innerHTML = config.credits.map(c => `<li><i class="fa-solid fa-check accent"></i> ${c}</li>`).join('');
+        document.getElementById('credits-list').innerHTML = config.credits.map(c => `<li><i class="fa-solid fa-check accent"></i> ${c}</li>`).join('');
     }
 
-    // Socials
     if (config.socials) {
-        const socialsContainer = document.getElementById('footer-socials');
-        socialsContainer.innerHTML = config.socials.map(s => `<a href="${s.url}" target="_blank"><i class="${s.icon}"></i></a>`).join('');
+        document.getElementById('footer-socials').innerHTML = config.socials.map(s => `<a href="${s.url}" target="_blank"><i class="${s.icon}"></i></a>`).join('');
     }
 }
 
 function loadReleases() {
     const container = document.getElementById('aio-packs-grid');
-    if (!config.releases || !config.releases.packs) return;
+    if (!config.releases?.packs) return;
 
     container.innerHTML = config.releases.packs.map(pack => `
         <div class="item-card">
@@ -79,34 +74,98 @@ function loadReleases() {
     `).join('');
 }
 
+// Pegasus avec bouton de copie fonctionnel
 function loadPegasusCatalogs() {
     const container = document.getElementById('pegasus-container');
-    if (!config.sources || !config.sources.pegasus) return;
+    if (!config.sources?.pegasus) return;
 
     container.innerHTML = config.sources.pegasus.map(cat => `
         <div class="item-card">
             <h3>${cat.name}</h3>
-            <p style="word-break: break-all; font-size:0.8rem; color: var(--text-muted);">${cat.url}</p>
-            <button onclick="navigator.clipboard.writeText('${cat.url}')" class="btn btn-secondary" style="margin-top: 0.5rem;">
+            <p style="word-break: break-all; font-size:0.85rem; color: var(--text-muted); margin: 0.5rem 0;">${cat.url}</p>
+            <button onclick="copyToClipboard('${cat.url}', this)" class="btn btn-secondary">
                 <i class="fa-solid fa-copy"></i> Copier l'URL
             </button>
         </div>
     `).join('');
 }
 
-function initPS5Config() {
-    const ipInput = document.getElementById('ps5-ip');
-    const portInput = document.getElementById('ps5-port');
-    
-    if (config.ps5) {
-        ipInput.value = config.ps5.defaultIp;
-        portInput.value = config.ps5.defaultPort;
-    }
-
-    document.getElementById('btn-connect-ps5').addEventListener('click', () => {
-        const target = `http://${ipInput.value}:${portInput.value}`;
-        window.open(target, '_blank');
+function copyToClipboard(text, btnElement) {
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = `<i class="fa-solid fa-check"></i> Copié !`;
+        setTimeout(() => {
+            btnElement.innerHTML = originalText;
+        }, 2000);
+    }).catch(err => {
+        console.error('Erreur de copie :', err);
     });
+}
+
+// Extraction et lecture du fichier OPML
+async function loadOpmlFeeds() {
+    const container = document.getElementById('news-container');
+    if (!config.sources?.opml) return;
+
+    try {
+        const res = await fetch(config.sources.opml);
+        const xmlText = await res.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+        const outlines = xmlDoc.querySelectorAll('outline[xmlUrl]');
+        
+        container.innerHTML = `<p>Chargement de ${outlines.length} flux RSS...</p>`;
+        
+        let allArticles = [];
+
+        for (const outline of outlines) {
+            const feedUrl = outline.getAttribute('xmlUrl');
+            const feedTitle = outline.getAttribute('title') || outline.getAttribute('text') || 'Feed';
+            
+            try {
+                // Utilisation d'un proxy RSS2JSON pour contourner le CORS
+                const rssRes = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
+                const rssData = await rssRes.json();
+                
+                if (rssData.status === 'ok') {
+                    rssData.items.forEach(item => {
+                        allArticles.push({
+                            title: item.title,
+                            link: item.link,
+                            date: new Date(item.pubDate),
+                            feed: feedTitle,
+                            description: item.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...'
+                        });
+                    });
+                }
+            } catch (e) {
+                console.warn(`Impossible de charger le flux : ${feedUrl}`);
+            }
+        }
+
+        allArticles.sort((a, b) => b.date - a.date);
+
+        if (allArticles.length === 0) {
+            container.innerHTML = '<p>Aucun article trouvé dans les flux OPML.</p>';
+            return;
+        }
+
+        container.innerHTML = allArticles.slice(0, 30).map(art => `
+            <div class="item-card" style="margin-bottom: 1rem;">
+                <div>
+                    <span class="badge" style="margin-bottom:0.5rem; display:inline-block;">${art.feed}</span>
+                    <h3><a href="${art.link}" target="_blank" style="color:inherit; text-decoration:none;">${art.title}</a></h3>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">${art.description}</p>
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem;">
+                    ${art.date.toLocaleDateString()}
+                </div>
+            </div>
+        `).join('');
+
+    } catch (e) {
+        container.innerHTML = '<p>Erreur lors de la lecture du fichier OPML.</p>';
+    }
 }
 
 async function loadWikiTree() {
@@ -119,10 +178,10 @@ async function loadWikiTree() {
             const md = await res.text();
             wikiContent.innerHTML = marked.parse(md);
         } else {
-            wikiContent.innerHTML = "<p>Aucune documentation trouvée dans `docs/index.md`.</p>";
+            wikiContent.innerHTML = "<p>Aucune documentation dans `docs/index.md`.</p>";
         }
     } catch (e) {
-        wikiContent.innerHTML = "<p>Erreur lors du chargement de la documentation.</p>";
+        wikiContent.innerHTML = "<p>Erreur de chargement du wiki.</p>";
     }
 
     wikiTree.innerHTML = `<ul><li onclick="loadWikiTree()"><i class="fa-solid fa-file"></i> index.md</li></ul>`;
