@@ -1,35 +1,32 @@
 {
-  // Titre principal affiché dans l'en-tête
+  // Titre principal affiché dans l'en-tête de l'application
   "siteTitle": "evoX-CoreOS WebUI",
 
-  // Configuration du dépôt distant et de l'utilisateur
+  // Informations relatives aux dépôts GitHub (Données vs WebUI)
   "github": {
     "user": "nexgen999",
     "dataRepository": "nexgen999/evoX-CoreOS",
     "webuiRepository": "nexgen999/evoX-CoreOS-WebUI"
   },
 
-  // Configuration réseau PS5
-  "ps5": {
-    "defaultIp": "192.168.1.50",
-    "defaultPort": "9090"
-  },
-
-  // Sources de données JSON & Flux RSS
+  // Sources externes chargées dynamiquement
   "sources": {
+    // Les 4 catalogues JSON interrogés pour le Store et les compteurs de la Home
     "json": [
-      { "name": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json" }
+      { "name": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json" },
+      { "name": "PKGs", "url": "https://nexgen999.github.io/evoX-CoreOS/json/pkg.json" },
+      { "name": "FFPFSC", "url": "https://nexgen999.github.io/evoX-CoreOS/json/ffpfsc.json" },
+      { "name": "Apps", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" }
     ],
-    "rss": [
-      { "title": "Payloads Feed", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/payloads_rss.xml" }
-    ],
+    // Fichier OPML source unique contenant les flux RSS d'actualités
     "opml": "https://nexgen999.github.io/evoX-CoreOS/rss/source_aio.opml",
+    // Catalogues Pegasus à copier
     "pegasus": [
       { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" }
     ]
   },
 
-  // Liste des téléchargements AIO préconfigurés
+  // Téléchargements globaux AIO (Tag 'latest')
   "releases": {
     "baseUrl": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/",
     "packs": [
@@ -38,7 +35,7 @@
   },
 
   // Crédits et liens communautaires
-  "credits": ["nexgen999"],
+  "credits": ["nexgen999", "evoX Team"],
   "socials": [
     { "platform": "github", "url": "https://github.com/nexgen999", "icon": "fa-brands fa-github" }
   ]
