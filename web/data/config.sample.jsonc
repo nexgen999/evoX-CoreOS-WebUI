@@ -1,0 +1,250 @@
+{
+  // ================================================================
+  // 01 — CONFIGURATION GÉNÉRALE
+  // ================================================================
+  "site": {
+    "name": "evoX Core OS",
+    "shortName": "evoX",
+    "tagline": "One place. All your tools.",
+    "language": "fr",
+    "defaultPage": "home"
+  },
+
+  // ================================================================
+  // 02 — DÉPÔTS ET AUTO-DÉTECTION
+  // ================================================================
+  "autoDetect": {
+    "enabled": true,
+    "detectWebUIRepository": true,
+    "detectOwnerFromPages": true,
+    "detectBranch": true
+  },
+  "repositories": {
+    "coreOS": {
+      "owner": "nexgen999",
+      "name": "evoX-CoreOS",
+      "branch": "main",
+      "githubUrl": "https://github.com/nexgen999/evoX-CoreOS",
+      "pagesUrl": "https://nexgen999.github.io/evoX-CoreOS/"
+    },
+    "webUI": {
+      "owner": "nexgen999",
+      "name": "evoX-CoreOS-WebUI",
+      "branch": "main",
+      "githubUrl": "https://github.com/nexgen999/evoX-CoreOS-WebUI"
+    }
+  },
+
+  // ================================================================
+  // 03 — SOURCE DU SITE / CHEMINS CORE OS
+  // ================================================================
+  "sources": {
+    "baseUrl": "https://nexgen999.github.io/evoX-CoreOS/",
+    "jsonRoot": "/json/",
+    "rssRoot": "/rss/",
+    "docsRoot": "/docs/",
+    "archivesRoot": "/archives/",
+    "assetsRoot": "/assets/"
+  },
+
+  // ================================================================
+  // 04 — RÉSEAUX SOCIAUX
+  // ================================================================
+  "socials": [
+    { "id": "github", "label": "GitHub", "url": "https://github.com/nexgen999", "icon": "github", "enabled": true },
+    { "id": "x", "label": "X", "url": "https://x.com/nexgen999", "icon": "x", "enabled": true },
+    { "id": "bluesky", "label": "Bluesky", "url": "https://bsky.app/profile/nexgen999.bsky.social", "icon": "bluesky", "enabled": true }
+  ],
+
+  // ================================================================
+  // 05 — HEADER
+  // ================================================================
+  "header": {
+    "enabled": true,
+    "logo": "./web/assets/logo.svg",
+    "showAio": true,
+    "showSocials": true,
+    "showGitHub": true,
+    "showAvatar": true,
+    "aioLinks": [
+      { "label": "Payloads AIO", "url": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/PS5_payloads_aio_latest.zip" },
+      { "label": "PKG AIO", "url": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/PS5_pkg_aio_latest.zip" },
+      { "label": "Ultimate", "url": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/PS5_ultimate_pack_latest.zip" }
+    ]
+  },
+
+  // ================================================================
+  // 06 — SIDEBAR / PROFIL
+  // ================================================================
+  "profile": {
+    "enabled": true,
+    "avatar": "./web/assets/avatar-placeholder.svg",
+    "showBio": true,
+    "bioFallback": "Passionné par le homebrew, le développement et les projets open source.",
+    "showStats": true,
+    "showLocation": true
+  },
+  "navigation": [
+    { "id": "home", "label": "Home", "icon": "home", "enabled": true },
+    { "id": "news", "label": "News", "icon": "rss", "enabled": true },
+    { "id": "downloads", "label": "Download", "icon": "download", "enabled": true },
+    { "id": "store", "label": "Store", "icon": "store", "enabled": true },
+    { "id": "services", "label": "Services", "icon": "link", "enabled": true },
+    { "id": "docs", "label": "Documentation", "icon": "book", "enabled": true },
+    { "id": "about", "label": "About", "icon": "info", "enabled": true },
+    { "id": "thanks", "label": "Remerciements", "icon": "heart", "enabled": true }
+  ],
+
+  // ================================================================
+  // 07 — BRANDING / HOME
+  // ================================================================
+  "branding": {
+    "logo": "./web/assets/logo.svg",
+    "heroBackground": "./web/assets/hero-bg.svg",
+    "heroTitle": "Bienvenue sur evoX Core OS",
+    "heroText": "Un espace unique pour accéder à mes projets, ressources, news et outils open source.",
+    "heroTags": ["Open Source", "PS5 Homebrew", "Dynamic Store", "RSS / OPML"]
+  },
+
+  // ================================================================
+  // 08 — HOME NEWS : SOURCE INDÉPENDANTE DE NEWS
+  // ================================================================
+  "homeNews": {
+    "enabled": true,
+    "maxItems": 4,
+    "mode": "opml",
+    "feeds": [
+      { "id": "coreos", "label": "evoX Core OS", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/feed.xml", "enabled": true }
+    ],
+    "opmlFiles": ["https://nexgen999.github.io/evoX-CoreOS/rss/payloads/payloads.opml"],
+    "autoDiscover": false
+  },
+
+  // ================================================================
+  // 09 — NEWS : LECTEUR RSS / ATOM / OPML COMPLET
+  // ================================================================
+  "news": {
+    "enabled": true,
+    "maxItems": 40,
+    "mode": "opml",
+    "feeds": [
+      { "id": "payloads", "label": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/payloads/payloads.xml", "enabled": true },
+      { "id": "packages", "label": "Packages", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/pkg/pkg.xml", "enabled": true },
+      { "id": "ffpfsc", "label": "FFPFSC", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/ffpfsc/ffpfsc.xml", "enabled": true },
+      { "id": "apps", "label": "Applications", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/apps/apps.xml", "enabled": true }
+    ],
+    "opmlFiles": [
+      "https://nexgen999.github.io/evoX-CoreOS/rss/payloads/payloads.opml",
+      "https://nexgen999.github.io/evoX-CoreOS/rss/pkg/pkg.opml",
+      "https://nexgen999.github.io/evoX-CoreOS/rss/ffpfsc/ffpfsc.opml",
+      "https://nexgen999.github.io/evoX-CoreOS/rss/apps/apps.opml"
+    ],
+    "autoDiscover": false
+  },
+
+  // ================================================================
+  // 10 — DOWNLOADS
+  // ================================================================
+  "downloads": {
+    "enabled": true,
+    "layout": "list",
+    "aio": [
+      { "name": "Payloads AIO", "description": "Pack complet des payloads.", "url": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/PS5_payloads_aio_latest.zip", "category": "Payloads" },
+      { "name": "PKG AIO", "description": "Pack complet des packages.", "url": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/PS5_pkg_aio_latest.zip", "category": "Packages" },
+      { "name": "FFPFSC AIO", "description": "Pack complet des fichiers FFPFSC.", "url": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/PS5_ffpfsc_aio_latest.zip", "category": "FFPFSC" },
+      { "name": "Apps AIO", "description": "Pack complet des applications.", "url": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/PS5_apps_aio_latest.zip", "category": "Applications" },
+      { "name": "Ultimate Pack", "description": "Pack complet ultime.", "url": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/PS5_ultimate_pack_latest.zip", "category": "Ultimate" }
+    ],
+    "otherDownloads": [
+      { "name": "Cheat Pack 1", "description": "Pack de cheats — URL à personnaliser.", "url": "", "enabled": false },
+      { "name": "Cheat Pack 2", "description": "Pack de cheats — URL à personnaliser.", "url": "", "enabled": false },
+      { "name": "Cheat Pack 3", "description": "Pack de cheats — URL à personnaliser.", "url": "", "enabled": false }
+    ],
+    "catalogues": [
+      { "name": "DLPSGame", "description": "Catalogue Pegasus-DLPSGame", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" },
+      { "name": "Pippo-exfat", "description": "Catalogue Pegasus-Pippo", "url": "https://pegasus-catalog.fly.dev/catalogs/pippo.json" },
+      { "name": "PFS Catalog", "description": "Catalogue Pegasus-PFS", "url": "https://pegasus-catalog.fly.dev/catalogs/pfs.json" }
+    ]
+  },
+
+  // ================================================================
+  // 11 — STORE / JSON DYNAMIQUES
+  // ================================================================
+  "store": {
+    "enabled": true,
+    "defaultView": "list",
+    "pageSize": 36,
+    "sources": [
+      { "id": "payloads", "label": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json", "arrayKeys": ["payloads", "items", "data"] },
+      { "id": "packages", "label": "Packages", "url": "https://nexgen999.github.io/evoX-CoreOS/json/pkg.json", "arrayKeys": ["packages", "pkgs", "items", "data"] },
+      { "id": "ffpfsc", "label": "FFPFSC", "url": "https://nexgen999.github.io/evoX-CoreOS/json/ffpfsc.json", "arrayKeys": ["ffpfsc", "files", "items", "data"] },
+      { "id": "apps", "label": "Applications", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json", "arrayKeys": ["apps", "applications", "items", "data"] }
+    ],
+    "fieldMap": {
+      "name": ["name", "title", "filename"], "filename": ["filename", "file", "name"], "url": ["url", "download", "download_url", "href"],
+      "description": ["description", "desc", "summary"], "version": ["version", "ver"], "author": ["author", "developer", "creator"],
+      "category": ["category", "type", "group"], "subcategory": ["subcategory", "sub_category", "subCategory"], "icon": ["icon", "image", "logo"],
+      "checksum": ["checksum", "sha256", "sha-256"]
+    }
+  },
+
+  // ================================================================
+  // 12 — SERVICES / ONGLETS EXTENSIBLES
+  // ================================================================
+  "services": {
+    "defaultView": "tiles",
+    "ps5HostStorageKey": "evox.ps5.host",
+    "tabs": [
+      { "id": "webkit", "label": "WebKit", "icon": "globe", "type": "links", "items": [
+        { "name": "evoX W2JB", "description": "WebKit / exploit", "url": "https://nexgen999.github.io/ps5webkit/", "icon": "zap" }
+      ]},
+      { "id": "webui", "label": "WebUI", "icon": "monitor", "type": "ps5", "items": [
+        { "name": "PLDMGR", "description": "WebUI PLDMGR", "port": 8084, "path": "/", "protocol": "http", "icon": "terminal" },
+        { "name": "Payload Sender", "description": "WebUI locale", "port": 9000, "path": "/", "protocol": "http", "icon": "send" },
+        { "name": "Web File Manager", "description": "Gestionnaire de fichiers", "port": 8888, "path": "/", "protocol": "http", "icon": "folder" }
+      ]},
+      { "id": "scene", "label": "Scene Sites", "icon": "compass", "type": "links", "items": [
+        { "name": "PSXDEV", "description": "Scene / développement", "url": "https://www.psxdev.net/", "icon": "globe" },
+        { "name": "GitHub", "description": "Projets open source", "url": "https://github.com/", "icon": "github" }
+      ]},
+      { "id": "custom", "label": "Autres", "icon": "plus", "type": "links", "items": [] }
+    ]
+  },
+
+  // ================================================================
+  // 13 — DOCUMENTATION WIKI
+  // ================================================================
+  "documentation": {
+    "enabled": true,
+    "root": "/docs/",
+    "source": "github-api",
+    "branch": "main",
+    "recursive": true,
+    "homeDocument": "README.md",
+    "order": ["README.md", "getting-started.md", "architecture.md", "configuration.md", "data-sources.md", "deployment.md", "customization.md", "troubleshooting.md"],
+    "showTree": true
+  },
+
+  // ================================================================
+  // 14 — ABOUT / REMERCIEMENTS
+  // ================================================================
+  "about": { "title": "À propos d’evoX Core OS", "text": "evoX Core OS WebUI est une interface statique, configurable et orientée GitHub Pages pour transformer un dépôt de données en portail moderne : Store, News, téléchargements, services et documentation.", "version": "1.0.0" },
+  "thanks": { "title": "Un immense merci !", "text": "Merci à toutes les personnes qui me soutiennent, qui m'encouragent et qui font vivre cette communauté. Vous êtes géniaux !" },
+
+  // ================================================================
+  // 15 — FOOTER / BADGES
+  // ================================================================
+  "footer": {
+    "enabled": true,
+    "text": "evoX Core OS • Open Source • GitHub Pages",
+    "badges": [
+      { "label": "License", "href": "https://github.com/nexgen999/evoX-CoreOS-WebUI", "image": "https://img.shields.io/github/license/nexgen999/evoX-CoreOS-WebUI?style=for-the-badge" },
+      { "label": "GitHub Pages", "href": "https://nexgen999.github.io/evoX-CoreOS-WebUI/", "image": "https://img.shields.io/badge/GitHub%20Pages-ready-147cff?style=for-the-badge" }
+    ]
+  },
+
+  // ================================================================
+  // 16 — APPARENCE FIXE
+  // ================================================================
+  "appearance": { "theme": "dark", "allowThemeSwitch": false, "accent": "#16c8ff" }
+}
