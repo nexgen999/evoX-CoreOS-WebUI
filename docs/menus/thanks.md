@@ -1,3 +1,0 @@
-# ❤️ Remerciements
-
-Communauté et contributeurs.
