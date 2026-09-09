@@ -20,7 +20,6 @@
             <button class="nav-btn" data-tab="downloads"><i class="fa-solid fa-download"></i> Packs AIO</button>
             <button class="nav-btn" data-tab="store"><i class="fa-solid fa-cart-shopping"></i> Store JSON</button>
             <button class="nav-btn" data-tab="pegasus"><i class="fa-solid fa-copy"></i> Pegasus</button>
-            <button class="nav-btn" data-tab="ps5"><i class="fa-solid fa-gamepad"></i> PS5 WebUI</button>
             <button class="nav-btn" data-tab="services"><i class="fa-solid fa-server"></i> Services</button>
             <button class="nav-btn" data-tab="wiki"><i class="fa-solid fa-book"></i> Wiki</button>
         </nav>
@@ -41,18 +40,23 @@
                 </div>
             </div>
 
+            <!-- 4 Compteurs d'éléments tirés des JSON -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <i class="fa-solid fa-cubes"></i>
-                    <div class="stat-info"><span class="stat-value" id="stat-payloads">--</span><span class="stat-label">Payloads</span></div>
+                    <div class="stat-info"><span class="stat-value" id="stat-payloads">...</span><span class="stat-label">Payloads</span></div>
                 </div>
                 <div class="stat-card">
                     <i class="fa-solid fa-box"></i>
-                    <div class="stat-info"><span class="stat-value" id="stat-pkgs">--</span><span class="stat-label">PKGs</span></div>
+                    <div class="stat-info"><span class="stat-value" id="stat-pkgs">...</span><span class="stat-label">PKGs</span></div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-bolt"></i>
+                    <div class="stat-info"><span class="stat-value" id="stat-ffpfsc">...</span><span class="stat-label">FFPFSC</span></div>
                 </div>
                 <div class="stat-card">
                     <i class="fa-solid fa-code-fork"></i>
-                    <div class="stat-info"><span class="stat-value" id="stat-apps">--</span><span class="stat-label">Apps</span></div>
+                    <div class="stat-info"><span class="stat-value" id="stat-apps">...</span><span class="stat-label">Apps</span></div>
                 </div>
             </div>
 
@@ -70,8 +74,8 @@
 
         <!-- TAB: NEWS & FEEDS -->
         <section id="tab-news" class="tab-content">
-            <h2><i class="fa-solid fa-rss"></i> Actualités & Flux RSS</h2>
-            <div id="news-container" class="news-grid">Chargement des flux...</div>
+            <h2><i class="fa-solid fa-rss"></i> Actualités & Flux RSS (depuis OPML)</h2>
+            <div id="news-container" class="news-grid">Chargement des flux OPML...</div>
         </section>
 
         <!-- TAB: DOWNLOADS -->
@@ -87,34 +91,15 @@
                 <select id="store-category-filter" class="select-filter">
                     <option value="all">Toutes les catégories</option>
                 </select>
-                <div class="view-toggle">
-                    <button id="view-tiles" class="btn-icon active"><i class="fa-solid fa-border-all"></i></button>
-                    <button id="view-list" class="btn-icon"><i class="fa-solid fa-list"></i></button>
-                </div>
             </div>
-            <div id="store-grid" class="cards-grid tiles-view"></div>
+            <div id="store-grid" class="cards-grid"></div>
         </section>
 
         <!-- TAB: PEGASUS -->
         <section id="tab-pegasus" class="tab-content">
             <h2><i class="fa-solid fa-copy"></i> Catalogues Pegasus</h2>
-            <div id="pegasus-container" class="cards-grid"></div>
-        </section>
-
-        <!-- TAB: PS5 WEBUI -->
-        <section id="tab-ps5" class="tab-content">
-            <h2><i class="fa-solid fa-gamepad"></i> Configuration & Quick Launch PS5</h2>
-            <div class="panel config-panel">
-                <div class="form-group">
-                    <label>Adresse IP PS5</label>
-                    <input type="text" id="ps5-ip" value="192.168.1.50" class="input-text">
-                </div>
-                <div class="form-group">
-                    <label>Port Web / Payload Manager</label>
-                    <input type="text" id="ps5-port" value="9090" class="input-text">
-                </div>
-                <button id="btn-connect-ps5" class="btn btn-primary"><i class="fa-solid fa-link"></i> Ouvrir Interface PS5</button>
-            </div>
+            <p class="section-desc">Ces fichiers JSON sont destinés à être ajoutés à l'application <strong>Pegasus-DL</strong>. Ils contiennent les bases de données d'éléments et de catalogues tenues à jour.</p>
+            <div id="pegasus-container" class="cards-grid" style="margin-top: 1rem;"></div>
         </section>
 
         <!-- TAB: SERVICES -->
