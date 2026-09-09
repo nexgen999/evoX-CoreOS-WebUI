@@ -87,13 +87,21 @@
         <section id="tab-store" class="tab-content">
             <div class="store-controls">
                 <input type="text" id="store-search" placeholder="Rechercher un paquet..." class="input-search">
+                
                 <select id="store-category-filter" class="select-filter">
-                    <option value="all">Toutes les catégories</option>
+                    <option value="all">Tous les JSON (Global)</option>
                 </select>
+
                 <select id="store-subcategory-filter" class="select-filter">
                     <option value="all">Toutes les sous-catégories</option>
                 </select>
+
+                <div class="view-toggle">
+                    <button id="btn-view-grid" class="btn btn-secondary active" title="Vue Grille"><i class="fa-solid fa-border-all"></i></button>
+                    <button id="btn-view-list" class="btn btn-secondary" title="Vue Liste Détaillée"><i class="fa-solid fa-list"></i></button>
+                </div>
             </div>
+
             <div id="store-grid" class="cards-grid"></div>
         </section>
 
@@ -124,7 +132,7 @@
         <p class="footer-copy">&copy; 2026 evoX CoreOS — Powered by GitHub Pages</p>
     </footer>
 
-    <!-- JS SBRIPTS -->
+    <!-- JS SCRIPTS -->
     <script src="web/js/rss-reader.js"></script>
     <script src="web/js/store.js"></script>
     <script src="web/js/app.js"></script>
