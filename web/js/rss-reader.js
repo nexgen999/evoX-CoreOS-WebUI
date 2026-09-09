@@ -18,7 +18,7 @@ class EvoXRSSReader {
         if (!container) return;
 
         container.innerHTML = `
-            <div class="rss-loading">
+            <div class="rss-loading" style="padding: 1.5rem; text-align: center;">
                 <i class="fa-solid fa-spinner fa-spin accent"></i> Chargement et analyse des flux OPML...
             </div>`;
 
@@ -31,7 +31,7 @@ class EvoXRSSReader {
                 return;
             }
 
-            container.innerHTML = `<p><i class="fa-solid fa-sync fa-spin"></i> Récupération de ${feedUrls.length} sources RSS en cours...</p>`;
+            container.innerHTML = `<p style="padding: 1rem;"><i class="fa-solid fa-sync fa-spin"></i> Récupération de ${feedUrls.length} sources RSS en cours...</p>`;
             
             this.articles = [];
             const fetchPromises = feedUrls.map(feed => this.fetchFeed(feed));
@@ -42,7 +42,7 @@ class EvoXRSSReader {
 
         } catch (err) {
             console.error('Erreur globale RSS:', err);
-            container.innerHTML = `<p class="rss-error"><i class="fa-solid fa-triangle-exclamation"></i> Échec du chargement des flux OPML. Vérifiez la connexion ou les règles CORS.</p>`;
+            container.innerHTML = `<p class="rss-error" style="color: #ff5555; padding: 1rem;"><i class="fa-solid fa-triangle-exclamation"></i> Échec du chargement des flux OPML. Vérifiez la connexion ou les règles CORS.</p>`;
         }
     }
 
@@ -137,21 +137,21 @@ class EvoXRSSReader {
         }
 
         container.innerHTML = `
-            <div class="news-stats-bar">
+            <div class="news-stats-bar" style="margin-bottom: 1rem;">
                 <span><i class="fa-solid fa-newspaper accent"></i> <strong>${this.articles.length}</strong> articles récupérés</span>
             </div>
-            <div class="news-grid-cards">
+            <div class="news-grid-cards cards-grid">
                 ${this.articles.map(art => `
                     <div class="item-card news-card">
                         <div>
-                            <div class="news-card-header">
+                            <div class="news-card-header" style="display:flex; justify-content:space-between; margin-bottom: 0.5rem;">
                                 <span class="badge">${art.feed}</span>
-                                <span class="news-date"><i class="fa-regular fa-clock"></i> ${isNaN(art.date) ? '' : art.date.toLocaleDateString()}</span>
+                                <span class="news-date" style="font-size: 0.8rem; opacity: 0.7;"><i class="fa-regular fa-clock"></i> ${isNaN(art.date) ? '' : art.date.toLocaleDateString()}</span>
                             </div>
-                            <h3><a href="${art.link}" target="_blank" class="news-title-link">${art.title}</a></h3>
-                            <p class="news-desc">${art.description}</p>
+                            <h3><a href="${art.link}" target="_blank" class="news-title-link" style="text-decoration:none; color:inherit;">${art.title}</a></h3>
+                            <p class="news-desc" style="color: var(--text-muted); font-size: 0.85rem; margin-top:0.5rem;">${art.description}</p>
                         </div>
-                        <a href="${art.link}" target="_blank" class="btn btn-secondary btn-sm" style="margin-top: 0.75rem; align-self: flex-start;">
+                        <a href="${art.link}" target="_blank" class="btn btn-secondary btn-sm" style="margin-top: 0.75rem; display:inline-block; text-align:center;">
                             Lire l'article <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
