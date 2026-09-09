@@ -1,3 +1,0 @@
-# 📖 Documentation
-
-Wiki Markdown récursif.
