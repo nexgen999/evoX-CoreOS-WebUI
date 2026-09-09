@@ -6,11 +6,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadDashboardInfo();
     loadReleases();
     loadPegasusCatalogs();
-    loadOpmlFeeds();
     loadWikiTree();
     
+    // Chargement du store JSON
     if (window.loadStoreData && config.sources?.json) {
         loadStoreData(config.sources.json);
+    }
+
+    // Chargement du lecteur RSS dédié
+    if (window.evoXRSS && config.sources?.opml) {
+        window.evoXRSS.init(config.sources.opml, 'news-container');
     }
 });
 
@@ -74,7 +79,6 @@ function loadReleases() {
     `).join('');
 }
 
-// Pegasus avec bouton de copie fonctionnel
 function loadPegasusCatalogs() {
     const container = document.getElementById('pegasus-container');
     if (!config.sources?.pegasus) return;
@@ -100,72 +104,6 @@ function copyToClipboard(text, btnElement) {
     }).catch(err => {
         console.error('Erreur de copie :', err);
     });
-}
-
-// Extraction et lecture du fichier OPML
-async function loadOpmlFeeds() {
-    const container = document.getElementById('news-container');
-    if (!config.sources?.opml) return;
-
-    try {
-        const res = await fetch(config.sources.opml);
-        const xmlText = await res.text();
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-        const outlines = xmlDoc.querySelectorAll('outline[xmlUrl]');
-        
-        container.innerHTML = `<p>Chargement de ${outlines.length} flux RSS...</p>`;
-        
-        let allArticles = [];
-
-        for (const outline of outlines) {
-            const feedUrl = outline.getAttribute('xmlUrl');
-            const feedTitle = outline.getAttribute('title') || outline.getAttribute('text') || 'Feed';
-            
-            try {
-                // Utilisation d'un proxy RSS2JSON pour contourner le CORS
-                const rssRes = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
-                const rssData = await rssRes.json();
-                
-                if (rssData.status === 'ok') {
-                    rssData.items.forEach(item => {
-                        allArticles.push({
-                            title: item.title,
-                            link: item.link,
-                            date: new Date(item.pubDate),
-                            feed: feedTitle,
-                            description: item.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...'
-                        });
-                    });
-                }
-            } catch (e) {
-                console.warn(`Impossible de charger le flux : ${feedUrl}`);
-            }
-        }
-
-        allArticles.sort((a, b) => b.date - a.date);
-
-        if (allArticles.length === 0) {
-            container.innerHTML = '<p>Aucun article trouvé dans les flux OPML.</p>';
-            return;
-        }
-
-        container.innerHTML = allArticles.slice(0, 30).map(art => `
-            <div class="item-card" style="margin-bottom: 1rem;">
-                <div>
-                    <span class="badge" style="margin-bottom:0.5rem; display:inline-block;">${art.feed}</span>
-                    <h3><a href="${art.link}" target="_blank" style="color:inherit; text-decoration:none;">${art.title}</a></h3>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">${art.description}</p>
-                </div>
-                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem;">
-                    ${art.date.toLocaleDateString()}
-                </div>
-            </div>
-        `).join('');
-
-    } catch (e) {
-        container.innerHTML = '<p>Erreur lors de la lecture du fichier OPML.</p>';
-    }
 }
 
 async function loadWikiTree() {
