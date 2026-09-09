@@ -1,0 +1,45 @@
+{
+  // Titre principal affiché dans l'en-tête
+  "siteTitle": "evoX-CoreOS WebUI",
+
+  // Configuration du dépôt distant et de l'utilisateur
+  "github": {
+    "user": "nexgen999",
+    "dataRepository": "nexgen999/evoX-CoreOS",
+    "webuiRepository": "nexgen999/evoX-CoreOS-WebUI"
+  },
+
+  // Configuration réseau PS5
+  "ps5": {
+    "defaultIp": "192.168.1.50",
+    "defaultPort": "9090"
+  },
+
+  // Sources de données JSON & Flux RSS
+  "sources": {
+    "json": [
+      { "name": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json" }
+    ],
+    "rss": [
+      { "title": "Payloads Feed", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/payloads_rss.xml" }
+    ],
+    "opml": "https://nexgen999.github.io/evoX-CoreOS/rss/source_aio.opml",
+    "pegasus": [
+      { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" }
+    ]
+  },
+
+  // Liste des téléchargements AIO préconfigurés
+  "releases": {
+    "baseUrl": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/",
+    "packs": [
+      { "name": "Ultimate Pack AIO", "file": "PS5_ultimate_pack_latest.zip", "icon": "fa-crown" }
+    ]
+  },
+
+  // Crédits et liens communautaires
+  "credits": ["nexgen999"],
+  "socials": [
+    { "platform": "github", "url": "https://github.com/nexgen999", "icon": "fa-brands fa-github" }
+  ]
+}
