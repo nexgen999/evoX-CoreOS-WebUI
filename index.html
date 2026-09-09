@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>evoX-CoreOS Dashboard</title>
+    <link rel="stylesheet" href="web/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-brand">
+            <img src="web/assets/logo.png" alt="evoX Logo" class="nav-logo" onerror="this.style.display='none'">
+            <span class="brand-title">evoX <span class="accent">CoreOS</span></span>
+        </div>
+        <nav class="nav-links">
+            <button class="nav-btn active" data-tab="home"><i class="fa-solid fa-house"></i> Home</button>
+            <button class="nav-btn" data-tab="news"><i class="fa-solid fa-newspaper"></i> News & Feeds</button>
+            <button class="nav-btn" data-tab="downloads"><i class="fa-solid fa-download"></i> Packs AIO</button>
+            <button class="nav-btn" data-tab="store"><i class="fa-solid fa-cart-shopping"></i> Store JSON</button>
+            <button class="nav-btn" data-tab="pegasus"><i class="fa-solid fa-copy"></i> Pegasus</button>
+            <button class="nav-btn" data-tab="ps5"><i class="fa-solid fa-gamepad"></i> PS5 WebUI</button>
+            <button class="nav-btn" data-tab="services"><i class="fa-solid fa-server"></i> Services</button>
+            <button class="nav-btn" data-tab="wiki"><i class="fa-solid fa-book"></i> Wiki</button>
+        </nav>
+        <div class="nav-meta">
+            <span id="gh-badge" class="badge gh-badge"><i class="fa-brands fa-github"></i> <span id="gh-user">Détection...</span></span>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- TAB: HOME -->
+        <section id="tab-home" class="tab-content active">
+            <div class="hero">
+                <h1>evoX <span class="accent">CoreOS</span> WebUI</h1>
+                <p id="hero-desc">Dashboard centralisé pour la gestion, les flux et le store evoX PS5.</p>
+                <div class="hero-actions">
+                    <button onclick="switchTab('downloads')" class="btn btn-primary"><i class="fa-solid fa-box-open"></i> Télécharger les Packs</button>
+                    <button onclick="switchTab('store')" class="btn btn-secondary"><i class="fa-solid fa-store"></i> Explorer le Store</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fa-solid fa-cubes"></i>
+                    <div class="stat-info"><span class="stat-value" id="stat-payloads">--</span><span class="stat-label">Payloads</span></div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-box"></i>
+                    <div class="stat-info"><span class="stat-value" id="stat-pkgs">--</span><span class="stat-label">PKGs</span></div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-code-fork"></i>
+                    <div class="stat-info"><span class="stat-value" id="stat-apps">--</span><span class="stat-label">Apps</span></div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="panel">
+                    <h2><i class="fa-solid fa-bolt"></i> Dépôt Source Active</h2>
+                    <p>Données actuellement chargées depuis : <code id="active-repo-display">--</code></p>
+                </div>
+                <div class="panel">
+                    <h2><i class="fa-solid fa-heart"></i> Remerciements & Crédits</h2>
+                    <ul id="credits-list" class="styled-list"></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: NEWS & FEEDS -->
+        <section id="tab-news" class="tab-content">
+            <h2><i class="fa-solid fa-rss"></i> Actualités & Flux RSS</h2>
+            <div id="news-container" class="news-grid">Chargement des flux...</div>
+        </section>
+
+        <!-- TAB: DOWNLOADS -->
+        <section id="tab-downloads" class="tab-content">
+            <h2><i class="fa-solid fa-box-archive"></i> Packs AIO & Releases</h2>
+            <div id="aio-packs-grid" class="cards-grid"></div>
+        </section>
+
+        <!-- TAB: STORE JSON -->
+        <section id="tab-store" class="tab-content">
+            <div class="store-controls">
+                <input type="text" id="store-search" placeholder="Rechercher un paquet..." class="input-search">
+                <select id="store-category-filter" class="select-filter">
+                    <option value="all">Toutes les catégories</option>
+                </select>
+                <div class="view-toggle">
+                    <button id="view-tiles" class="btn-icon active"><i class="fa-solid fa-border-all"></i></button>
+                    <button id="view-list" class="btn-icon"><i class="fa-solid fa-list"></i></button>
+                </div>
+            </div>
+            <div id="store-grid" class="cards-grid tiles-view"></div>
+        </section>
+
+        <!-- TAB: PEGASUS -->
+        <section id="tab-pegasus" class="tab-content">
+            <h2><i class="fa-solid fa-copy"></i> Catalogues Pegasus</h2>
+            <div id="pegasus-container" class="cards-grid"></div>
+        </section>
+
+        <!-- TAB: PS5 WEBUI -->
+        <section id="tab-ps5" class="tab-content">
+            <h2><i class="fa-solid fa-gamepad"></i> Configuration & Quick Launch PS5</h2>
+            <div class="panel config-panel">
+                <div class="form-group">
+                    <label>Adresse IP PS5</label>
+                    <input type="text" id="ps5-ip" value="192.168.1.50" class="input-text">
+                </div>
+                <div class="form-group">
+                    <label>Port Web / Payload Manager</label>
+                    <input type="text" id="ps5-port" value="9090" class="input-text">
+                </div>
+                <button id="btn-connect-ps5" class="btn btn-primary"><i class="fa-solid fa-link"></i> Ouvrir Interface PS5</button>
+            </div>
+        </section>
+
+        <!-- TAB: SERVICES -->
+        <section id="tab-services" class="tab-content">
+            <h2><i class="fa-solid fa-server"></i> Services Extensibles</h2>
+            <div id="services-grid" class="cards-grid"></div>
+        </section>
+
+        <!-- TAB: WIKI -->
+        <section id="tab-wiki" class="tab-content">
+            <div class="wiki-layout">
+                <aside class="wiki-sidebar" id="wiki-tree"></aside>
+                <article class="wiki-body panel" id="wiki-content">Sélectionnez une page wiki.</article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-socials" id="footer-socials"></div>
+        <div class="footer-badges" id="footer-badges"></div>
+        <p class="footer-copy">&copy; 2026 evoX CoreOS — Powered by GitHub Pages</p>
+    </footer>
+
+    <script src="web/js/store.js"></script>
+    <script src="web/js/app.js"></script>
+</body>
+</html>
