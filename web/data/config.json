@@ -1,0 +1,47 @@
+{
+  "siteTitle": "evoX-CoreOS WebUI",
+  "github": {
+    "user": "nexgen999",
+    "dataRepository": "nexgen999/evoX-CoreOS",
+    "webuiRepository": "nexgen999/evoX-CoreOS-WebUI"
+  },
+  "ps5": {
+    "defaultIp": "192.168.1.50",
+    "defaultPort": "9090"
+  },
+  "sources": {
+    "json": [
+      { "name": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json" },
+      { "name": "PKGs", "url": "https://nexgen999.github.io/evoX-CoreOS/json/pkg.json" },
+      { "name": "FFPFSC", "url": "https://nexgen999.github.io/evoX-CoreOS/json/ffpfsc.json" },
+      { "name": "Apps", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" }
+    ],
+    "rss": [
+      { "title": "Payloads Feed", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/payloads_rss.xml" },
+      { "title": "PKG Feed", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/pkg_rss.xml" },
+      { "title": "FFPFSC Feed", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/ffpfsc_rss.xml" },
+      { "title": "Apps Feed", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/apps_rss.xml" }
+    ],
+    "opml": "https://nexgen999.github.io/evoX-CoreOS/rss/source_aio.opml",
+    "pegasus": [
+      { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" },
+      { "name": "Pippo Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pippo.json" },
+      { "name": "PFS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pfs.json" }
+    ]
+  },
+  "releases": {
+    "baseUrl": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/",
+    "packs": [
+      { "name": "Payloads AIO", "file": "PS5_payloads_aio_latest.zip", "icon": "fa-cubes" },
+      { "name": "PKG AIO", "file": "PS5_pkg_aio_latest.zip", "icon": "fa-box" },
+      { "name": "FFPFSC AIO", "file": "PS5_ffpfsc_aio_latest.zip", "icon": "fa-bolt" },
+      { "name": "Apps AIO", "file": "PS5_apps_aio_latest.zip", "icon": "fa-window-restore" },
+      { "name": "Ultimate Pack AIO", "file": "PS5_ultimate_pack_latest.zip", "icon": "fa-crown" }
+    ]
+  },
+  "credits": ["nexgen999", "evoX Team", "Bouti313", "Sistro"],
+  "socials": [
+    { "platform": "github", "url": "https://github.com/nexgen999", "icon": "fa-brands fa-github" },
+    { "platform": "discord", "url": "https://discord.gg", "icon": "fa-brands fa-discord" }
+  ]
+}
