@@ -5,22 +5,12 @@
     "dataRepository": "nexgen999/evoX-CoreOS",
     "webuiRepository": "nexgen999/evoX-CoreOS-WebUI"
   },
-  "ps5": {
-    "defaultIp": "192.168.1.50",
-    "defaultPort": "9090"
-  },
   "sources": {
     "json": [
       { "name": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json" },
       { "name": "PKGs", "url": "https://nexgen999.github.io/evoX-CoreOS/json/pkg.json" },
       { "name": "FFPFSC", "url": "https://nexgen999.github.io/evoX-CoreOS/json/ffpfsc.json" },
       { "name": "Apps", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" }
-    ],
-    "rss": [
-      { "title": "Payloads Feed", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/payloads_rss.xml" },
-      { "title": "PKG Feed", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/pkg_rss.xml" },
-      { "title": "FFPFSC Feed", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/ffpfsc_rss.xml" },
-      { "title": "Apps Feed", "url": "https://nexgen999.github.io/evoX-CoreOS/rss/apps_rss.xml" }
     ],
     "opml": "https://nexgen999.github.io/evoX-CoreOS/rss/source_aio.opml",
     "pegasus": [
