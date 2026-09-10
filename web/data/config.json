@@ -14,6 +14,7 @@
     ],
     "changelog": "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/CHANGELOG.md",
     "pegasus": [
+      { "name": "evoX-CoreOS Catalog", "url": "https://github.com/nexgen999/evoX-CoreOS/blob/main/json/pegasus-dl/catalog.json" },
       { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" },
       { "name": "Pippo Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pippo.json" },
       { "name": "PFS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pfs.json" }
