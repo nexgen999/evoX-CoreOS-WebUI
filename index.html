@@ -24,6 +24,7 @@
             <button class="nav-btn" data-tab="webkit"><i class="fa-solid fa-globe"></i> WebKit</button>
             <button class="nav-btn" data-tab="ps5-webui"><i class="fa-solid fa-gamepad"></i> Accès WebUI</button>
             <button class="nav-btn" data-tab="wiki"><i class="fa-solid fa-book"></i> Wiki</button>
+            <button class="nav-btn" data-tab="youtube"><i class="fa-brands fa-youtube"></i> YouTube Creators</button>
         </nav>
         <div class="nav-meta">
             <span id="gh-badge" class="badge gh-badge"><i class="fa-brands fa-github"></i> <span id="gh-user">Détection...</span></span>
@@ -147,7 +148,6 @@
             
             <div id="webkit-grid" class="cards-grid" style="margin-top: 1rem; margin-bottom: 1.5rem;"></div>
 
-            <!-- WebFrame Viewer -->
             <div id="webkit-frame-container" class="panel webframe-panel" style="display: none;">
                 <div class="webframe-header">
                     <span id="webframe-title"><i class="fa-solid fa-globe accent"></i> WebKit Viewer</span>
@@ -185,7 +185,6 @@
 
             <div id="ps5-webui-grid" class="cards-grid" style="margin-bottom: 1.5rem;"></div>
 
-            <!-- WebUI Frame Viewer -->
             <div id="ps5-webui-frame-container" class="panel webframe-panel" style="display: none;">
                 <div class="webframe-header">
                     <span id="ps5-webui-title"><i class="fa-solid fa-server accent"></i> Visionneuse WebUI PS5</span>
@@ -209,6 +208,36 @@
                 <article class="wiki-body panel" id="wiki-content">Sélectionnez une page wiki.</article>
             </div>
         </section>
+
+        <!-- TAB: YOUTUBE CREATORS -->
+        <section id="tab-youtube" class="tab-content">
+            <h2><i class="fa-brands fa-youtube accent"></i> YouTube Creators</h2>
+            <p class="section-desc">Suivez les dernières vidéos des créateurs majeurs de la scène PS5 / PS4.</p>
+
+            <div id="youtube-creators-grid" class="cards-grid" style="margin-top: 1rem; margin-bottom: 1.5rem;"></div>
+
+            <!-- Lecteur de Vidéos Récentes -->
+            <div id="youtube-videos-container" class="panel" style="display: none; margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-list-ul accent"></i> Dernières vidéos de <span id="youtube-channel-name" class="accent"></span> :</h3>
+                <div id="youtube-videos-list" class="cards-grid"></div>
+            </div>
+
+            <!-- Visionneuse Player YouTube -->
+            <div id="youtube-player-panel" class="panel webframe-panel" style="display: none;">
+                <div class="webframe-header">
+                    <span id="youtube-video-title"><i class="fa-brands fa-youtube accent"></i> Lecteur YouTube</span>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <a id="youtube-external-link" href="#" target="_blank" class="btn btn-primary btn-sm" title="Ouvrir sur YouTube">
+                            <i class="fa-brands fa-youtube"></i> Ouvrir sur YouTube
+                        </a>
+                        <button onclick="window.evoXYouTube.closePlayer()" class="btn btn-secondary btn-sm" title="Fermer le lecteur">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <iframe id="youtube-iframe" src="" class="webframe-iframe" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </section>
     </main>
 
     <footer class="footer">
@@ -220,6 +249,7 @@
     <script src="web/js/changelog.js"></script>
     <script src="web/js/webkit-manager.js"></script>
     <script src="web/js/webui-manager.js"></script>
+    <script src="web/js/youtube-manager.js"></script>
     <script src="web/js/store.js"></script>
     <script src="web/js/app.js"></script>
 </body>
