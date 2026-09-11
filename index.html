@@ -60,25 +60,21 @@
             </div>
 
             <div class="dashboard-grid">
-                <!-- Panneau fractionné en 2 sous-sources -->
                 <div class="panel">
                     <h2><i class="fa-solid fa-server accent"></i> Dépôts Sources Actifs</h2>
                     
                     <div class="source-block" style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);">
                         <p style="font-weight: 600; margin-bottom: 0.25rem;"><i class="fa-brands fa-github accent"></i> Dépôt CoreOS :</p>
-                        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                            <code id="active-repo-display" style="flex: 1; word-break: break-all;">--</code>
-                            <button onclick="copyToClipboard(document.getElementById('active-repo-display').textContent, this)" class="btn btn-secondary btn-sm">
-                                <i class="fa-solid fa-copy"></i> Copier
-                            </button>
+                        <div>
+                            <code id="active-repo-display">Chargement...</code>
                         </div>
                     </div>
 
                     <div class="source-block">
                         <p style="font-weight: 600; margin-bottom: 0.25rem;"><i class="fa-solid fa-cube accent"></i> Source PLDMGR :</p>
                         <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                            <code id="pldmgr-url-display" style="flex: 1; word-break: break-all;">https://nexgen999.github.io/evoX-CoreOS/json/payloads.json</code>
-                            <button onclick="copyToClipboard('https://nexgen999.github.io/evoX-CoreOS/json/payloads.json', this)" class="btn btn-secondary btn-sm">
+                            <code id="pldmgr-url-display" style="flex: 1; word-break: break-all;">Chargement...</code>
+                            <button id="btn-copy-pldmgr" class="btn btn-secondary btn-sm">
                                 <i class="fa-solid fa-copy"></i> Copier
                             </button>
                         </div>
@@ -154,7 +150,7 @@
     </footer>
 
     <!-- JS SCRIPTS -->
-    <script src="web/js/rss-reader.js"></script>
+    <script src="web/js/changelog.js"></script>
     <script src="web/js/store.js"></script>
     <script src="web/js/app.js"></script>
 </body>
