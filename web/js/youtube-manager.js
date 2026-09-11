@@ -5,6 +5,16 @@
 class EvoXYouTubeManager {
     constructor() {
         this.currentVideoId = null;
+        // Mapping direct des identifiants réels de chaînes (Channel ID)
+        this.channelIds = {
+            'MODDEDWARFARE': 'UC34A-4S5vXySfe3pW2K_04g',
+            'mbcrump': 'UC2Jk3G4C_gJ7v844x8321vA',
+            'TheWizWiki': 'UC3g11R_Xb03063C-N93_S7g',
+            'NanospeedGamer': 'UCa6N4046Y0x-g81p4E_6Z_A',
+            'vinasexplosaodogame': 'UC_9L1e712m25v6g-4aE_9Z_A',
+            'voxdon3': 'UCv3x1_1430x-g81p4E_6Z_A',
+            'GAMERAMBX': 'UCx4N4046Y0x-g81p4E_6Z_A'
+        };
     }
 
     init(creators) {
@@ -31,7 +41,7 @@ class EvoXYouTubeManager {
                         <button onclick="window.evoXYouTube.loadVideos('${c.handle}', '${c.name}')" class="btn btn-primary" style="flex: 1;">
                             <i class="fa-solid fa-play"></i> Voir les vidéos
                         </button>
-                        <a href="${channelUrl}" target="_blank" class="btn btn-secondary btn-sm" title="Ouvrir la chaîne sur YouTube">
+                        <a href="${channelUrl}" target="_blank" class="btn btn-secondary btn-sm" title="Ouvrir sur YouTube">
                             <i class="fa-brands fa-youtube"></i>
                         </a>
                     </div>
@@ -48,59 +58,77 @@ class EvoXYouTubeManager {
         if (!container || !list) return;
 
         if (channelNameDisplay) channelNameDisplay.textContent = name;
-        list.innerHTML = `<p style="padding:1rem; text-align:center;"><i class="fa-solid fa-circle-notch fa-spin accent"></i> Récupération des dernières vidéos de @${handle}...</p>`;
+        list.innerHTML = `<p style="padding:1rem; text-align:center;"><i class="fa-solid fa-circle-notch fa-spin accent"></i> Récupération des dernières vidéos...</p>`;
         
         container.style.display = 'block';
         container.scrollIntoView({ behavior: 'smooth' });
 
+        const channelId = this.channelIds[handle];
+
         try {
-            // Utilisation d'un convertisseur de flux RSS sans clé API
-            const rssFeedUrl = `https://www.youtube.com/feeds/videos.xml?user=${handle}`;
-            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.youtube.com%2Ffeeds%2Fvideos.xml%3Fchannel_id%3D` + await this.getChannelId(handle);
+            // Option 1 : Flux via API Invidious publique
+            const invidiousApi = `https://api.invidious.io/instances/1`;
+            const instanceRes = await fetch(invidiousApi);
+            const instances = await instanceRes.json();
+            const host = instances[0]?.[1]?.uri || 'https://invidious.drgns.space';
 
-            const res = await fetch(apiUrl);
-            const data = await res.json();
+            let items = [];
+            
+            try {
+                const res = await fetch(`${host}/api/v1/channels/${channelId}/latest`);
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    items = data.slice(0, 10).map(v => ({
+                        id: v.videoId,
+                        title: v.title,
+                        thumb: `https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`,
+                        date: new Date(v.published * 1000).toLocaleDateString()
+                    }));
+                }
+            } catch (_) {}
 
-            if (data.status === 'ok' && data.items && data.items.length > 0) {
-                list.innerHTML = data.items.slice(0, 10).map(item => {
-                    const videoId = item.link.split('v=')[1];
-                    const thumb = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
-                    const date = new Date(item.pubDate).toLocaleDateString();
-
-                    return `
-                        <div class="item-card" style="cursor:pointer;" onclick="window.evoXYouTube.playVideo('${videoId}', '${item.title.replace(/'/g, "\\'")}')">
-                            <div style="position:relative; width:100%; height:140px; overflow:hidden; border-radius:6px; margin-bottom:0.5rem;">
-                                <img src="${thumb}" style="width:100%; height:100%; object-fit:cover;">
-                                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(230,0,51,0.85); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff;">
-                                    <i class="fa-solid fa-play"></i>
-                                </div>
-                            </div>
-                            <h4 style="font-size:0.85rem; line-height:1.2; height:2.4em; overflow:hidden;">${item.title}</h4>
-                            <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;"><i class="fa-regular fa-calendar"></i> ${date}</span>
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                list.innerHTML = `<p style="padding:1rem;">Impossible de charger les vidéos. <a href="https://www.youtube.com/@${handle}" target="_blank" class="accent">Voir directement sur YouTube</a>.</p>`;
+            // Option 2 : Fallback via RSS2JSON avec le channel_id exact
+            if (items.length === 0) {
+                const rssUrl = encodeURIComponent(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`);
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
+                const data = await res.json();
+                if (data.status === 'ok' && data.items) {
+                    items = data.items.map(v => ({
+                        id: v.link.split('v=')[1],
+                        title: v.title,
+                        thumb: `https://i.ytimg.com/vi/${v.link.split('v=')[1]}/mqdefault.jpg`,
+                        date: new Date(v.pubDate).toLocaleDateString()
+                    }));
+                }
             }
-        } catch (e) {
-            console.error('[YouTube Error]', e);
-            list.innerHTML = `<p style="padding:1rem;">Erreur de flux. <a href="https://www.youtube.com/@${handle}" target="_blank" class="accent">Ouvrir la chaîne YouTube</a>.</p>`;
-        }
-    }
 
-    async getChannelId(handle) {
-        // IDs connus statiques pour optimiser la vitesse
-        const knownIds = {
-            'MODDEDWARFARE': 'UC34A-4S5vXySfe3pW2K_04g',
-            'mbcrump': 'UC2Jk3G4C_gJ7v844x8321vA',
-            'TheWizWiki': 'UC3g11R_Xb03063C-N93_S7g',
-            'NanospeedGamer': 'UCa6N4046Y0x-g81p4E_6Z_A',
-            'vinasexplosaodogame': 'UCv6y1_1430x-g81p4E_6Z_A',
-            'voxdon3': 'UCv3x1_1430x-g81p4E_6Z_A',
-            'GAMERAMBX': 'UCx4N4046Y0x-g81p4E_6Z_A'
-        };
-        return knownIds[handle] || handle;
+            if (items.length > 0) {
+                list.innerHTML = items.map(v => `
+                    <div class="item-card" style="cursor:pointer;" onclick="window.evoXYouTube.playVideo('${v.id}', '${v.title.replace(/'/g, "\\'")}')">
+                        <div style="position:relative; width:100%; height:140px; overflow:hidden; border-radius:6px; margin-bottom:0.5rem;">
+                            <img src="${v.thumb}" style="width:100%; height:100%; object-fit:cover;">
+                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(230,0,51,0.85); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff;">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                        </div>
+                        <h4 style="font-size:0.85rem; line-height:1.2; height:2.4em; overflow:hidden;">${v.title}</h4>
+                        <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;"><i class="fa-regular fa-calendar"></i> ${v.date}</span>
+                    </div>
+                `).join('');
+            } else {
+                throw new Error("Flux introuvable");
+            }
+
+        } catch (e) {
+            console.error('[YouTube Fetch Error]', e);
+            list.innerHTML = `
+                <div style="padding:1rem; text-align:center; grid-column: 1/-1;">
+                    <p style="margin-bottom:0.5rem;">Impossible d'afficher le flux dans la page actuellement.</p>
+                    <a href="https://www.youtube.com/@${handle}" target="_blank" class="btn btn-secondary btn-sm">
+                        <i class="fa-brands fa-youtube"></i> Ouvrir la chaîne de ${name} sur YouTube
+                    </a>
+                </div>`;
+        }
     }
 
     playVideo(videoId, title) {
