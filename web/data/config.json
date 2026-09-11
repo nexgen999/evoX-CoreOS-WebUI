@@ -22,16 +22,16 @@
   },
   "webkit": [
     {
-      "name": "PS5 Exploit Host",
-      "url": "https://es7in.github.io/",
+      "name": "PS5webkit",
+      "url": "https://github.com/nexgen999/ps5webkit",
       "icon": "fa-globe",
-      "description": "Host WebKit PS5"
+      "description": "nexgen WebKit PS5"
     },
     {
-      "name": "Console Guide",
-      "url": "https://manuals.playstation.net/document/gb/ps5/",
+      "name": "google",
+      "url": "https://www.google.com",
       "icon": "fa-circle-info",
-      "description": "Guide utilisateur officiel"
+      "description": "google"
     }
   ],
   "ps5_webui": [
