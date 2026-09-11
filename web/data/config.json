@@ -1,135 +1,124 @@
-/**
- * Configuration Globale evoX-CoreOS WebUI
- */
-
-window.evoXConfig = {
-  siteTitle: "evoX-CoreOS WebUI",
-  
-  github: {
-    user: "nexgen999",
-    dataRepository: "nexgen999/evoX-CoreOS",
-    webuiRepository: "nexgen999/evoX-CoreOS-WebUI"
+{
+  "siteTitle": "evoX-CoreOS WebUI",
+  "github": {
+    "user": "nexgen999",
+    "dataRepository": "nexgen999/evoX-CoreOS",
+    "webuiRepository": "nexgen999/evoX-CoreOS-WebUI"
   },
-
-  sources: {
-    pldmgr: "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json",
-    json: [
-      { name: "Payloads", url: "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json" },
-      { name: "PKGs", url: "https://nexgen999.github.io/evoX-CoreOS/json/pkg.json" },
-      { name: "FFPFSC", url: "https://nexgen999.github.io/evoX-CoreOS/json/ffpfsc.json" },
-      { name: "Apps", url: "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" }
+  "sources": {
+    "pldmgr": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json",
+    "json": [
+      { "name": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json" },
+      { "name": "PKGs", "url": "https://nexgen999.github.io/evoX-CoreOS/json/pkg.json" },
+      { "name": "FFPFSC", "url": "https://nexgen999.github.io/evoX-CoreOS/json/ffpfsc.json" },
+      { "name": "Apps", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" }
     ],
-    changelog: "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/CHANGELOG.md",
-    pegasus: [
-      { name: "DLPS Catalog", url: "https://pegasus-catalog.fly.dev/catalogs/dlps.json" },
-      { name: "Pippo Catalog", url: "https://pegasus-catalog.fly.dev/catalogs/pippo.json" },
-      { name: "PFS Catalog", url: "https://pegasus-catalog.fly.dev/catalogs/pfs.json" }
+    "changelog": "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/CHANGELOG.md",
+    "pegasus": [
+      { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" },
+      { "name": "Pippo Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pippo.json" },
+      { "name": "PFS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pfs.json" }
     ]
   },
-
-  webkit: [
+  "webkit": [
     {
-      name: "PS5 WebKit (GitHub Pages)",
-      url: "https://nexgen999.github.io/ps5webkit/",
-      icon: "https://pbs.twimg.com/profile_images/2037201736910213120/p9wyelOV_400x400.jpg",
-      description: "Exploit WebKit PS5 nexgen999"
+      "name": "PS5 WebKit (GitHub Pages)",
+      "url": "https://nexgen999.github.io/ps5webkit/",
+      "icon": "https://pbs.twimg.com/profile_images/2037201736910213120/p9wyelOV_400x400.jpg",
+      "description": "Exploit WebKit PS5 nexgen999"
     },
     {
-      name: "Master-UMTX2",
-      url: "https://masterps0.github.io/UMTX2/",
-      icon: "https://pbs.twimg.com/profile_images/2060187925095313408/m0Yw_lmE_400x400.jpg",
-      description: "Master-UMTX2"
+      "name": "Master-UMTX2",
+      "url": "https://masterps0.github.io/UMTX2/",
+      "icon": "https://pbs.twimg.com/profile_images/2060187925095313408/m0Yw_lmE_400x400.jpg",
+      "description": "Master-UMTX2"
     }
   ],
-
-  ps5_webui: [
+  "ps5_webui": [
     {
-      name: "Payload Manager",
-      port: 8084,
-      path: "/",
-      icon: "fa-cubes",
-      description: "Interface web de chargement des payloads"
+      "name": "Payload Manager",
+      "port": 8084,
+      "path": "/",
+      "icon": "fa-cubes",
+      "description": "Interface web de chargement des payloads"
     },
     {
-      name: "Pegasus-DL",
-      port: 6970,
-      path: "/",
-      icon: "fa-folder-open",
-      description: "PS5 FreeShop"
+      "name": "Pegasus-DL",
+      "port": 6970,
+      "path": "/",
+      "icon": "fa-folder-open",
+      "description": "PS5 FreeShop"
     },
     {
-      name: "Spectrum Library",
-      port: 7575,
-      path: "/",
-      icon: "fa-bolt",
-      description: "PS5 FreeShop"
+      "name": "Spectrum Library",
+      "port": 7575,
+      "path": "/",
+      "icon": "fa-bolt",
+      "description": "PS5 FreeShop"
     }
   ],
-
-  youtubeCreators: [
+  "youtube_creators": [
     {
-      name: "MODDED WARFARE",
-      handle: "MODDEDWARFARE",
-      channelId: "UCm9COMxXKm05BQWNv-IpyPg",
-      description: "Tutos, Jailbreaks et actualités PS4 / PS5",
-      icon: "https://unavatar.io/youtube/MODDEDWARFARE"
+      "name": "MODDED WARFARE",
+      "handle": "MODDEDWARFARE",
+      "channelId": "UCm9COMxXKm05BQWNv-IpyPg",
+      "description": "Tutos, Jailbreaks et actualités PS4 / PS5",
+      "icon": "https://unavatar.io/youtube/MODDEDWARFARE"
     },
     {
-      name: "Michael Crump (mbcrump)",
+      "name": "Michael Crump (mbcrump)",
       handle: "mbcrump",
-      channelId: "UC2Jk3G4C_gJ7v844x8321vA",
-      description: "Exploits et analyses PS5 Scene",
-      icon: "https://unavatar.io/youtube/mbcrump"
+      "channelId": "UC2Jk3G4C_gJ7v844x8321vA",
+      "description": "Exploits et analyses PS5 Scene",
+      "icon": "https://unavatar.io/youtube/mbcrump"
     },
     {
-      name: "TheWizWiki",
-      handle: "TheWizWiki",
-      channelId: "UClh9mrZULUGRQf-2oqPnPaw",
-      description: "Guides et tutos console homebrew",
-      icon: "https://unavatar.io/youtube/TheWizWiki"
+      "name": "TheWizWiki",
+      "handle": "TheWizWiki",
+      "channelId": "UClh9mrZULUGRQf-2oqPnPaw",
+      "description": "Guides et tutos console homebrew",
+      "icon": "https://unavatar.io/youtube/TheWizWiki"
     },
     {
-      name: "Nanospeed Gamer",
-      handle: "NanospeedGamer",
-      channelId: "UCa6N4046Y0x-g81p4E_6Z_A",
-      description: "Actus et tests PS5 / PS4 Jailbreak",
-      icon: "https://unavatar.io/youtube/NanospeedGamer"
+      "name": "Nanospeed Gamer",
+      "handle": "NanospeedGamer",
+      "channelId": "UCa6N4046Y0x-g81p4E_6Z_A",
+      "description": "Actus et tests PS5 / PS4 Jailbreak",
+      "icon": "https://unavatar.io/youtube/NanospeedGamer"
     },
     {
-      name: "Vinas Explosão do Game",
-      handle: "vinasexplosaodogame",
-      channelId: "UC_9L1e712m25v6g-4aE_9Z_A",
-      description: "Actualités et émulation PS5",
-      icon: "https://unavatar.io/youtube/vinasexplosaodogame"
+      "name": "Vinas Explosão do Game",
+      "handle": "vinasexplosaodogame",
+      "channelId": "UC_9L1e712m25v6g-4aE_9Z_A",
+      "description": "Actualités et émulation PS5",
+      "icon": "https://unavatar.io/youtube/vinasexplosaodogame"
     },
     {
-      name: "VoX DoN",
-      handle: "voxdon3",
-      channelId: "UCv3x1_1430x-g81p4E_6Z_A",
-      description: "Développements et hôtes exploits PS5",
-      icon: "https://unavatar.io/youtube/voxdon3"
+      "name": "VoX DoN",
+      "handle": "voxdon3",
+      "channelId": "UCv3x1_1430x-g81p4E_6Z_A",
+      "description": "Développements et hôtes exploits PS5",
+      "icon": "https://unavatar.io/youtube/voxdon3"
     },
     {
-      name: "GAMERAMBX",
-      handle: "GAMERAMBX",
-      channelId: "UCx4N4046Y0x-g81p4E_6Z_A",
-      description: "Tutos et actualités scène PlayStation",
-      icon: "https://unavatar.io/youtube/GAMERAMBX"
+      "name": "GAMERAMBX",
+      "handle": "GAMERAMBX",
+      "channelId": "UCx4N4046Y0x-g81p4E_6Z_A",
+      "description": "Tutos et actualités scène PlayStation",
+      "icon": "https://unavatar.io/youtube/GAMERAMBX"
     }
   ],
-
-  releases: {
-    baseUrl: "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/",
-    packs: [
-      { name: "Payloads AIO", file: "PS5_payloads_aio_latest.zip", icon: "fa-cubes" },
-      { name: "PKG AIO", file: "PS5_pkg_aio_latest.zip", icon: "fa-box" },
-      { name: "FFPFSC AIO", file: "PS5_ffpfsc_aio_latest.zip", icon: "fa-bolt" },
-      { name: "Apps AIO", file: "PS5_apps_aio_latest.zip", icon: "fa-window-restore" },
-      { name: "Ultimate Pack AIO", file: "PS5_ultimate_pack_latest.zip", icon: "fa-crown" }
+  "releases": {
+    "baseUrl": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/",
+    "packs": [
+      { "name": "Payloads AIO", "file": "PS5_payloads_aio_latest.zip", "icon": "fa-cubes" },
+      { "name": "PKG AIO", "file": "PS5_pkg_aio_latest.zip", "icon": "fa-box" },
+      { "name": "FFPFSC AIO", "file": "PS5_ffpfsc_aio_latest.zip", "icon": "fa-bolt" },
+      { "name": "Apps AIO", "file": "PS5_apps_aio_latest.zip", "icon": "fa-window-restore" },
+      { "name": "Ultimate Pack AIO", "file": "PS5_ultimate_pack_latest.zip", "icon": "fa-crown" }
     ]
   },
-
-  credits: [
+  "credits": [
     "nexgen999",
     "ItsPLK for PLDMGR",
     "Master, Mustafa, SeregonWar, maj0r, ArkSama",
@@ -137,9 +126,8 @@ window.evoXConfig = {
     "Pippo, Phoenixx, Pegasus Dev, DLPS Team",
     "All Scene Community"
   ],
-
-  socials: [
-    { platform: "github", url: "https://github.com/nexgen999", icon: "fa-brands fa-github" },
-    { platform: "discord", url: "https://discord.gg", icon: "fa-brands fa-discord" }
+  "socials": [
+    { "platform": "github", "url": "https://github.com/nexgen999", "icon": "fa-brands fa-github" },
+    { "platform": "discord", "url": "https://discord.gg", "icon": "fa-brands fa-discord" }
   ]
-};
+}
