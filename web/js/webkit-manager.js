@@ -13,11 +13,15 @@ class EvoXWebKitManager {
 
         grid.innerHTML = sites.map(site => {
             const embedUrl = this.normalizeUrl(site.url);
+            const iconHtml = renderTileIcon(site.icon, 'fa-globe');
 
             return `
                 <div class="item-card">
                     <div>
-                        <h3><i class="fa-solid ${site.icon || 'fa-globe'} accent"></i> ${site.name}</h3>
+                        <div class="tile-header">
+                            ${iconHtml}
+                            <h3 style="margin: 0;">${site.name}</h3>
+                        </div>
                         <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">${site.description || site.url}</p>
                     </div>
                     <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
@@ -36,15 +40,12 @@ class EvoXWebKitManager {
     normalizeUrl(url) {
         if (!url) return '#';
         let clean = url.trim();
-        // Transformation automatique d'une URL de repo GitHub en URL GitHub Pages si nécessaire
         if (clean.includes('github.com/') && !clean.includes('.github.io')) {
             clean = clean.replace('https://github.com/', 'https://')
                          .replace('http://github.com/', 'https://');
             const parts = clean.split('/');
             if (parts.length >= 2) {
-                const user = parts[0];
-                const repo = parts[1];
-                return `https://${user}.github.io/${repo}/`;
+                return `https://${parts[0]}.github.io/${parts[1]}/`;
             }
         }
         return clean;
