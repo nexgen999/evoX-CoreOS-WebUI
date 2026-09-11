@@ -6,9 +6,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadDashboardInfo();
     loadReleases();
     loadPegasusCatalogs();
-    loadWebKitSites();
     loadWikiTree();
     
+    // Initialisation des WebKit
+    if (window.evoXWebKit && config.webkit) {
+        window.evoXWebKit.init(config.webkit);
+    }
+
+    // Initialisation des WebUI PS5
+    if (window.evoXWebUI && config.ps5_webui) {
+        window.evoXWebUI.init(config.ps5_webui);
+    }
+
     // Chargement du store JSON
     if (window.loadStoreData && config.sources?.json) {
         loadStoreData(config.sources.json);
@@ -106,48 +115,6 @@ function loadPegasusCatalogs() {
             </button>
         </div>
     `).join('');
-}
-
-function loadWebKitSites() {
-    const container = document.getElementById('webkit-grid');
-    if (!container || !config.webkit) return;
-
-    container.innerHTML = config.webkit.map(site => `
-        <div class="item-card">
-            <div>
-                <h3><i class="fa-solid ${site.icon || 'fa-globe'} accent"></i> ${site.name}</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">${site.description || site.url}</p>
-            </div>
-            <button onclick="openWebFrame('${site.url}', '${site.name}')" class="btn btn-primary" style="margin-top: 1rem;">
-                <i class="fa-solid fa-up-right-from-square"></i> Ouvrir
-            </button>
-        </div>
-    `).join('');
-}
-
-function openWebFrame(url, name) {
-    const frameContainer = document.getElementById('webkit-frame-container');
-    const iframe = document.getElementById('webkit-iframe');
-    const title = document.getElementById('webframe-title');
-    const extLink = document.getElementById('webframe-external-link');
-
-    if (frameContainer && iframe) {
-        iframe.src = url;
-        if (title) title.innerHTML = `<i class="fa-solid fa-globe accent"></i> ${name}`;
-        if (extLink) extLink.href = url;
-        frameContainer.style.display = 'block';
-        frameContainer.scrollIntoView({ behavior: 'smooth' });
-    }
-}
-
-function closeWebFrame() {
-    const frameContainer = document.getElementById('webkit-frame-container');
-    const iframe = document.getElementById('webkit-iframe');
-
-    if (frameContainer && iframe) {
-        iframe.src = '';
-        frameContainer.style.display = 'none';
-    }
 }
 
 function copyToClipboard(text, btnElement) {
