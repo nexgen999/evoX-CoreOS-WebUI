@@ -15,7 +15,7 @@
     ],
     "changelog": "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/CHANGELOG.md",
     "pegasus": [
-      { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" },
+      { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/catalogs/dlps.json" },
       { "name": "Pippo Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pippo.json" },
       { "name": "PFS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pfs.json" }
     ]
@@ -56,6 +56,15 @@
       "icon": "fa-bolt",
       "description": "PS5 FreeShop"
     }
+  ],
+  "youtube_creators": [
+    { "name": "MODDED WARFARE", "handle": "MODDEDWARFARE", "description": "Tutos, Jailbreaks et actualités PS4 / PS5" },
+    { "name": "Michael Crump (mbcrump)", "handle": "mbcrump", "description": "Exploits et analyses PS5 Scene" },
+    { "name": "TheWizWiki", "handle": "TheWizWiki", "description": "Guides et tutos console homebrew" },
+    { "name": "Nanospeed Gamer", "handle": "NanospeedGamer", "description": "Actus et tests PS5 / PS4 Jailbreak" },
+    { "name": "Vinas Explosão do Game", "handle": "vinasexplosaodogame", "description": "Actualités et émulation PS5" },
+    { "name": "VoX DoN", "handle": "voxdon3", "description": "Développements et hôtes exploits PS5" },
+    { "name": "GAMERAMBX", "handle": "GAMERAMBX", "description": "Tutos et actualités scène PlayStation" }
   ],
   "releases": {
     "baseUrl": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/",
