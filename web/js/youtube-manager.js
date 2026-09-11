@@ -1,11 +1,11 @@
 /**
  * Gestionnaire YouTube Creators pour evoX-CoreOS WebUI
- * Contournement complet des restrictions CORS via Script Injection (JSONP)
+ * Intégration iFrame native sans restriction CORS
  */
 
 class EvoXYouTubeManager {
     constructor() {
-        this.currentVideoId = null;
+        this.currentHandle = null;
     }
 
     init(creatorsFromConfig) {
@@ -30,8 +30,8 @@ class EvoXYouTubeManager {
                         <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">${c.description || 'Créateur YouTube PS5'}</p>
                     </div>
                     <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                        <button onclick="window.evoXYouTube.loadVideos('${c.channelId || c.handle}', '${c.name.replace(/'/g, "\\'")}', '${c.handle}')" class="btn btn-primary" style="flex: 1;">
-                            <i class="fa-solid fa-play"></i> Voir les vidéos
+                        <button onclick="window.evoXYouTube.openChannel('${c.handle}', '${c.name.replace(/'/g, "\\'")}')" class="btn btn-primary" style="flex: 1;">
+                            <i class="fa-solid fa-play"></i> Ouvrir la chaîne
                         </button>
                         <a href="${channelUrl}" target="_blank" class="btn btn-secondary btn-sm" title="Ouvrir sur YouTube">
                             <i class="fa-brands fa-youtube"></i>
@@ -42,7 +42,7 @@ class EvoXYouTubeManager {
         }).join('');
     }
 
-    loadVideos(channelIdOrHandle, name, handle) {
+    openChannel(handle, name) {
         const container = document.getElementById('youtube-videos-container');
         const list = document.getElementById('youtube-videos-list');
         const channelNameDisplay = document.getElementById('youtube-channel-name');
@@ -50,119 +50,32 @@ class EvoXYouTubeManager {
         if (!container || !list) return;
 
         if (channelNameDisplay) channelNameDisplay.textContent = name;
-        list.innerHTML = `<p style="padding:1rem; text-align:center; grid-column: 1/-1;"><i class="fa-solid fa-circle-notch fa-spin accent"></i> Chargement des vidéos de ${name}...</p>`;
-        
+        this.currentHandle = handle;
+
+        const embedUrl = `https://www.youtube.com/embed?listType=user_uploads&list=${handle}`;
+        const directUrl = `https://www.youtube.com/@${handle}`;
+
+        list.innerHTML = `
+            <div style="grid-column: 1/-1; width: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                        <i class="fa-brands fa-youtube accent"></i> Flux direct de la chaîne <strong>@${handle}</strong>
+                    </p>
+                    <a href="${directUrl}" target="_blank" class="btn btn-secondary btn-sm">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Ouvrir dans YouTube
+                    </a>
+                </div>
+                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; border: 1px solid var(--border);">
+                    <iframe src="https://www.youtube-nocookie.com/embed?listType=user_uploads&list=${handle}" 
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>`;
+
         container.style.display = 'block';
         container.scrollIntoView({ behavior: 'smooth' });
-
-        const channelId = channelIdOrHandle.startsWith('UC') ? channelIdOrHandle : null;
-
-        if (!channelId) {
-            this.renderFallbackEmbed(list, name, handle);
-            return;
-        }
-
-        // Nettoyage des scripts précédents
-        const oldScript = document.getElementById('yt-script-loader');
-        if (oldScript) oldScript.remove();
-
-        const callbackName = 'evox_yt_callback_' + Math.floor(Math.random() * 100000);
-
-        // Callback global exécuté lors du retour de la balise script
-        window[callbackName] = (response) => {
-            delete window[callbackName];
-            const activeScript = document.getElementById('yt-script-loader');
-            if (activeScript) activeScript.remove();
-
-            if (response && response.status === 'ok' && response.items && response.items.length > 0) {
-                const items = response.items.map(v => {
-                    const videoId = v.link.includes('v=') ? v.link.split('v=')[1].split('&')[0] : v.guid.split(':').pop();
-                    return {
-                        id: videoId,
-                        title: v.title,
-                        thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
-                        date: new Date(v.pubDate).toLocaleDateString()
-                    };
-                });
-                this.renderVideos(list, items);
-            } else {
-                this.renderFallbackEmbed(list, name, handle, channelId);
-            }
-        };
-
-        // Injection dynamic du script JSONP
-        const script = document.createElement('script');
-        script.id = 'yt-script-loader';
-        script.src = `https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.youtube.com%2Ffeeds%2Fvideos.xml%3Fchannel_id%3D${channelId}&callback=${callbackName}`;
-        script.onerror = () => {
-            delete window[callbackName];
-            this.renderFallbackEmbed(list, name, handle, channelId);
-        };
-
-        document.body.appendChild(script);
-    }
-
-    renderVideos(container, items) {
-        container.innerHTML = items.map(v => `
-            <div class="item-card" style="cursor:pointer;" onclick="window.evoXYouTube.playVideo('${v.id}', '${v.title.replace(/'/g, "\\'")}')">
-                <div style="position:relative; width:100%; height:140px; overflow:hidden; border-radius:6px; margin-bottom:0.5rem;">
-                    <img src="${v.thumb}" style="width:100%; height:100%; object-fit:cover;">
-                    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(230,0,51,0.85); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff;">
-                        <i class="fa-solid fa-play"></i>
-                    </div>
-                </div>
-                <h4 style="font-size:0.85rem; line-height:1.2; height:2.4em; overflow:hidden;">${v.title}</h4>
-                <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;"><i class="fa-regular fa-calendar"></i> ${v.date}</span>
-            </div>
-        `).join('');
-    }
-
-    renderFallbackEmbed(container, name, handle, channelId) {
-        // En cas de blocage réseau, intègre directement une playlist/chaine iframe sans restriction
-        const playlistUrl = channelId ? `https://www.youtube.com/embed/videoseries?list=UU${channelId.substring(2)}` : null;
-
-        if (playlistUrl) {
-            container.innerHTML = `
-                <div style="grid-column: 1/-1; width: 100%;">
-                    <p style="margin-bottom: 1rem; color: var(--text-muted); text-align: center;">Affichage de la playlist récente en mode direct (Intégration iFrame) :</p>
-                    <iframe src="${playlistUrl}" style="width: 100%; height: 450px; border: none; border-radius: 8px;" allowfullscreen></iframe>
-                </div>`;
-        } else {
-            container.innerHTML = `
-                <div style="padding:1.5rem; text-align:center; grid-column: 1/-1;">
-                    <a href="https://www.youtube.com/@${handle}" target="_blank" class="btn btn-primary btn-sm">
-                        <i class="fa-brands fa-youtube"></i> Ouvrir la chaîne de ${name} sur YouTube
-                    </a>
-                </div>`;
-        }
-    }
-
-    playVideo(videoId, title) {
-        const playerContainer = document.getElementById('youtube-player-panel');
-        const iframe = document.getElementById('youtube-iframe');
-        const titleDisplay = document.getElementById('youtube-video-title');
-        const extLink = document.getElementById('youtube-external-link');
-
-        if (playerContainer && iframe) {
-            const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
-            const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
-
-            iframe.src = embedUrl;
-            if (titleDisplay) titleDisplay.textContent = title;
-            if (extLink) extLink.href = watchUrl;
-
-            playerContainer.style.display = 'block';
-            playerContainer.scrollIntoView({ behavior: 'smooth' });
-        }
-    }
-
-    closePlayer() {
-        const playerContainer = document.getElementById('youtube-player-panel');
-        const iframe = document.getElementById('youtube-iframe');
-        if (playerContainer && iframe) {
-            iframe.src = '';
-            playerContainer.style.display = 'none';
-        }
     }
 }
 
