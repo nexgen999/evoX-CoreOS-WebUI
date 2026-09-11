@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Chargement du Changelog / News
     if (window.evoXChangelog) {
-        const changelogUrl = config.sources?.changelog || 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/CHANGELOG.md';
+        const changelogUrl = config.sources?.changelog || 'CHANGELOG.md';
         window.evoXChangelog.init(changelogUrl, 'news-container');
     }
 });
@@ -52,6 +52,19 @@ function loadDashboardInfo() {
     if (config.github) {
         document.getElementById('gh-user').textContent = config.github.user;
         document.getElementById('active-repo-display').textContent = config.github.dataRepository;
+    }
+
+    // Affichage dynamique de la source PLDMGR
+    const pldmgrDisplay = document.getElementById('pldmgr-url-display');
+    const pldmgrBtn = document.getElementById('btn-copy-pldmgr');
+    const pldmgrUrl = config.sources?.pldmgr || (config.sources?.json && config.sources.json[0]?.url) || '';
+
+    if (pldmgrDisplay) {
+        pldmgrDisplay.textContent = pldmgrUrl || 'Non configuré';
+    }
+
+    if (pldmgrBtn && pldmgrUrl) {
+        pldmgrBtn.onclick = () => copyToClipboard(pldmgrUrl, pldmgrBtn);
     }
 
     if (config.credits) {
