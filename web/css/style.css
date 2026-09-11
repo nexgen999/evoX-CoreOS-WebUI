@@ -177,7 +177,6 @@ body {
     padding-bottom: 0.5rem;
 }
 
-/* Source Blocks (Dépôts fractionnés sur la Home) */
 .source-block {
     margin-bottom: 0.75rem;
 }
@@ -190,6 +189,45 @@ body {
     font-family: monospace;
     font-size: 0.85rem;
     color: var(--text-main);
+}
+
+/* Pegasus Banner */
+.pegasus-banner-container {
+    width: 100%;
+    margin-bottom: 1.25rem;
+    text-align: center;
+}
+
+.pegasus-banner {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+}
+
+/* WebFrame Container */
+.webframe-panel {
+    padding: 0;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.webframe-header {
+    background: var(--bg-hover);
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+}
+
+.webframe-iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    background: #ffffff;
 }
 
 /* Buttons & Input Controls */
