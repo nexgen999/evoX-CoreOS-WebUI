@@ -1,6 +1,5 @@
 let config = {};
 
-// Helper universel de rendu d'icône / photo en bulle
 function renderTileIcon(iconInput, defaultIcon = 'fa-box') {
     if (!iconInput) {
         return `<i class="fa-solid ${defaultIcon} accent"></i>`;
@@ -27,6 +26,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (window.evoXWebUI && config.ps5_webui) {
         window.evoXWebUI.init(config.ps5_webui);
+    }
+
+    if (window.evoXYouTube && config.youtube_creators) {
+        window.evoXYouTube.init(config.youtube_creators);
     }
 
     if (window.loadStoreData && config.sources?.json) {
