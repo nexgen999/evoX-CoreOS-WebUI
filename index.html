@@ -143,27 +143,27 @@
         <!-- TAB: WEBKIT -->
         <section id="tab-webkit" class="tab-content">
             <h2><i class="fa-solid fa-globe"></i> WebKit Host & Services</h2>
-            <p class="section-desc">Sélectionnez un site pour l'ouvrir directement dans la fenêtre WebFrame intégrée.</p>
+            <p class="section-desc">Sélectionnez un WebKit/Host pour l'exécuter directement dans l'interface.</p>
             
             <div id="webkit-grid" class="cards-grid" style="margin-top: 1rem; margin-bottom: 1.5rem;"></div>
 
             <!-- WebFrame Viewer -->
             <div id="webkit-frame-container" class="panel webframe-panel" style="display: none;">
                 <div class="webframe-header">
-                    <span id="webframe-title"><i class="fa-solid fa-globe accent"></i> Navigateur WebKit</span>
-                    <div style="display: flex; gap: 0.5rem;">
+                    <span id="webframe-title"><i class="fa-solid fa-globe accent"></i> WebKit Viewer</span>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <button onclick="window.evoXWebKit.reload()" class="btn btn-secondary btn-sm" title="Actualiser la page">
                             <i class="fa-solid fa-rotate"></i>
                         </button>
-                        <a id="webframe-external-link" href="#" target="_blank" class="btn btn-secondary btn-sm" title="Ouvrir dans un nouvel onglet">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <a id="webframe-external-link" href="#" target="_blank" class="btn btn-primary btn-sm" title="Ouvrir dans un nouvel onglet">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Onglet Séparé
                         </a>
                         <button onclick="window.evoXWebKit.close()" class="btn btn-secondary btn-sm" title="Fermer la vue">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
                 </div>
-                <iframe id="webkit-iframe" src="" class="webframe-iframe"></iframe>
+                <iframe id="webkit-iframe" src="" class="webframe-iframe" allow="autoplay; camera; microphone; geolocation"></iframe>
             </div>
         </section>
 
@@ -179,7 +179,7 @@
                     <input type="text" id="ps5-ip-input" class="input-text" style="width: 100%;" placeholder="ex: 192.168.1.50">
                 </div>
                 <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 500px;">
-                    L'adresse IP est sauvegardée automatiquement dans votre navigateur. Tous les boutons ci-dessous s'adapteront à cette adresse IP.
+                    L'adresse IP est sauvegardée automatiquement dans votre navigateur.
                 </p>
             </div>
 
@@ -189,9 +189,9 @@
             <div id="ps5-webui-frame-container" class="panel webframe-panel" style="display: none;">
                 <div class="webframe-header">
                     <span id="ps5-webui-title"><i class="fa-solid fa-server accent"></i> Visionneuse WebUI PS5</span>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <a id="ps5-webui-external-link" href="#" target="_blank" class="btn btn-secondary btn-sm" title="Ouvrir dans un nouvel onglet">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <a id="ps5-webui-external-link" href="#" target="_blank" class="btn btn-primary btn-sm" title="Ouvrir dans un nouvel onglet">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Onglet Séparé
                         </a>
                         <button onclick="window.evoXWebUI.closeFrame()" class="btn btn-secondary btn-sm" title="Fermer la vue">
                             <i class="fa-solid fa-xmark"></i>
