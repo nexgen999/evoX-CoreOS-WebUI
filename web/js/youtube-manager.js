@@ -1,19 +1,11 @@
 /**
  * Gestionnaire YouTube Creators pour evoX-CoreOS WebUI
- * Utilise les instances publiques Invidious & Invidious API
+ * Contournement propre des restrictions CORS / YouTube API
  */
 
 class EvoXYouTubeManager {
     constructor() {
         this.currentVideoId = null;
-        // Instances Invidious publiques fiables
-        this.invidiousInstances = [
-            'https://inv.riverside.rocks',
-            'https://invidious.drgns.space',
-            'https://invidious.nerdvpn.de',
-            'https://invidious.flokinet.to',
-            'https://invidious.privacydev.net'
-        ];
     }
 
     init(creatorsFromConfig) {
@@ -63,60 +55,34 @@ class EvoXYouTubeManager {
         container.style.display = 'block';
         container.scrollIntoView({ behavior: 'smooth' });
 
+        const channelId = channelIdOrHandle.startsWith('UC') ? channelIdOrHandle : null;
         let items = [];
 
-        // 1. Essayer d'interroger les instances Invidious REST API
-        for (const instance of this.invidiousInstances) {
+        if (channelId) {
+            const targetRssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+
+            // Méthode 1 : API AllOrigins Raw (Contourne CORS et Parse le XML XML/Atom natif)
             try {
-                const endpoint = channelIdOrHandle.startsWith('UC')
-                    ? `${instance}/api/v1/channels/${channelIdOrHandle}/latest`
-                    : `${instance}/api/v1/channels/search?q=${handle}`;
-
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-                const res = await fetch(endpoint, { signal: controller.signal });
-                clearTimeout(timeoutId);
-
+                const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetRssUrl)}`);
                 if (res.ok) {
-                    const data = await res.json();
-                    if (Array.isArray(data) && data.length > 0) {
-                        items = data.slice(0, 10).map(v => ({
-                            id: v.videoId,
-                            title: v.title,
-                            thumb: `https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`,
-                            date: v.published ? new Date(v.published * 1000).toLocaleDateString() : ''
-                        }));
-                        break; // Succès, on sort de la boucle
-                    }
+                    const xmlText = await res.text();
+                    items = this.parseXml(xmlText);
                 }
-            } catch (_) {
-                // Continuer vers l'instance suivante
+            } catch (_) {}
+
+            // Méthode 2 : Proxy Corsproxy (Fallback)
+            if (items.length === 0) {
+                try {
+                    const res = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(targetRssUrl)}`);
+                    if (res.ok) {
+                        const xmlText = await res.text();
+                        items = this.parseXml(xmlText);
+                    }
+                } catch (_) {}
             }
         }
 
-        // 2. Fallback via Piped API si Invidious n'a pas répondu
-        if (items.length === 0 && channelIdOrHandle.startsWith('UC')) {
-            try {
-                const res = await fetch(`https://pipedapi.kavin.rocks/channel/${channelIdOrHandle}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.relatedStreams) {
-                        items = data.relatedStreams.slice(0, 10).map(v => {
-                            const videoId = v.url.split('v=')[1];
-                            return {
-                                id: videoId,
-                                title: v.title,
-                                thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
-                                date: v.uploadedDate || ''
-                            };
-                        });
-                    }
-                }
-            } catch (_) {}
-        }
-
-        // Rendu final des tuiles vidéo
+        // Rendu HTML
         if (items.length > 0) {
             list.innerHTML = items.map(v => `
                 <div class="item-card" style="cursor:pointer;" onclick="window.evoXYouTube.playVideo('${v.id}', '${v.title.replace(/'/g, "\\'")}')">
@@ -134,11 +100,37 @@ class EvoXYouTubeManager {
             const fallbackHandle = handle || channelIdOrHandle;
             list.innerHTML = `
                 <div style="padding:1.5rem; text-align:center; grid-column: 1/-1;">
-                    <p style="margin-bottom:0.75rem; color:var(--text-muted);">Le flux direct est bloqué par YouTube/CORS.</p>
+                    <p style="margin-bottom:0.75rem; color:var(--text-muted);">Accès au flux direct restreint par le navigateur.</p>
                     <a href="https://www.youtube.com/@${fallbackHandle}" target="_blank" class="btn btn-primary btn-sm">
-                        <i class="fa-brands fa-youtube"></i> Voir la chaîne sur YouTube
+                        <i class="fa-brands fa-youtube"></i> Ouvrir la chaîne de ${name} directement sur YouTube
                     </a>
                 </div>`;
+        }
+    }
+
+    parseXml(xmlText) {
+        try {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+            const entries = Array.from(xmlDoc.getElementsByTagName("entry")).slice(0, 10);
+
+            return entries.map(entry => {
+                const videoIdNode = entry.getElementsByTagName("yt:videoId")[0] || entry.getElementsByTagName("id")[0];
+                let videoId = videoIdNode ? videoIdNode.textContent : '';
+                if (videoId.includes('yt:video:')) videoId = videoId.replace('yt:video:', '');
+
+                const titleNode = entry.getElementsByTagName("title")[0];
+                const publishedNode = entry.getElementsByTagName("published")[0];
+
+                return {
+                    id: videoId,
+                    title: titleNode ? titleNode.textContent : 'Vidéo YouTube',
+                    thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
+                    date: publishedNode ? new Date(publishedNode.textContent).toLocaleDateString() : ''
+                };
+            }).filter(v => v.id);
+        } catch (e) {
+            return [];
         }
     }
 
