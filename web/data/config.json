@@ -20,6 +20,20 @@
       { "name": "PFS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pfs.json" }
     ]
   },
+  "webkit": [
+    {
+      "name": "PS5 Exploit Host",
+      "url": "https://es7in.github.io/",
+      "icon": "fa-globe",
+      "description": "Host WebKit PS5"
+    },
+    {
+      "name": "Console Guide",
+      "url": "https://manuals.playstation.net/document/gb/ps5/",
+      "icon": "fa-circle-info",
+      "description": "Guide utilisateur officiel"
+    }
+  ],
   "releases": {
     "baseUrl": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/",
     "packs": [
