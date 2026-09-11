@@ -30,12 +30,16 @@ class EvoXWebUIManager {
 
         container.innerHTML = services.map(srv => {
             const fullUrl = `http://${ip}:${srv.port}${srv.path || ''}`;
+            const iconHtml = renderTileIcon(srv.icon, 'fa-server');
             
             return `
                 <div class="item-card">
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                            <h3><i class="fa-solid ${srv.icon || 'fa-circle-dot'} accent"></i> ${srv.name}</h3>
+                            <div class="tile-header" style="margin-bottom:0;">
+                                ${iconHtml}
+                                <h3 style="margin:0;">${srv.name}</h3>
+                            </div>
                             <span class="badge" style="color:var(--accent);">Port ${srv.port}</span>
                         </div>
                         <p style="color: var(--text-muted); font-size: 0.85rem;">${srv.description || 'Service WebUI PS5'}</p>
@@ -59,11 +63,6 @@ class EvoXWebUIManager {
         const iframe = document.getElementById('ps5-webui-iframe');
         const title = document.getElementById('ps5-webui-title');
         const extLink = document.getElementById('ps5-webui-external-link');
-
-        // Avertissement si le site maître est en HTTPS et l'IP PS5 en HTTP
-        if (window.location.protocol === 'https:' && url.startsWith('http:')) {
-            console.warn('[WebUI] Avertissement Mixed Content: le site principal est en HTTPS mais la PS5 est interrogée en HTTP.');
-        }
 
         if (container && iframe) {
             iframe.src = url;
