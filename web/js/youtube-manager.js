@@ -1,6 +1,6 @@
 /**
  * Gestionnaire YouTube Creators pour evoX-CoreOS WebUI
- * Affichage en tuiles avec redirection directe sur YouTube
+ * Affichage des cartes de créateurs avec redirection directe sur YouTube
  */
 
 class EvoXYouTubeManager {
