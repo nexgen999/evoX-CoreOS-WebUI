@@ -1,5 +1,6 @@
 /**
  * Gestionnaire YouTube Creators pour evoX-CoreOS WebUI
+ * Avec système de tolérance de panne Multi-Proxy CORS
  */
 
 class EvoXYouTubeManager {
@@ -7,11 +8,8 @@ class EvoXYouTubeManager {
         this.currentVideoId = null;
     }
 
-    /**
-     * Initialise la grille des créateurs à partir de config.js ou du paramètre
-     */
-    init(creatorsFromInit) {
-        const creators = creatorsFromInit || (window.evoXConfig && window.evoXConfig.youtubeCreators) || [];
+    init(creatorsFromConfig) {
+        const creators = creatorsFromConfig || (config && config.youtube_creators) || [];
         const grid = document.getElementById('youtube-creators-grid');
         if (!grid || !Array.isArray(creators)) return;
 
@@ -44,9 +42,6 @@ class EvoXYouTubeManager {
         }).join('');
     }
 
-    /**
-     * Charge et affiche les vidéos avec multi-fallback
-     */
     async loadVideos(channelIdOrHandle, name, handle) {
         const container = document.getElementById('youtube-videos-container');
         const list = document.getElementById('youtube-videos-list');
@@ -55,70 +50,61 @@ class EvoXYouTubeManager {
         if (!container || !list) return;
 
         if (channelNameDisplay) channelNameDisplay.textContent = name;
-        list.innerHTML = `<p style="padding:1rem; text-align:center; grid-column: 1/-1;"><i class="fa-solid fa-circle-notch fa-spin accent"></i> Récupération des dernières vidéos...</p>`;
+        list.innerHTML = `<p style="padding:1rem; text-align:center; grid-column: 1/-1;"><i class="fa-solid fa-circle-notch fa-spin accent"></i> Chargement des vidéos de ${name}...</p>`;
         
         container.style.display = 'block';
         container.scrollIntoView({ behavior: 'smooth' });
 
+        const rawFeedUrl = channelIdOrHandle.startsWith('UC')
+            ? `https://www.youtube.com/feeds/videos.xml?channel_id=${channelIdOrHandle}`
+            : `https://www.youtube.com/feeds/videos.xml?user=${channelIdOrHandle}`;
+
         let items = [];
 
-        // Tentative 1 : RSS2JSON Standard
+        // Stratégie 1 : RSS2JSON API
         try {
-            const feedUrl = channelIdOrHandle.startsWith('UC') 
-                ? `https://www.youtube.com/feeds/videos.xml?channel_id=${channelIdOrHandle}`
-                : `https://www.youtube.com/feeds/videos.xml?user=${channelIdOrHandle}`;
-            
-            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
-            const data = await res.json();
-            
-            if (data.status === 'ok' && data.items && data.items.length > 0) {
-                items = data.items.map(v => {
-                    const videoId = v.link.includes('v=') ? v.link.split('v=')[1].split('&')[0] : v.guid.split(':').pop();
-                    return {
-                        id: videoId,
-                        title: v.title,
-                        thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
-                        date: new Date(v.pubDate).toLocaleDateString()
-                    };
-                });
-            }
-        } catch (e) {
-            console.warn('[YouTube API1 Exception]', e);
-        }
-
-        // Tentative 2 : Contournement CORS Proxy avec parseur XML natif
-        if (items.length === 0 && channelIdOrHandle.startsWith('UC')) {
-            try {
-                const targetXml = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelIdOrHandle}`;
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetXml)}`;
-                
-                const res = await fetch(proxyUrl);
+            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rawFeedUrl)}`);
+            if (res.ok) {
                 const data = await res.json();
-                
-                if (data.contents) {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-                    const entries = Array.from(xmlDoc.querySelectorAll("entry")).slice(0, 10);
-                    
-                    items = entries.map(entry => {
-                        const videoId = entry.querySelector("videoId")?.textContent || entry.querySelector("id")?.textContent?.replace('yt:video:', '');
-                        const title = entry.querySelector("title")?.textContent || "Vidéo YouTube";
-                        const published = entry.querySelector("published")?.textContent;
-                        
+                if (data.status === 'ok' && data.items && data.items.length > 0) {
+                    items = data.items.map(v => {
+                        const videoId = v.link.includes('v=') ? v.link.split('v=')[1].split('&')[0] : v.guid.split(':').pop();
                         return {
                             id: videoId,
-                            title: title,
+                            title: v.title,
                             thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
-                            date: published ? new Date(published).toLocaleDateString() : ''
+                            date: new Date(v.pubDate).toLocaleDateString()
                         };
                     });
                 }
-            } catch (e) {
-                console.warn('[YouTube API2 Exception]', e);
             }
+        } catch (_) {}
+
+        // Stratégie 2 : Relay via Proxy CORS (corsproxy.io) + DOMParser
+        if (items.length === 0) {
+            try {
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(rawFeedUrl)}`;
+                const res = await fetch(proxyUrl);
+                if (res.ok) {
+                    const xmlText = await res.text();
+                    items = this.parseXmlFeed(xmlText);
+                }
+            } catch (_) {}
         }
 
-        // Rendu HTML des vidéos
+        // Stratégie 3 : Relay via CodeTabs CORS Proxy
+        if (items.length === 0) {
+            try {
+                const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rawFeedUrl)}`;
+                const res = await fetch(proxyUrl);
+                if (res.ok) {
+                    const xmlText = await res.text();
+                    items = this.parseXmlFeed(xmlText);
+                }
+            } catch (_) {}
+        }
+
+        // Rendu final
         if (items.length > 0) {
             list.innerHTML = items.map(v => `
                 <div class="item-card" style="cursor:pointer;" onclick="window.evoXYouTube.playVideo('${v.id}', '${v.title.replace(/'/g, "\\'")}')">
@@ -135,12 +121,35 @@ class EvoXYouTubeManager {
         } else {
             const fallbackHandle = handle || channelIdOrHandle;
             list.innerHTML = `
-                <div style="padding:1rem; text-align:center; grid-column: 1/-1;">
-                    <p style="margin-bottom:0.5rem;">Impossible de charger le flux direct dans la page actuellement (Restriction YouTube/CORS).</p>
+                <div style="padding:1.5rem; text-align:center; grid-column: 1/-1;">
+                    <p style="margin-bottom:0.75rem; color:var(--text-muted);">Le flux vidéo de cette chaîne n'a pas pu être extrait dans l'iframe actuellement.</p>
                     <a href="https://www.youtube.com/@${fallbackHandle}" target="_blank" class="btn btn-secondary btn-sm">
-                        <i class="fa-brands fa-youtube"></i> Voir directement la chaîne sur YouTube
+                        <i class="fa-brands fa-youtube"></i> Ouvrir la chaîne ${name} sur YouTube
                     </a>
                 </div>`;
+        }
+    }
+
+    parseXmlFeed(xmlText) {
+        try {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+            const entries = Array.from(xmlDoc.querySelectorAll("entry")).slice(0, 10);
+
+            return entries.map(entry => {
+                const videoId = entry.querySelector("videoId")?.textContent || entry.querySelector("id")?.textContent?.replace('yt:video:', '');
+                const title = entry.querySelector("title")?.textContent || "Vidéo YouTube";
+                const published = entry.querySelector("published")?.textContent;
+
+                return {
+                    id: videoId,
+                    title: title,
+                    thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
+                    date: published ? new Date(published).toLocaleDateString() : ''
+                };
+            }).filter(item => item.id);
+        } catch (e) {
+            return [];
         }
     }
 
