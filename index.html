@@ -21,6 +21,7 @@
             <button class="nav-btn" data-tab="store"><i class="fa-solid fa-cart-shopping"></i> Store JSON</button>
             <button class="nav-btn" data-tab="pegasus"><i class="fa-solid fa-copy"></i> Pegasus</button>
             <button class="nav-btn" data-tab="services"><i class="fa-solid fa-server"></i> Services</button>
+            <button class="nav-btn" data-tab="webkit"><i class="fa-solid fa-globe"></i> WebKit</button>
             <button class="nav-btn" data-tab="wiki"><i class="fa-solid fa-book"></i> Wiki</button>
         </nav>
         <div class="nav-meta">
@@ -124,6 +125,9 @@
 
         <!-- TAB: PEGASUS -->
         <section id="tab-pegasus" class="tab-content">
+            <div class="pegasus-banner-container">
+                <img src="web/assets/pegasus/pegasus-dl-banner.png" alt="Pegasus-DL Banner" class="pegasus-banner" onerror="this.style.display='none'">
+            </div>
             <h2><i class="fa-solid fa-copy"></i> Catalogues Pegasus</h2>
             <p class="section-desc">Ces fichiers JSON sont destinés à être ajoutés à l'application <strong>Pegasus-DL</strong>. Ils contiennent les bases de données d'éléments à jour.</p>
             <div id="pegasus-container" class="cards-grid" style="margin-top: 1rem;"></div>
@@ -133,6 +137,30 @@
         <section id="tab-services" class="tab-content">
             <h2><i class="fa-solid fa-server"></i> Services Extensibles</h2>
             <div id="services-grid" class="cards-grid"></div>
+        </section>
+
+        <!-- TAB: WEBKIT -->
+        <section id="tab-webkit" class="tab-content">
+            <h2><i class="fa-solid fa-globe"></i> WebKit Host & Services</h2>
+            <p class="section-desc">Sélectionnez un site pour l'ouvrir directement dans la fenêtre WebFrame intégrée.</p>
+            
+            <div id="webkit-grid" class="cards-grid" style="margin-top: 1rem; margin-bottom: 1.5rem;"></div>
+
+            <!-- WebFrame Viewer -->
+            <div id="webkit-frame-container" class="panel webframe-panel" style="display: none;">
+                <div class="webframe-header">
+                    <span id="webframe-title"><i class="fa-solid fa-globe accent"></i> Navigateur WebKit</span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a id="webframe-external-link" href="#" target="_blank" class="btn btn-secondary btn-sm" title="Ouvrir dans un nouvel onglet">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                        <button onclick="closeWebFrame()" class="btn btn-secondary btn-sm" title="Fermer la vue">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <iframe id="webkit-iframe" src="" class="webframe-iframe"></iframe>
+            </div>
         </section>
 
         <!-- TAB: WIKI -->
