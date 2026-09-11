@@ -206,7 +206,7 @@ body {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
 }
 
-/* WebFrame Container */
+/* WebFrame Container (WebKit & PS5 WebUI) */
 .webframe-panel {
     padding: 0;
     overflow: hidden;
@@ -311,6 +311,25 @@ body {
 .item-card:hover {
     border-color: var(--accent);
     transform: translateY(-2px);
+}
+
+/* En-tête des tuiles & Effet "Bulle" Avatar */
+.tile-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.tile-avatar-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .store-controls {
