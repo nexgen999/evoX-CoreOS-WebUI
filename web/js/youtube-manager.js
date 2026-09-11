@@ -1,17 +1,11 @@
 /**
  * Gestionnaire YouTube Creators pour evoX-CoreOS WebUI
- * Utilise l'API Piped sans restriction CORS / RSS
+ * Contournement complet des restrictions CORS via Script Injection (JSONP)
  */
 
 class EvoXYouTubeManager {
     constructor() {
         this.currentVideoId = null;
-        // API Piped publiques hautement disponibles
-        this.pipedInstances = [
-            'https://pipedapi.kavin.rocks',
-            'https://api.piped.privacydev.net',
-            'https://pipedapi.tokhmi.xyz'
-        ];
     }
 
     init(creatorsFromConfig) {
@@ -48,7 +42,7 @@ class EvoXYouTubeManager {
         }).join('');
     }
 
-    async loadVideos(channelIdOrHandle, name, handle) {
+    loadVideos(channelIdOrHandle, name, handle) {
         const container = document.getElementById('youtube-videos-container');
         const list = document.getElementById('youtube-videos-list');
         const channelNameDisplay = document.getElementById('youtube-channel-name');
@@ -61,44 +55,51 @@ class EvoXYouTubeManager {
         container.style.display = 'block';
         container.scrollIntoView({ behavior: 'smooth' });
 
-        let items = [];
+        const channelId = channelIdOrHandle.startsWith('UC') ? channelIdOrHandle : null;
 
-        // Boucle sur les instances Piped jusqu'à obtenir une réponse valide
-        for (const instance of this.pipedInstances) {
-            try {
-                const url = channelIdOrHandle.startsWith('UC')
-                    ? `${instance}/channel/${channelIdOrHandle}`
-                    : `${instance}/user/${handle}`;
-
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 4000);
-
-                const res = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeoutId);
-
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.relatedStreams && data.relatedStreams.length > 0) {
-                        items = data.relatedStreams.slice(0, 10).map(v => {
-                            const videoId = v.url ? v.url.split('v=')[1] : '';
-                            return {
-                                id: videoId,
-                                title: v.title,
-                                thumb: v.thumbnail || `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
-                                date: v.uploadedDate || ''
-                            };
-                        }).filter(v => v.id);
-                        break;
-                    }
-                }
-            } catch (_) {}
+        if (!channelId) {
+            this.renderFallbackEmbed(list, name, handle);
+            return;
         }
 
-        if (items.length > 0) {
-            this.renderVideos(list, items);
-        } else {
-            this.renderError(list, name, handle);
-        }
+        // Nettoyage des scripts précédents
+        const oldScript = document.getElementById('yt-script-loader');
+        if (oldScript) oldScript.remove();
+
+        const callbackName = 'evox_yt_callback_' + Math.floor(Math.random() * 100000);
+
+        // Callback global exécuté lors du retour de la balise script
+        window[callbackName] = (response) => {
+            delete window[callbackName];
+            const activeScript = document.getElementById('yt-script-loader');
+            if (activeScript) activeScript.remove();
+
+            if (response && response.status === 'ok' && response.items && response.items.length > 0) {
+                const items = response.items.map(v => {
+                    const videoId = v.link.includes('v=') ? v.link.split('v=')[1].split('&')[0] : v.guid.split(':').pop();
+                    return {
+                        id: videoId,
+                        title: v.title,
+                        thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
+                        date: new Date(v.pubDate).toLocaleDateString()
+                    };
+                });
+                this.renderVideos(list, items);
+            } else {
+                this.renderFallbackEmbed(list, name, handle, channelId);
+            }
+        };
+
+        // Injection dynamic du script JSONP
+        const script = document.createElement('script');
+        script.id = 'yt-script-loader';
+        script.src = `https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.youtube.com%2Ffeeds%2Fvideos.xml%3Fchannel_id%3D${channelId}&callback=${callbackName}`;
+        script.onerror = () => {
+            delete window[callbackName];
+            this.renderFallbackEmbed(list, name, handle, channelId);
+        };
+
+        document.body.appendChild(script);
     }
 
     renderVideos(container, items) {
@@ -116,14 +117,24 @@ class EvoXYouTubeManager {
         `).join('');
     }
 
-    renderError(container, name, handle) {
-        container.innerHTML = `
-            <div style="padding:1.5rem; text-align:center; grid-column: 1/-1;">
-                <p style="margin-bottom:0.75rem; color:var(--text-muted);">Les APIs distantes sont momentanément indisponibles.</p>
-                <a href="https://www.youtube.com/@${handle}" target="_blank" class="btn btn-primary btn-sm">
-                    <i class="fa-brands fa-youtube"></i> Ouvrir la chaîne de ${name} directement sur YouTube
-                </a>
-            </div>`;
+    renderFallbackEmbed(container, name, handle, channelId) {
+        // En cas de blocage réseau, intègre directement une playlist/chaine iframe sans restriction
+        const playlistUrl = channelId ? `https://www.youtube.com/embed/videoseries?list=UU${channelId.substring(2)}` : null;
+
+        if (playlistUrl) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; width: 100%;">
+                    <p style="margin-bottom: 1rem; color: var(--text-muted); text-align: center;">Affichage de la playlist récente en mode direct (Intégration iFrame) :</p>
+                    <iframe src="${playlistUrl}" style="width: 100%; height: 450px; border: none; border-radius: 8px;" allowfullscreen></iframe>
+                </div>`;
+        } else {
+            container.innerHTML = `
+                <div style="padding:1.5rem; text-align:center; grid-column: 1/-1;">
+                    <a href="https://www.youtube.com/@${handle}" target="_blank" class="btn btn-primary btn-sm">
+                        <i class="fa-brands fa-youtube"></i> Ouvrir la chaîne de ${name} sur YouTube
+                    </a>
+                </div>`;
+        }
     }
 
     playVideo(videoId, title) {
