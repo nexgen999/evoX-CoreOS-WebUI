@@ -22,16 +22,16 @@
   },
   "webkit": [
     {
-      "name": "PS5webkit",
-      "url": "https://github.com/nexgen999/ps5webkit",
+      "name": "PS5 WebKit (GitHub Pages)",
+      "url": "https://nexgen999.github.io/ps5webkit/",
       "icon": "fa-globe",
-      "description": "nexgen WebKit PS5"
+      "description": "Exploit WebKit PS5 nexgen999"
     },
     {
-      "name": "google",
-      "url": "https://www.google.com",
-      "icon": "fa-circle-info",
-      "description": "google"
+      "name": "PS5 Exploit Host",
+      "url": "https://es7in.github.io/",
+      "icon": "fa-bolt",
+      "description": "Host WebKit PS5 alternatif"
     }
   ],
   "ps5_webui": [
