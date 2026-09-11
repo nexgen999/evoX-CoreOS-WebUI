@@ -22,6 +22,7 @@
             <button class="nav-btn" data-tab="pegasus"><i class="fa-solid fa-copy"></i> Pegasus</button>
             <button class="nav-btn" data-tab="services"><i class="fa-solid fa-server"></i> Services</button>
             <button class="nav-btn" data-tab="webkit"><i class="fa-solid fa-globe"></i> WebKit</button>
+            <button class="nav-btn" data-tab="ps5-webui"><i class="fa-solid fa-gamepad"></i> Accès WebUI</button>
             <button class="nav-btn" data-tab="wiki"><i class="fa-solid fa-book"></i> Wiki</button>
         </nav>
         <div class="nav-meta">
@@ -151,15 +152,53 @@
                 <div class="webframe-header">
                     <span id="webframe-title"><i class="fa-solid fa-globe accent"></i> Navigateur WebKit</span>
                     <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="window.evoXWebKit.reload()" class="btn btn-secondary btn-sm" title="Actualiser la page">
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
                         <a id="webframe-external-link" href="#" target="_blank" class="btn btn-secondary btn-sm" title="Ouvrir dans un nouvel onglet">
                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
                         </a>
-                        <button onclick="closeWebFrame()" class="btn btn-secondary btn-sm" title="Fermer la vue">
+                        <button onclick="window.evoXWebKit.close()" class="btn btn-secondary btn-sm" title="Fermer la vue">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
                 </div>
                 <iframe id="webkit-iframe" src="" class="webframe-iframe"></iframe>
+            </div>
+        </section>
+
+        <!-- TAB: ACCÈS WEBUI PS5 -->
+        <section id="tab-ps5-webui" class="tab-content">
+            <h2><i class="fa-solid fa-gamepad"></i> Accès WebUI PS5</h2>
+            
+            <div class="panel" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <label for="ps5-ip-input" style="font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-network-wired accent"></i> Adresse IP de la PS5 :
+                    </label>
+                    <input type="text" id="ps5-ip-input" class="input-text" style="width: 100%;" placeholder="ex: 192.168.1.50">
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 500px;">
+                    L'adresse IP est sauvegardée automatiquement dans votre navigateur. Tous les boutons ci-dessous s'adapteront à cette adresse IP.
+                </p>
+            </div>
+
+            <div id="ps5-webui-grid" class="cards-grid" style="margin-bottom: 1.5rem;"></div>
+
+            <!-- WebUI Frame Viewer -->
+            <div id="ps5-webui-frame-container" class="panel webframe-panel" style="display: none;">
+                <div class="webframe-header">
+                    <span id="ps5-webui-title"><i class="fa-solid fa-server accent"></i> Visionneuse WebUI PS5</span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a id="ps5-webui-external-link" href="#" target="_blank" class="btn btn-secondary btn-sm" title="Ouvrir dans un nouvel onglet">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                        <button onclick="window.evoXWebUI.closeFrame()" class="btn btn-secondary btn-sm" title="Fermer la vue">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <iframe id="ps5-webui-iframe" src="" class="webframe-iframe"></iframe>
             </div>
         </section>
 
@@ -179,6 +218,8 @@
 
     <!-- JS SCRIPTS -->
     <script src="web/js/changelog.js"></script>
+    <script src="web/js/webkit-manager.js"></script>
+    <script src="web/js/webui-manager.js"></script>
     <script src="web/js/store.js"></script>
     <script src="web/js/app.js"></script>
 </body>
