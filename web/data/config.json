@@ -61,51 +61,37 @@
     {
       "name": "MODDED WARFARE",
       "handle": "MODDEDWARFARE",
-      "featuredVideo": "x_uyCPL-y78",
-      "description": "Tutos, Jailbreaks et actualités PS4 / PS5",
-      "icon": "https://unavatar.io/youtube/MODDEDWARFARE"
+      "description": "Tutos, Jailbreaks et actualités PS4 / PS5"
     },
     {
       "name": "Michael Crump (mbcrump)",
       "handle": "mbcrump",
-      "featuredVideo": "bx1MmPvFvAM",
-      "description": "Exploits et analyses PS5 Scene",
-      "icon": "https://unavatar.io/youtube/mbcrump"
+      "description": "Exploits et analyses PS5 Scene"
     },
     {
       "name": "TheWizWiki",
       "handle": "TheWizWiki",
-      "featuredVideo": "3g11R_Xb030",
-      "description": "Guides et tutos console homebrew",
-      "icon": "https://unavatar.io/youtube/TheWizWiki"
+      "description": "Guides et tutos console homebrew"
     },
     {
       "name": "Nanospeed Gamer",
       "handle": "NanospeedGamer",
-      "featuredVideo": "a6N4046Y0x",
-      "description": "Actus et tests PS5 / PS4 Jailbreak",
-      "icon": "https://unavatar.io/youtube/NanospeedGamer"
+      "description": "Actus et tests PS5 / PS4 Jailbreak"
     },
     {
       "name": "Vinas Explosão do Game",
       "handle": "vinasexplosaodogame",
-      "featuredVideo": "0I3_C6pXhM2",
-      "description": "Actualités et émulation PS5",
-      "icon": "https://unavatar.io/youtube/vinasexplosaodogame"
+      "description": "Actualités et émulation PS5"
     },
     {
       "name": "VoX DoN",
       "handle": "voxdon3",
-      "featuredVideo": "G8E2-2S9Q9h",
-      "description": "Développements et hôtes exploits PS5",
-      "icon": "https://unavatar.io/youtube/voxdon3"
+      "description": "Développements et hôtes exploits PS5"
     },
     {
       "name": "GAMERAMBX",
       "handle": "GAMERAMBX",
-      "featuredVideo": "G_BfX53E233",
-      "description": "Tutos et actualités scène PlayStation",
-      "icon": "https://unavatar.io/youtube/GAMERAMBX"
+      "description": "Tutos et actualités scène PlayStation"
     }
   ],
   "releases": {
