@@ -1,4 +1,4 @@
-# **docs/06-config.md \- Documentation de Configuration**
+# **docs/02-config.md \- Documentation de Configuration**
 
 Guide complet de personnalisation et de paramétrage de **evoX-CoreOS WebUI** via config.json.
 
