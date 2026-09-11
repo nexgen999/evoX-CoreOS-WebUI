@@ -1,11 +1,17 @@
 /**
  * Gestionnaire YouTube Creators pour evoX-CoreOS WebUI
- * Contournement CORS garanti via JSONP
+ * Utilise l'API Piped sans restriction CORS / RSS
  */
 
 class EvoXYouTubeManager {
     constructor() {
         this.currentVideoId = null;
+        // API Piped publiques hautement disponibles
+        this.pipedInstances = [
+            'https://pipedapi.kavin.rocks',
+            'https://api.piped.privacydev.net',
+            'https://pipedapi.tokhmi.xyz'
+        ];
     }
 
     init(creatorsFromConfig) {
@@ -42,7 +48,7 @@ class EvoXYouTubeManager {
         }).join('');
     }
 
-    loadVideos(channelIdOrHandle, name, handle) {
+    async loadVideos(channelIdOrHandle, name, handle) {
         const container = document.getElementById('youtube-videos-container');
         const list = document.getElementById('youtube-videos-list');
         const channelNameDisplay = document.getElementById('youtube-channel-name');
@@ -55,48 +61,44 @@ class EvoXYouTubeManager {
         container.style.display = 'block';
         container.scrollIntoView({ behavior: 'smooth' });
 
-        const channelId = channelIdOrHandle.startsWith('UC') ? channelIdOrHandle : null;
+        let items = [];
 
-        if (!channelId) {
-            this.renderError(list, name, handle);
-            return;
+        // Boucle sur les instances Piped jusqu'à obtenir une réponse valide
+        for (const instance of this.pipedInstances) {
+            try {
+                const url = channelIdOrHandle.startsWith('UC')
+                    ? `${instance}/channel/${channelIdOrHandle}`
+                    : `${instance}/user/${handle}`;
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+                const res = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.relatedStreams && data.relatedStreams.length > 0) {
+                        items = data.relatedStreams.slice(0, 10).map(v => {
+                            const videoId = v.url ? v.url.split('v=')[1] : '';
+                            return {
+                                id: videoId,
+                                title: v.title,
+                                thumb: v.thumbnail || `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
+                                date: v.uploadedDate || ''
+                            };
+                        }).filter(v => v.id);
+                        break;
+                    }
+                }
+            } catch (_) {}
         }
 
-        const targetRssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-        const callbackName = 'evox_yt_cb_' + Math.random().toString(36).substring(7);
-
-        // Nettoyage de l'ancien script JSONP s'il existe
-        const oldScript = document.getElementById('yt-jsonp-script');
-        if (oldScript) oldScript.remove();
-
-        // Définition du callback global JSONP pour contourner CORS
-        window[callbackName] = (data) => {
-            delete window[callbackName];
-            const script = document.getElementById('yt-jsonp-script');
-            if (script) script.remove();
-
-            if (data && data.status === 'ok' && data.items && data.items.length > 0) {
-                const items = data.items.map(v => {
-                    const videoId = v.link.includes('v=') ? v.link.split('v=')[1].split('&')[0] : v.guid.split(':').pop();
-                    return {
-                        id: videoId,
-                        title: v.title,
-                        thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
-                        date: new Date(v.pubDate).toLocaleDateString()
-                    };
-                });
-                this.renderVideos(list, items);
-            } else {
-                this.renderError(list, name, handle);
-            }
-        };
-
-        // Injection dynamique de balise script (ne subit pas les règles CORS)
-        const script = document.createElement('script');
-        script.id = 'yt-jsonp-script';
-        script.src = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(targetRssUrl)}&callback=${callbackName}`;
-        script.onerror = () => this.renderError(list, name, handle);
-        document.body.appendChild(script);
+        if (items.length > 0) {
+            this.renderVideos(list, items);
+        } else {
+            this.renderError(list, name, handle);
+        }
     }
 
     renderVideos(container, items) {
@@ -117,9 +119,9 @@ class EvoXYouTubeManager {
     renderError(container, name, handle) {
         container.innerHTML = `
             <div style="padding:1.5rem; text-align:center; grid-column: 1/-1;">
-                <p style="margin-bottom:0.75rem; color:var(--text-muted);">Impossible de charger le flux en direct.</p>
+                <p style="margin-bottom:0.75rem; color:var(--text-muted);">Les APIs distantes sont momentanément indisponibles.</p>
                 <a href="https://www.youtube.com/@${handle}" target="_blank" class="btn btn-primary btn-sm">
-                    <i class="fa-brands fa-youtube"></i> Voir la chaîne de ${name} directement sur YouTube
+                    <i class="fa-brands fa-youtube"></i> Ouvrir la chaîne de ${name} directement sur YouTube
                 </a>
             </div>`;
     }
