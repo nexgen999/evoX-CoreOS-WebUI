@@ -1,5 +1,18 @@
 let config = {};
 
+// Helper universel de rendu d'icône / photo en bulle
+function renderTileIcon(iconInput, defaultIcon = 'fa-box') {
+    if (!iconInput) {
+        return `<i class="fa-solid ${defaultIcon} accent"></i>`;
+    }
+    
+    if (iconInput.startsWith('http://') || iconInput.startsWith('https://') || iconInput.includes('/') || iconInput.match(/\.(png|jpg|jpeg|svg|webp)$/i)) {
+        return `<img src="${iconInput}" alt="icon" class="tile-avatar-img">`;
+    }
+
+    return `<i class="fa-solid ${iconInput} accent"></i>`;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     await loadConfig();
     initNavigation();
@@ -8,22 +21,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadPegasusCatalogs();
     loadWikiTree();
     
-    // Initialisation des WebKit
     if (window.evoXWebKit && config.webkit) {
         window.evoXWebKit.init(config.webkit);
     }
 
-    // Initialisation des WebUI PS5
     if (window.evoXWebUI && config.ps5_webui) {
         window.evoXWebUI.init(config.ps5_webui);
     }
 
-    // Chargement du store JSON
     if (window.loadStoreData && config.sources?.json) {
         loadStoreData(config.sources.json);
     }
 
-    // Chargement du Changelog / News
     if (window.evoXChangelog) {
         const changelogUrl = config.sources?.changelog || 'CHANGELOG.md';
         window.evoXChangelog.init(changelogUrl, 'news-container');
@@ -81,7 +90,7 @@ function loadDashboardInfo() {
     }
 
     if (config.socials) {
-        document.getElementById('footer-socials').innerHTML = config.socials.map(s => `<a href="${s.url}" target="_blank"><i class="${s.icon}"></i></a>`).join('');
+        document.getElementById('footer-socials').innerHTML = config.socials.map(s => `<a href="${s.url}" target="_blank">${renderTileIcon(s.icon, 'fa-link')}</a>`).join('');
     }
 }
 
@@ -92,7 +101,10 @@ function loadReleases() {
     container.innerHTML = config.releases.packs.map(pack => `
         <div class="item-card">
             <div>
-                <h3><i class="fa-solid ${pack.icon || 'fa-box'} accent"></i> ${pack.name}</h3>
+                <div class="tile-header">
+                    ${renderTileIcon(pack.icon, 'fa-box')}
+                    <h3 style="margin: 0;">${pack.name}</h3>
+                </div>
                 <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Pack AIO sous format ZIP.</p>
             </div>
             <a href="${config.releases.baseUrl}${pack.file}" class="btn btn-primary" style="margin-top: 1rem;">
@@ -108,8 +120,13 @@ function loadPegasusCatalogs() {
 
     container.innerHTML = config.sources.pegasus.map(cat => `
         <div class="item-card">
-            <h3>${cat.name}</h3>
-            <p style="word-break: break-all; font-size:0.85rem; color: var(--text-muted); margin: 0.5rem 0;">${cat.url}</p>
+            <div>
+                <div class="tile-header">
+                    ${renderTileIcon(cat.icon, 'fa-copy')}
+                    <h3 style="margin: 0;">${cat.name}</h3>
+                </div>
+                <p style="word-break: break-all; font-size:0.85rem; color: var(--text-muted); margin: 0.5rem 0;">${cat.url}</p>
+            </div>
             <button onclick="copyToClipboard('${cat.url}', this)" class="btn btn-secondary">
                 <i class="fa-solid fa-copy"></i> Copier l'URL
             </button>
