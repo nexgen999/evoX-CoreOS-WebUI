@@ -34,6 +34,29 @@
       "description": "Guide utilisateur officiel"
     }
   ],
+  "ps5_webui": [
+    {
+      "name": "Payload Manager",
+      "port": 9090,
+      "path": "/",
+      "icon": "fa-cubes",
+      "description": "Interface web de chargement des payloads"
+    },
+    {
+      "name": "FTP Server",
+      "port": 1337,
+      "path": "/",
+      "icon": "fa-folder-open",
+      "description": "Serveur FTP de la console"
+    },
+    {
+      "name": "KStuff Web",
+      "port": 8080,
+      "path": "/",
+      "icon": "fa-bolt",
+      "description": "Gestionnaire KStuff PS5"
+    }
+  ],
   "releases": {
     "baseUrl": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/",
     "packs": [
