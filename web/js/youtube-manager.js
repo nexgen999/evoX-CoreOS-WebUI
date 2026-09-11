@@ -1,15 +1,23 @@
 /**
  * Gestionnaire YouTube Creators pour evoX-CoreOS WebUI
- * Avec système de tolérance de panne Multi-Proxy CORS
+ * Utilise les instances publiques Invidious & Invidious API
  */
 
 class EvoXYouTubeManager {
     constructor() {
         this.currentVideoId = null;
+        // Instances Invidious publiques fiables
+        this.invidiousInstances = [
+            'https://inv.riverside.rocks',
+            'https://invidious.drgns.space',
+            'https://invidious.nerdvpn.de',
+            'https://invidious.flokinet.to',
+            'https://invidious.privacydev.net'
+        ];
     }
 
     init(creatorsFromConfig) {
-        const creators = creatorsFromConfig || (config && config.youtube_creators) || [];
+        const creators = creatorsFromConfig || (typeof config !== 'undefined' && config.youtube_creators) || [];
         const grid = document.getElementById('youtube-creators-grid');
         if (!grid || !Array.isArray(creators)) return;
 
@@ -55,56 +63,60 @@ class EvoXYouTubeManager {
         container.style.display = 'block';
         container.scrollIntoView({ behavior: 'smooth' });
 
-        const rawFeedUrl = channelIdOrHandle.startsWith('UC')
-            ? `https://www.youtube.com/feeds/videos.xml?channel_id=${channelIdOrHandle}`
-            : `https://www.youtube.com/feeds/videos.xml?user=${channelIdOrHandle}`;
-
         let items = [];
 
-        // Stratégie 1 : RSS2JSON API
-        try {
-            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rawFeedUrl)}`);
-            if (res.ok) {
-                const data = await res.json();
-                if (data.status === 'ok' && data.items && data.items.length > 0) {
-                    items = data.items.map(v => {
-                        const videoId = v.link.includes('v=') ? v.link.split('v=')[1].split('&')[0] : v.guid.split(':').pop();
-                        return {
-                            id: videoId,
+        // 1. Essayer d'interroger les instances Invidious REST API
+        for (const instance of this.invidiousInstances) {
+            try {
+                const endpoint = channelIdOrHandle.startsWith('UC')
+                    ? `${instance}/api/v1/channels/${channelIdOrHandle}/latest`
+                    : `${instance}/api/v1/channels/search?q=${handle}`;
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+                const res = await fetch(endpoint, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        items = data.slice(0, 10).map(v => ({
+                            id: v.videoId,
                             title: v.title,
-                            thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
-                            date: new Date(v.pubDate).toLocaleDateString()
-                        };
-                    });
+                            thumb: `https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`,
+                            date: v.published ? new Date(v.published * 1000).toLocaleDateString() : ''
+                        }));
+                        break; // Succès, on sort de la boucle
+                    }
                 }
+            } catch (_) {
+                // Continuer vers l'instance suivante
             }
-        } catch (_) {}
+        }
 
-        // Stratégie 2 : Relay via Proxy CORS (corsproxy.io) + DOMParser
-        if (items.length === 0) {
+        // 2. Fallback via Piped API si Invidious n'a pas répondu
+        if (items.length === 0 && channelIdOrHandle.startsWith('UC')) {
             try {
-                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(rawFeedUrl)}`;
-                const res = await fetch(proxyUrl);
+                const res = await fetch(`https://pipedapi.kavin.rocks/channel/${channelIdOrHandle}`);
                 if (res.ok) {
-                    const xmlText = await res.text();
-                    items = this.parseXmlFeed(xmlText);
+                    const data = await res.json();
+                    if (data.relatedStreams) {
+                        items = data.relatedStreams.slice(0, 10).map(v => {
+                            const videoId = v.url.split('v=')[1];
+                            return {
+                                id: videoId,
+                                title: v.title,
+                                thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
+                                date: v.uploadedDate || ''
+                            };
+                        });
+                    }
                 }
             } catch (_) {}
         }
 
-        // Stratégie 3 : Relay via CodeTabs CORS Proxy
-        if (items.length === 0) {
-            try {
-                const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rawFeedUrl)}`;
-                const res = await fetch(proxyUrl);
-                if (res.ok) {
-                    const xmlText = await res.text();
-                    items = this.parseXmlFeed(xmlText);
-                }
-            } catch (_) {}
-        }
-
-        // Rendu final
+        // Rendu final des tuiles vidéo
         if (items.length > 0) {
             list.innerHTML = items.map(v => `
                 <div class="item-card" style="cursor:pointer;" onclick="window.evoXYouTube.playVideo('${v.id}', '${v.title.replace(/'/g, "\\'")}')">
@@ -122,34 +134,11 @@ class EvoXYouTubeManager {
             const fallbackHandle = handle || channelIdOrHandle;
             list.innerHTML = `
                 <div style="padding:1.5rem; text-align:center; grid-column: 1/-1;">
-                    <p style="margin-bottom:0.75rem; color:var(--text-muted);">Le flux vidéo de cette chaîne n'a pas pu être extrait dans l'iframe actuellement.</p>
-                    <a href="https://www.youtube.com/@${fallbackHandle}" target="_blank" class="btn btn-secondary btn-sm">
-                        <i class="fa-brands fa-youtube"></i> Ouvrir la chaîne ${name} sur YouTube
+                    <p style="margin-bottom:0.75rem; color:var(--text-muted);">Le flux direct est bloqué par YouTube/CORS.</p>
+                    <a href="https://www.youtube.com/@${fallbackHandle}" target="_blank" class="btn btn-primary btn-sm">
+                        <i class="fa-brands fa-youtube"></i> Voir la chaîne sur YouTube
                     </a>
                 </div>`;
-        }
-    }
-
-    parseXmlFeed(xmlText) {
-        try {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-            const entries = Array.from(xmlDoc.querySelectorAll("entry")).slice(0, 10);
-
-            return entries.map(entry => {
-                const videoId = entry.querySelector("videoId")?.textContent || entry.querySelector("id")?.textContent?.replace('yt:video:', '');
-                const title = entry.querySelector("title")?.textContent || "Vidéo YouTube";
-                const published = entry.querySelector("published")?.textContent;
-
-                return {
-                    id: videoId,
-                    title: title,
-                    thumb: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
-                    date: published ? new Date(published).toLocaleDateString() : ''
-                };
-            }).filter(item => item.id);
-        } catch (e) {
-            return [];
         }
     }
 
