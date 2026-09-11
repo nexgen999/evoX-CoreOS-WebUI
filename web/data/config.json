@@ -28,33 +28,33 @@
       "description": "Exploit WebKit PS5 nexgen999"
     },
     {
-      "name": "PS5 Exploit Host",
-      "url": "https://es7in.github.io/",
-      "icon": "fa-bolt",
-      "description": "Host WebKit PS5 alternatif"
+      "name": "Master-UMTX2",
+      "url": "https://masterps0.github.io/UMTX2/",
+      "icon": "https://pbs.twimg.com/profile_images/2060187925095313408/m0Yw_lmE_400x400.jpg",
+      "description": "Master-UMTX2"
     }
   ],
   "ps5_webui": [
     {
       "name": "Payload Manager",
-      "port": 9090,
+      "port": 8084,
       "path": "/",
       "icon": "fa-cubes",
       "description": "Interface web de chargement des payloads"
     },
     {
-      "name": "FTP Server",
-      "port": 1337,
+      "name": "Pegasus-DL",
+      "port": 6970,
       "path": "/",
       "icon": "fa-folder-open",
-      "description": "Serveur FTP de la console"
+      "description": "PS5 FreeShop"
     },
     {
-      "name": "KStuff Web",
-      "port": 8080,
+      "name": "Spectrum Library",
+      "port": 7575,
       "path": "/",
       "icon": "fa-bolt",
-      "description": "Gestionnaire KStuff PS5"
+      "description": "PS5 FreeShop"
     }
   ],
   "releases": {
