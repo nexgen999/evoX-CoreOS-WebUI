@@ -60,6 +60,11 @@ class EvoXWebUIManager {
         const title = document.getElementById('ps5-webui-title');
         const extLink = document.getElementById('ps5-webui-external-link');
 
+        // Avertissement si le site maître est en HTTPS et l'IP PS5 en HTTP
+        if (window.location.protocol === 'https:' && url.startsWith('http:')) {
+            console.warn('[WebUI] Avertissement Mixed Content: le site principal est en HTTPS mais la PS5 est interrogée en HTTP.');
+        }
+
         if (container && iframe) {
             iframe.src = url;
             if (title) title.innerHTML = `<i class="fa-solid fa-server accent"></i> WebUI Viewer — <strong>${name}</strong>`;
