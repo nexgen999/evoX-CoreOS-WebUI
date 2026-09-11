@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>evoX-CoreOS Dashboard</title>
+    <title>evoX-CoreOS WebUI</title>
     <link rel="stylesheet" href="web/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -212,31 +212,9 @@
         <!-- TAB: YOUTUBE CREATORS -->
         <section id="tab-youtube" class="tab-content">
             <h2><i class="fa-brands fa-youtube accent"></i> YouTube Creators</h2>
-            <p class="section-desc">Suivez les dernières vidéos des créateurs majeurs de la scène PS5 / PS4.</p>
+            <p class="section-desc">Suivez les créateurs majeurs de la scène PS5 / PS4 et accédez directement à leurs chaînes.</p>
 
-            <div id="youtube-creators-grid" class="cards-grid" style="margin-top: 1rem; margin-bottom: 1.5rem;"></div>
-
-            <!-- Lecteur de Vidéos Récentes -->
-            <div id="youtube-videos-container" class="panel" style="display: none; margin-bottom: 1.5rem;">
-                <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-list-ul accent"></i> Dernières vidéos de <span id="youtube-channel-name" class="accent"></span> :</h3>
-                <div id="youtube-videos-list" class="cards-grid"></div>
-            </div>
-
-            <!-- Visionneuse Player YouTube -->
-            <div id="youtube-player-panel" class="panel webframe-panel" style="display: none;">
-                <div class="webframe-header">
-                    <span id="youtube-video-title"><i class="fa-brands fa-youtube accent"></i> Lecteur YouTube</span>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <a id="youtube-external-link" href="#" target="_blank" class="btn btn-primary btn-sm" title="Ouvrir sur YouTube">
-                            <i class="fa-brands fa-youtube"></i> Ouvrir sur YouTube
-                        </a>
-                        <button onclick="window.evoXYouTube.closePlayer()" class="btn btn-secondary btn-sm" title="Fermer le lecteur">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                </div>
-                <iframe id="youtube-iframe" src="" class="webframe-iframe" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
+            <div id="youtube-creators-grid" class="cards-grid" style="margin-top: 1rem;"></div>
         </section>
     </main>
 
