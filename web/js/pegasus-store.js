@@ -2,11 +2,11 @@
     let rawCatalogData = [];
     let currentViewMode = 'grid';
 
-    // Fichiers JSON locaux hébergés dans evoX-CoreOS
+    // Adresses brutes vers les fichiers de ton dépôt nexgen999/evoX-CoreOS
     const LOCAL_CATALOGS = [
-        { name: "DLPS Catalog", path: "json/pegasus-dl/dlps.json" },
-        { name: "PFS Catalog", path: "json/pegasus-dl/pfs.json" },
-        { name: "Pippo Catalog", path: "json/pegasus-dl/pippo.json" }
+        { name: "DLPS Catalog", url: "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json" },
+        { name: "PFS Catalog", url: "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json" },
+        { name: "Pippo Catalog", url: "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json" }
     ];
 
     window.evoXPegasusStore = {
@@ -32,7 +32,7 @@
             const btnGrid = document.getElementById('btn-view-grid');
             const btnList = document.getElementById('btn-view-list');
 
-            selectEl.innerHTML = LOCAL_CATALOGS.map(cat => `<option value="${cat.path}">${cat.name}</option>`).join('');
+            selectEl.innerHTML = LOCAL_CATALOGS.map(cat => `<option value="${cat.url}">${cat.name}</option>`).join('');
 
             selectEl.addEventListener('change', (e) => {
                 this.loadCatalog(e.target.value);
@@ -56,23 +56,21 @@
                 this.render();
             });
 
-            // Charger le premier catalogue par défaut
-            this.loadCatalog(LOCAL_CATALOGS[0].path);
+            this.loadCatalog(LOCAL_CATALOGS[0].url);
         },
 
-        loadCatalog: async function (path) {
+        loadCatalog: async function (url) {
             const container = document.getElementById('pegasus-store-grid-container');
             if (!container) return;
 
             container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement du catalogue Pegasus...</p>';
 
             try {
-                const response = await fetch(path);
-                if (!response.ok) throw new Error(`Fichier introuvable (${response.status})`);
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
                 
                 const data = await response.json();
 
-                // Normalisation du JSON selon la structure renvoyée
                 if (Array.isArray(data)) {
                     rawCatalogData = data;
                 } else if (Array.isArray(data.items)) {
@@ -87,8 +85,8 @@
 
                 this.render();
             } catch (err) {
-                console.error("Erreur de lecture Pegasus :", err);
-                container.innerHTML = `<p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de lire le fichier local (${path}). Vérifie le chemin du fichier dans le dépôt.</p>`;
+                console.error("Erreur de chargement Pegasus Store :", err);
+                container.innerHTML = `<p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Erreur lors de la récupération du catalogue (${err.message}).</p>`;
             }
         },
 
