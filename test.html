@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>evoX CoreOS - Pegasus Store</title>
+  
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg: #060911;
+      --panel: #0d1527;
+      --panel-hover: #121c33;
+      --panel-card: #0a1120;
+      --line: #1b2a44;
+      --text: #eaf1fa;
+      --muted: #7990b5;
+      --brand-red: #ff0055;
+      --brand-red-hover: #e6004c;
+      --accent-cyan: #00d9ff;
+      --accent-yellow: #ffb703;
+      --shadow: 0 16px 50px rgba(0,0,0,0.7);
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 50% -10%, rgba(255, 0, 85, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 0% 40%, rgba(0, 217, 255, 0.04) 0%, transparent 40%);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP HEADER UNIFIÉ */
+    .top-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6, 9, 17, 0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--line);
+      padding: 10px 24px;
+    }
+    .header-content {
+      max-width: 1600px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    /* STYLE LOGO TEXTE D'APRÈS L'IMAGE */
+    .brand {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -0.4px;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .brand .evo { color: #ffffff; font-weight: 800; }
+    .brand .x { color: #ffffff; font-weight: 800; margin-right: 5px; }
+    .brand .core { color: var(--brand-red); font-weight: 800; }
+    .brand .sub { color: var(--muted); font-weight: 600; font-size: 0.95rem; margin-left: 6px; }
+
+    /* CONTROLES DANS LE HEADER */
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      max-width: 850px;
+    }
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 9px 14px 9px 38px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #09101d;
+      color: var(--text);
+      outline: none;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .search-box input:focus { border-color: var(--brand-red); box-shadow: 0 0 12px rgba(255,0,85,0.25); }
+    .search-box i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.85rem; }
+
+    .ctrl-select {
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #09101d;
+      color: var(--text);
+      outline: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .ctrl-select:hover { border-color: var(--muted); }
+
+    .view-group {
+      display: flex;
+      background: #09101d;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .view-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 7px 11px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .view-btn:hover { color: var(--text); }
+    .view-btn.active { background: var(--brand-red); color: #fff; }
+
+    /* HERO STATS BAR */
+    .hero-bar {
+      max-width: 1600px;
+      margin: 16px auto 0;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .stats-list { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stat-chip {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .stat-chip b { color: var(--text); }
+
+    /* CONTENEUR PRINCIPAL */
+    main { max-width: 1600px; margin: auto; padding: 16px 24px 60px; width: 100%; flex: 1; }
+
+    /* VUE 1 : GRID */
+    .view-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; }
+    .card-grid {
+      background: var(--panel-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .card-grid:hover { transform: translateY(-5px); border-color: var(--brand-red); box-shadow: 0 8px 25px rgba(255, 0, 85, 0.2); }
+    .card-grid .poster { aspect-ratio: 2/2.7; background: #04070d; overflow: hidden; position: relative; }
+    .card-grid .poster img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+    .card-grid:hover .poster img { transform: scale(1.06); }
+    .card-grid .info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
+    .card-grid .title { font-weight: 700; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-grid .meta { color: var(--muted); font-size: 0.78rem; margin-top: 4px; }
+
+    /* VUE 2 : LIST */
+    .view-list { display: flex; flex-direction: column; gap: 8px; }
+    .card-list {
+      display: grid;
+      grid-template-columns: 50px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      background: var(--panel-card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .card-list:hover { border-color: var(--brand-red); background: var(--panel-hover); }
+    .card-list .thumb { width: 50px; height: 60px; border-radius: 6px; overflow: hidden; background: #04070d; }
+    .card-list img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* VUE 3 : CARDS / BANNER */
+    .view-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+    .card-banner {
+      background: var(--panel-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      display: flex;
+      gap: 14px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .card-banner:hover { border-color: var(--brand-red); transform: translateY(-3px); }
+    .card-banner .thumb { width: 100px; height: 130px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+    .card-banner img { width: 100%; height: 100%; object-fit: cover; }
+    .card-banner .details { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+
+    /* VUE 4 : TABLE */
+    .view-table { width: 100%; border-collapse: collapse; background: var(--panel-card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
+    .view-table th, .view-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--line); font-size: 0.88rem; }
+    .view-table th { background: #08101d; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+    .view-table tr { cursor: pointer; transition: background 0.2s; }
+    .view-table tr:hover { background: var(--panel-hover); }
+
+    /* BADGES */
+    .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .badge { font-size: 0.72rem; background: rgba(27, 42, 68, 0.5); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; color: var(--muted); font-weight: 500; }
+    .badge.red { border-color: rgba(255, 0, 85, 0.4); color: var(--brand-red); background: rgba(255, 0, 85, 0.08); }
+    .badge.cyan { border-color: rgba(0, 217, 255, 0.4); color: var(--accent-cyan); }
+
+    .btn-open {
+      background: var(--brand-red);
+      color: #fff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-open:hover { background: var(--brand-red-hover); }
+
+    /* MODAL FICHE JEU */
+    dialog {
+      width: min(900px, 94vw);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #09101d;
+      color: var(--text);
+      padding: 0;
+      box-shadow: var(--shadow);
+      margin: auto;
+      overflow: hidden;
+    }
+    dialog::backdrop { background: rgba(2, 4, 8, 0.85); backdrop-filter: blur(8px); }
+    
+    .modal-wrapper {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      padding: 28px;
+      position: relative;
+    }
+    .modal-cover { width: 100%; aspect-ratio: 2/2.7; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+    .modal-cover img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .modal-content h2 { font-size: 1.7rem; font-weight: 800; color: #fff; line-height: 1.2; margin-bottom: 8px; padding-right: 40px; }
+    
+    .modal-close {
+      position: absolute; right: 20px; top: 20px;
+      background: var(--panel); border: 1px solid var(--line); color: var(--text);
+      border-radius: 10px; width: 38px; height: 38px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; z-index: 10;
+    }
+    .modal-close:hover { background: var(--brand-red); border-color: var(--brand-red); }
+
+    /* ACCORDÉON DESCRIPTION */
+    .desc-accordion {
+      margin-top: 14px;
+      background: rgba(13, 21, 39, 0.6);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .desc-header {
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .desc-header:hover { color: var(--text); }
+    .desc-body {
+      padding: 0 14px 12px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #b8c9e0;
+      display: none;
+    }
+    .desc-accordion.open .desc-body { display: block; }
+
+    /* CONTENEUR SECTIONS LIENS */
+    .links-container { margin-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .link-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .link-box-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .link-box-title.game { color: var(--accent-cyan); }
+    .link-box-title.dlc { color: var(--accent-yellow); }
+    .link-box-title.backport { color: var(--brand-red); }
+
+    .host-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #070c16;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+    }
+    .host-row:last-child { margin-bottom: 0; }
+    
+    .host-title { font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px; }
+    .host-controls { display: flex; align-items: center; gap: 8px; }
+
+    .parts-select {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      outline: none;
+      max-width: 240px;
+    }
+
+    .dl-btn {
+      background: var(--brand-red);
+      color: #fff;
+      text-decoration: none;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .dl-btn:hover { background: var(--brand-red-hover); }
+
+    .empty-msg { text-align: center; padding: 80px 20px; color: var(--muted); font-size: 1.1rem; }
+
+    @media(max-width: 850px) {
+      .modal-wrapper { grid-template-columns: 1fr; }
+      .modal-cover { max-width: 180px; margin: 0 auto; }
+      .host-row { flex-direction: column; align-items: stretch; }
+      .host-controls { flex-direction: column; }
+      .parts-select { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER UNIFIÉ AVEC LOGO EXACT -->
+  <header class="top-header">
+    <div class="header-content">
+      <div class="brand">
+        <span class="evo">evo</span><span class="x">X</span> <span class="core">CoreOS</span> <span class="sub">- Pegasus Store</span>
+      </div>
+      
+      <div class="header-controls">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="q" placeholder="Rechercher un jeu, ID, catégorie, version...">
+        </div>
+        
+        <select id="catalog" class="ctrl-select">
+          <option value="pfs">PFS Catalog</option>
+          <option value="dlps">DLPS Catalog</option>
+          <option value="pippo">Pippo Catalog</option>
+        </select>
+
+        <div class="view-group">
+          <button class="view-btn active" id="btnGrid" title="Vue Grille"><i class="fa-solid fa-border-all"></i></button>
+          <button class="view-btn" id="btnList" title="Vue Liste"><i class="fa-solid fa-list"></i></button>
+          <button class="view-btn" id="btnCards" title="Vue Bannière"><i class="fa-solid fa-id-card"></i></button>
+          <button class="view-btn" id="btnTable" title="Vue Tableau"><i class="fa-solid fa-table-cells"></i></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- BARRE DE STATISTIQUES -->
+  <section class="hero-bar">
+    <div class="stats-list">
+      <div class="stat-chip">Catalogue : <b id="catName">PFS</b></div>
+      <div class="stat-chip">Éléments affichés : <b id="count">0</b></div>
+    </div>
+  </section>
+
+  <!-- RECEPTACLE DES VUES DU STORE -->
+  <main id="mainContainer"></main>
+  
+  <div id="empty" class="empty-msg" hidden>
+    <i class="fa-solid fa-box-open" style="font-size: 2.5rem; margin-bottom: 12px; display:block;"></i> 
+    Aucun élément ne correspond à votre recherche.
+  </div>
+
+  <!-- MODAL PRODUIT / FICHE DU JEU -->
+  <dialog id="dlg">
+    <div class="modal-wrapper">
+      <button class="modal-close" id="close"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-cover">
+        <img id="mImg" src="" alt="Cover">
+      </div>
+      <div class="modal-content">
+        <h2 id="mTitle"></h2>
+        <div class="badges" id="mBadges"></div>
+        
+        <!-- Accordéon Description -->
+        <div class="desc-accordion" id="descAccordion">
+          <div class="desc-header" id="descHeader">
+            <span><i class="fa-solid fa-circle-info"></i> Description & Informations</span>
+            <i class="fa-solid fa-chevron-down" id="descIcon"></i>
+          </div>
+          <div class="desc-body" id="mDesc"></div>
+        </div>
+
+        <!-- Section des Téléchargements -->
+        <div class="links-container" id="mLinks"></div>
+      </div>
+    </div>
+  </dialog>
+
+<script>
+const SOURCES = {
+  dlps: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/dlps.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json",
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json")
+  ],
+  pfs: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pfs.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json",
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json")
+  ],
+  pippo: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pippo.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json",
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json")
+  ]
+};
+
+const state = { items: [], view: "grid" };
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+
+function formatSize(val) {
+  if (!val || val === "N/A") return "Taille inconnue";
+  if (typeof val === 'string' && (val.includes('GB') || val.includes('MB'))) return val;
+  let n = Number(val);
+  if (isNaN(n)) return val;
+  let u = ["B", "KB", "MB", "GB", "TB"], i = 0;
+  while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+  return n.toFixed(n >= 100 ? 0 : 1) + " " + u[i];
+}
+
+function normalizeItem(x) {
+  return {
+    title: x.title || x.name || "Sans titre",
+    titleId: x.id || x.titleId || x.game_id || x.pkg_id || "ID Inconnu",
+    icon: x.image || x.posterUrl || x.icon || x.cover || "",
+    size: formatSize(x.size || x.sizeBytes || x.file_size),
+    version: x.version || x.app_ver || "1.00",
+    category: x.category || x.region || "PS5",
+    description: x.description || x.summary || x.desc || "Aucune description détaillée n'est disponible pour ce jeu.",
+    rawLinks: x.links || x.downloadLinks || x.urls || (x.url ? [x.url] : [])
+  };
+}
+
+async function load() {
+  const key = $("catalog").value;
+  $("catName").textContent = key.toUpperCase();
+  $("mainContainer").innerHTML = '<div class="empty-msg"><i class="fa-solid fa-spinner fa-spin"></i> Chargement...</div>';
+  $("empty").hidden = true;
+
+  let loadedData = null;
+  for (let url of SOURCES[key]) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.ok) { loadedData = await res.json(); break; }
+    } catch (e) {}
+  }
+
+  if (loadedData) {
+    let rawItems = Array.isArray(loadedData) ? loadedData : (loadedData.packages || loadedData.games || loadedData.items || []);
+    state.items = rawItems.map(normalizeItem);
+    render();
+  } else {
+    state.items = [];
+    $("mainContainer").innerHTML = "";
+    $("empty").hidden = false;
+  }
+}
+
+function filtered() {
+  const q = $("q").value.trim().toLowerCase();
+  return state.items.filter(x => !q || [x.title, x.titleId, x.category, x.version].some(v => String(v ?? "").toLowerCase().includes(q)));
+}
+
+/* RENDUS DES 4 VUES */
+function render() {
+  const items = filtered();
+  $("count").textContent = items.length;
+  $("empty").hidden = items.length !== 0;
+
+  const container = $("mainContainer");
+  const fallback = "https://via.placeholder.com/300x400/0d1527/7990b5?text=evoX+Store";
+
+  if (state.view === "grid") {
+    container.className = "view-grid";
+    container.innerHTML = items.map((x, i) => `
+      <article class="card-grid" data-i="${i}">
+        <div class="poster"><img loading="lazy" src="${esc(x.icon)}" onerror="this.src='${fallback}'"></div>
+        <div class="info">
+          <div class="title">${esc(x.title)}</div>
+          <div class="meta">${esc(x.titleId)} · ${esc(x.size)}</div>
+          <div class="badges">
+            <span class="badge red">${esc(x.category)}</span>
+            <span class="badge">v${esc(x.version)}</span>
+          </div>
+        </div>
+      </article>`).join("");
+  } 
+  else if (state.view === "list") {
+    container.className = "view-list";
+    container.innerHTML = items.map((x, i) => `
+      <article class="card-list" data-i="${i}">
+        <div class="thumb"><img loading="lazy" src="${esc(x.icon)}" onerror="this.src='${fallback}'"></div>
+        <div>
+          <div class="title">${esc(x.title)}</div>
+          <div class="meta">${esc(x.titleId)} · ${esc(x.size)} · v${esc(x.version)}</div>
+        </div>
+        <button class="btn-open">Ouvrir</button>
+      </article>`).join("");
+  }
+  else if (state.view === "cards") {
+    container.className = "view-cards";
+    container.innerHTML = items.map((x, i) => `
+      <article class="card-banner" data-i="${i}">
+        <div class="thumb"><img loading="lazy" src="${esc(x.icon)}" onerror="this.src='${fallback}'"></div>
+        <div class="details">
+          <div>
+            <div class="title">${esc(x.title)}</div>
+            <div class="meta" style="margin-top:4px;">${esc(x.titleId)}</div>
+          </div>
+          <div class="badges">
+            <span class="badge red">${esc(x.category)}</span>
+            <span class="badge cyan">${esc(x.size)}</span>
+            <span class="badge">v${esc(x.version)}</span>
+          </div>
+        </div>
+      </article>`).join("");
+  }
+  else if (state.view === "table") {
+    container.className = "";
+    container.innerHTML = `
+      <table class="view-table">
+        <thead>
+          <tr>
+            <th>Jeu / Titre</th>
+            <th>Title ID</th>
+            <th>Catégorie</th>
+            <th>Version</th>
+            <th>Taille</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((x, i) => `
+            <tr data-i="${i}">
+              <td style="font-weight:700;">${esc(x.title)}</td>
+              <td style="color:var(--muted);">${esc(x.titleId)}</td>
+              <td><span class="badge red">${esc(x.category)}</span></td>
+              <td><span class="badge">v${esc(x.version)}</span></td>
+              <td>${esc(x.size)}</td>
+              <td><button class="btn-open">Voir</button></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>`;
+  }
+}
+
+/* DECOUPAGE DES LIENS & BACKPORTS (7.xx, 4.xx, etc.) */
+function parseLinks(rawLinks) {
+  const categories = { game: [], dlc: [], backport: [], other: [] };
+  let flatten = [];
+
+  if (Array.isArray(rawLinks)) {
+    rawLinks.forEach((l, idx) => {
+      if (typeof l === 'string') flatten.push({ label: `Part ${idx+1}`, url: l });
+      else if (typeof l === 'object') flatten.push({ label: l.name || l.label || `Lien ${idx+1}`, url: l.url || l.link || '' });
+    });
+  } else if (typeof rawLinks === 'object' && rawLinks !== null) {
+    Object.keys(rawLinks).forEach(k => {
+      let val = rawLinks[k];
+      if (Array.isArray(val)) val.forEach((u, i) => flatten.push({ label: `${k} (Part ${i+1})`, url: u }));
+      else flatten.push({ label: k, url: val });
+    });
+  }
+
+  flatten.forEach(item => {
+    let str = (item.label + ' ' + item.url).toLowerCase();
+    if (str.includes('backport') || str.includes('fix') || str.includes('.xx')) categories.backport.push(item);
+    else if (str.includes('dlc') || str.includes('addon')) categories.dlc.push(item);
+    else categories.game.push(item);
+  });
+
+  return categories;
+}
+
+function getHostName(url) {
+  let u = url.toLowerCase();
+  if (u.includes('1fichier')) return '1Fichier';
+  if (u.includes('mega.nz') || u.includes('mega.co')) return 'Mega';
+  if (u.includes('rapidgator')) return 'Rapidgator';
+  if (u.includes('akirabox')) return 'AkiraBox';
+  if (u.includes('vikingfile')) return 'VikingFile';
+  if (u.includes('datanodes')) return 'DataNodes';
+  if (u.includes('filek')) return 'Filek';
+  if (u.includes('vault')) return 'Vault';
+  return 'Direct Link / Server';
+}
+
+function renderCategoryGroup(title, cssClass, icon, items) {
+  if (!items || items.length === 0) return '';
+
+  const hosts = {};
+  items.forEach(it => {
+    let host = getHostName(it.url);
+    if (!hosts[host]) hosts[host] = [];
+    hosts[host].push(it);
+  });
+
+  let html = `
+    <div class="link-box">
+      <div class="link-box-title ${cssClass}">
+        <i class="${icon}"></i> ${title}
+      </div>
+  `;
+
+  Object.keys(hosts).forEach(hostName => {
+    let list = hosts[hostName];
+    let uniqueId = 'sel_' + Math.random().toString(36).substr(2, 9);
+
+    html += `<div class="host-row">
+      <div class="host-title"><i class="fa-solid fa-server" style="color:var(--muted)"></i> ${hostName}</div>
+      <div class="host-controls">`;
+
+    if (list.length === 1) {
+      html += `<a href="${esc(list[0].url)}" target="_blank" class="dl-btn"><i class="fa-solid fa-download"></i> Télécharger</a>`;
+    } else {
+      html += `<select id="${uniqueId}" class="parts-select">`;
+      list.forEach((item) => {
+        html += `<option value="${esc(item.url)}">${esc(item.label)}</option>`;
+      });
+      html += `</select>
+      <button onclick="window.open(document.getElementById('${uniqueId}').value, '_blank')" class="dl-btn">
+        <i class="fa-solid fa-download"></i> Télécharger
+      </button>`;
+    }
+
+    html += `</div></div>`;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+function openItem(index) {
+  const x = filtered()[index];
+  if (!x) return;
+
+  const fallback = "https://via.placeholder.com/300x400/0d1527/7990b5?text=evoX+Store";
+  $("mImg").src = x.icon || fallback;
+  $("mTitle").textContent = x.title;
+  $("mDesc").textContent = x.description;
+
+  $("descAccordion").classList.remove("open");
+  $("descIcon").className = "fa-solid fa-chevron-down";
+
+  $("mBadges").innerHTML = [
+    `<span class="badge red">${esc(x.category)}</span>`,
+    `<span class="badge">${esc(x.titleId)}</span>`,
+    `<span class="badge">v${esc(x.version)}</span>`,
+    `<span class="badge cyan">${esc(x.size)}</span>`
+  ].join('');
+
+  const parsed = parseLinks(x.rawLinks);
+
+  let linksHTML = "";
+  linksHTML += renderCategoryGroup("Fichiers du Jeu (PKGs)", "game", "fa-solid fa-gamepad", parsed.game);
+  linksHTML += renderCategoryGroup("Contenus Téléchargeables (DLC)", "dlc", "fa-solid fa-puzzle-piece", parsed.dlc);
+  linksHTML += renderCategoryGroup("Fixes & Backports (7.xx / 4.xx)", "backport", "fa-solid fa-screwdriver-wrench", parsed.backport);
+
+  $("mLinks").innerHTML = linksHTML || `<div style="text-align:center; padding:15px; color:var(--muted)">Aucun lien disponible.</div>`;
+
+  $("dlg").showModal();
+}
+
+/* EVENT LISTENERS */
+$("q").addEventListener("input", render);
+$("catalog").addEventListener("change", load);
+
+$("descHeader").onclick = () => {
+  const acc = $("descAccordion");
+  acc.classList.toggle("open");
+  $("descIcon").className = acc.classList.contains("open") ? "fa-solid fa-chevron-up" : "fa-solid fa-chevron-down";
+};
+
+const views = [
+  { btn: "btnGrid", name: "grid" },
+  { btn: "btnList", name: "list" },
+  { btn: "btnCards", name: "cards" },
+  { btn: "btnTable", name: "table" }
+];
+
+views.forEach(v => {
+  $(v.btn).onclick = () => {
+    views.forEach(x => $(x.btn).classList.remove("active"));
+    $(v.btn).classList.add("active");
+    state.view = v.name;
+    render();
+  };
+});
+
+$("close").onclick = () => $("dlg").close();
+$("dlg").addEventListener("click", e => { if (e.target === $("dlg")) $("dlg").close(); });
+
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-i]");
+  if (el && !e.target.closest('button') && !e.target.closest('a')) openItem(Number(el.dataset.i));
+});
+
+// START
+load();
+</script>
+</body>
+</html>
