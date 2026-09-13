@@ -26,7 +26,7 @@ body {
     flex-direction: column;
 }
 
-/* NAVBAR FIX */
+/* NAVBAR FIXE */
 .navbar {
     display: flex;
     align-items: center;
@@ -38,6 +38,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
+    width: 100%;
 }
 
 .nav-brand {
@@ -55,6 +56,7 @@ body {
     align-items: center;
     gap: 0.35rem;
     overflow-x: auto;
+    white-space: nowrap;
     scrollbar-width: none;
     -ms-overflow-style: none;
     padding: 0.25rem 0;
@@ -74,7 +76,7 @@ body {
     cursor: pointer;
     font-size: 0.85rem;
     font-weight: 500;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.4rem;
     white-space: nowrap;
@@ -243,7 +245,6 @@ h2 {
 .social-links a {
     color: var(--text-muted);
     font-size: 1.2rem;
-    transition: color 0.2s ease;
 }
 
 .social-links a:hover {
