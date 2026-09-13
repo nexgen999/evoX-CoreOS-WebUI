@@ -1,0 +1,42 @@
+{
+  // Titre principal affiché dans l'en-tête de l'application
+  "siteTitle": "evoX-CoreOS WebUI",
+
+  // Informations relatives aux dépôts GitHub (Données vs WebUI)
+  "github": {
+    "user": "nexgen999",
+    "dataRepository": "nexgen999/evoX-CoreOS",
+    "webuiRepository": "nexgen999/evoX-CoreOS-WebUI"
+  },
+
+  // Sources externes chargées dynamiquement
+  "sources": {
+    // Les 4 catalogues JSON interrogés pour le Store et les compteurs de la Home
+    "json": [
+      { "name": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json" },
+      { "name": "PKGs", "url": "https://nexgen999.github.io/evoX-CoreOS/json/pkg.json" },
+      { "name": "FFPFSC", "url": "https://nexgen999.github.io/evoX-CoreOS/json/ffpfsc.json" },
+      { "name": "Apps", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" }
+    ],
+    // Fichier OPML source unique contenant les flux RSS d'actualités
+    "opml": "https://nexgen999.github.io/evoX-CoreOS/rss/source_aio.opml",
+    // Catalogues Pegasus à copier
+    "pegasus": [
+      { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" }
+    ]
+  },
+
+  // Téléchargements globaux AIO (Tag 'latest')
+  "releases": {
+    "baseUrl": "https://github.com/nexgen999/evoX-CoreOS/releases/download/latest/",
+    "packs": [
+      { "name": "Ultimate Pack AIO", "file": "PS5_ultimate_pack_latest.zip", "icon": "fa-crown" }
+    ]
+  },
+
+  // Crédits et liens communautaires
+  "credits": ["nexgen999", "evoX Team"],
+  "socials": [
+    { "platform": "github", "url": "https://github.com/nexgen999", "icon": "fa-brands fa-github" }
+  ]
+}
