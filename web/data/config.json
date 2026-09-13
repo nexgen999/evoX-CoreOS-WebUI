@@ -18,7 +18,10 @@
       { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" },
       { "name": "Pippo Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pippo.json" },
       { "name": "PFS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pfs.json" }
-    ]
+    ],
+    "pegasus_store": {
+      "visible": true
+    }
   },
   "webkit": [
     {
