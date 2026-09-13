@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeSection.classList.add('active');
             }
 
-            // Initialiser le store Pegasus au clic sur l'onglet
             if (targetTab === 'pegasus-store' && window.evoXPegasusStore) {
                 window.evoXPegasusStore.init();
             }
