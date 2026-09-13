@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>evoX-CoreOS - Pegasus Downloader</title>
+  <style>
+    :root {
+      --bg: #07101c;
+      --panel: #0d1928;
+      --panel2: #111f31;
+      --line: #203247;
+      --text: #eef5ff;
+      --muted: #91a3b8;
+      --accent: #28a9ff;
+      --accent2: #5c7cff;
+      --shadow: 0 18px 55px #0008;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 15% 0, #12365a 0, transparent 32%), linear-gradient(145deg, #050b13, #091321 55%, #07101c);
+      color: var(--text);
+      font: 15px/1.5 Inter, Segoe UI, Arial, sans-serif;
+      min-height: 100vh;
+    }
+    button, input, select { font: inherit; }
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #07101ce8;
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav {
+      max-width: 1500px;
+      margin: auto;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      font-weight: 800;
+      font-size: 20px;
+      white-space: nowrap;
+    }
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #1bb6ff, #3864ff);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 8px 30px #208cff55;
+    }
+    .logo:after { content: "eX"; font-weight: 900; color: white; }
+    .controls {
+      max-width: 1500px;
+      margin: auto;
+      padding: 22px 24px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .search { flex: 1; min-width: 260px; position: relative; }
+    .search input {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #0a1523;
+      color: var(--text);
+      outline: none;
+    }
+    .search input:focus { border-color: var(--accent); }
+    .search span { position: absolute; left: 15px; top: 11px; font-size: 20px; }
+    .select, .viewbtn {
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #0a1523;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .viewbtn.active { background: #173a61; border-color: #2c8fda; }
+    .hero { max-width: 1500px; margin: 0 auto; padding: 25px 24px 8px; }
+    .hero h1 { font-size: clamp(30px, 4vw, 48px); margin: 0 0 6px; }
+    .hero p { color: var(--muted); margin: 0; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+    .stat { background: #0d1928; border: 1px solid var(--line); padding: 9px 13px; border-radius: 999px; color: #b9c8da; }
+    .stat b { color: white; }
+    main { max-width: 1500px; margin: auto; padding: 22px 24px 60px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 18px; }
+    .card {
+      background: linear-gradient(180deg, #102033, #0b1725);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 8px 28px #0003;
+      cursor: pointer;
+      transition: .2s;
+    }
+    .card:hover { transform: translateY(-4px); border-color: #2b7fba; box-shadow: var(--shadow); }
+    .poster { aspect-ratio: 2/2.55; background: #101b29; overflow: hidden; position: relative; }
+    .poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .info { padding: 14px; }
+    .title { font-weight: 750; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .meta { color: var(--muted); font-size: 12px; margin-top: 6px; }
+    .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .badge { font-size: 11px; border: 1px solid #2a4259; border-radius: 999px; padding: 3px 7px; color: #a9c5dd; }
+    .list { display: none; }
+    .list .row {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 15px;
+      align-items: center;
+      background: #0d1928;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .list .thumb { width: 72px; height: 90px; border-radius: 10px; overflow: hidden; background: #111; }
+    .list img { width: 100%; height: 100%; object-fit: cover; }
+    .list .title { font-size: 16px; }
+    .open { border: 1px solid #2b6e9d; background: #102b43; color: #dff3ff; padding: 9px 12px; border-radius: 10px; cursor: pointer; }
+    .empty { text-align: center; padding: 70px 20px; color: var(--muted); }
+    dialog {
+      width: min(900px, 94vw);
+      border: 1px solid #2a4058;
+      border-radius: 22px;
+      background: #091523;
+      color: var(--text);
+      padding: 0;
+      box-shadow: 0 30px 100px #000b;
+    }
+    .modal { display: grid; grid-template-columns: 250px 1fr; gap: 25px; padding: 25px; position: relative; }
+    .modalposter { width: 100%; aspect-ratio: 2/2.55; border-radius: 16px; overflow: hidden; background: #111; }
+    .modalposter img { width: 100%; height: 100%; object-fit: cover; }
+    .modal h2 { margin: 0 35px 8px 0; font-size: 26px; color: var(--accent); }
+    .close { position: absolute; right: 16px; top: 13px; border: 0; background: #182536; color: white; border-radius: 10px; width: 36px; height: 36px; cursor: pointer; font-size: 18px; }
+    .desc { color: #aebed0; white-space: pre-line; margin-top: 15px; }
+    .links { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .source-btn {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #15314a;
+      border: 1px solid #2c638b;
+      color: #dff4ff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .source-btn:hover { background: #1e4569; }
+    .notice { margin-top: 18px; padding: 12px 14px; border: 1px solid #624b22; background: #2c2414; color: #e7cf99; border-radius: 12px; font-size: 13px; }
+    @media(max-width:700px) {
+      .nav { padding: 14px; }
+      .controls, .hero, main { padding-left: 14px; padding-right: 14px; }
+      .modal { grid-template-columns: 1fr; }
+      .modalposter { max-width: 220px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="nav">
+    <div class="brand"><div class="logo"></div><span>evoX-CoreOS · Pegasus Downloader</span></div>
+  </div>
+  <div class="controls">
+    <div class="search"><span>⌕</span><input id="q" placeholder="Rechercher un jeu, Title ID, catégorie…"></div>
+    <select id="catalog" class="select">
+      <option value="pfs">PFS Catalog</option>
+      <option value="dlps">DLPS Catalog</option>
+      <option value="pippo">Pippo Catalog</option>
+    </select>
+    <button class="viewbtn active" id="gridBtn">▦ Grille</button>
+    <button class="viewbtn" id="listBtn">☰ Liste</button>
+  </div>
+</header>
+
+<section class="hero">
+  <h1 id="heading">PFS Catalog</h1>
+  <p>Catalogue Pegasus chargé directement depuis le dépôt evoX-CoreOS.</p>
+  <div class="stats">
+    <div class="stat">Entrées : <b id="count">0</b></div>
+    <div class="stat">Catégories : <b id="cats">0</b></div>
+    <div class="stat">Source : <b>GitHub</b></div>
+  </div>
+</section>
+
+<main>
+  <div id="grid" class="grid"></div>
+  <div id="list" class="list"></div>
+  <div id="empty" class="empty" hidden>Aucun résultat.</div>
+</main>
+
+<dialog id="dlg">
+  <button class="close" id="close">×</button>
+  <div class="modal">
+    <div class="modalposter"><img id="mImg" src="" alt=""></div>
+    <div>
+      <h2 id="mTitle"></h2>
+      <div class="badges" id="mBadges"></div>
+      <p class="desc" id="mDesc"></p>
+      <div class="links" id="mLinks"></div>
+      <div class="notice">Les boutons ci-dessus affichent uniquement les sources du catalogue. Pour les jeux commerciaux, utilise des copies et téléchargements que tu es légalement autorisé à distribuer.</div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+// Configurations des URLs avec proxies intégrés pour éviter l'erreur CORS
+const SOURCES = {
+  dlps: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/dlps.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json",
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json")
+  ],
+  pfs: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pfs.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json",
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json")
+  ],
+  pippo: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pippo.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json",
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json")
+  ]
+};
+
+const state = { items: [], view: "grid" };
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+
+function formatSize(val) {
+  if (!val || val === "N/A") return "Taille inconnue";
+  if (typeof val === 'string' && (val.includes('GB') || val.includes('MB'))) return val;
+  let n = Number(val);
+  if (isNaN(n)) return val;
+  let u = ["B", "KB", "MB", "GB", "TB"], i = 0;
+  while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+  return n.toFixed(n >= 100 ? 0 : 1) + " " + u[i];
+}
+
+// Harmonise les différentes structures JSON (ChatGPT vs Pegasus originel)
+function normalizeItem(x) {
+  return {
+    title: x.title || x.name || "Sans titre",
+    titleId: x.id || x.titleId || x.game_id || x.pkg_id || "ID Inconnu",
+    icon: x.image || x.posterUrl || x.icon || x.cover || "",
+    size: formatSize(x.size || x.sizeBytes || x.file_size),
+    version: x.version || x.app_ver || "1.00",
+    category: x.category || x.region || "Général",
+    description: x.description || "Aucune description fournie.",
+    rawLinks: x.links || x.downloadLinks || x.urls || (x.url ? [x.url] : [])
+  };
+}
+
+async function load() {
+  const key = $("catalog").value;
+  const urlList = SOURCES[key];
+
+  $("heading").textContent = key.toUpperCase() + " Catalog";
+  $("grid").innerHTML = '<div class="empty">Chargement du catalogue…</div>';
+  $("list").innerHTML = "";
+  $("empty").hidden = true;
+
+  let loadedData = null;
+
+  for (let url of urlList) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.ok) {
+        loadedData = await res.json();
+        break;
+      }
+    } catch (e) {
+      console.warn("Échec du chargement depuis:", url);
+    }
+  }
+
+  if (loadedData) {
+    let rawItems = Array.isArray(loadedData) ? loadedData : (loadedData.packages || loadedData.games || loadedData.items || []);
+    state.items = rawItems.map(normalizeItem);
+    render();
+  } else {
+    state.items = [];
+    $("grid").innerHTML = "";
+    $("empty").hidden = false;
+    $("empty").textContent = "Erreur: Impossible d'extraire le catalogue JSON (Blocage réseau ou CORS).";
+  }
+}
+
+function filtered() {
+  const q = $("q").value.trim().toLowerCase();
+  return state.items.filter(x => !q || [x.title, x.titleId, x.category, x.version, x.description].some(v => String(v ?? "").toLowerCase().includes(q)));
+}
+
+function render() {
+  const items = filtered();
+  const cats = new Set(items.map(x => x.category).filter(Boolean));
+
+  $("count").textContent = items.length;
+  $("cats").textContent = cats.size;
+  $("empty").hidden = items.length !== 0;
+
+  $("grid").style.display = state.view === "grid" ? "grid" : "none";
+  $("list").style.display = state.view === "list" ? "block" : "none";
+
+  $("grid").innerHTML = items.map((x, i) => card(x, i)).join("");
+  $("list").innerHTML = items.map((x, i) => row(x, i)).join("");
+}
+
+function card(x, i) {
+  const fallbackImg = "https://via.placeholder.com/300x400/102033/28a9ff?text=evoX+Store";
+  return `
+    <article class="card" data-i="${i}">
+      <div class="poster">
+        <img loading="lazy" src="${esc(x.icon)}" onerror="this.src='${fallbackImg}'" alt="">
+      </div>
+      <div class="info">
+        <div class="title">${esc(x.title)}</div>
+        <div class="meta">${esc(x.titleId)} · ${esc(x.size)}</div>
+        <div class="badges">
+          <span class="badge">${esc(x.category)}</span>
+          <span class="badge">v${esc(x.version)}</span>
+        </div>
+      </div>
+    </article>`;
+}
+
+function row(x, i) {
+  const fallbackImg = "https://via.placeholder.com/100/102033/28a9ff?text=evoX";
+  return `
+    <article class="row">
+      <div class="thumb">
+        <img loading="lazy" src="${esc(x.icon)}" onerror="this.src='${fallbackImg}'" alt="">
+      </div>
+      <div>
+        <div class="title">${esc(x.title)}</div>
+        <div class="meta">${esc(x.titleId)} · ${esc(x.category)} · ${esc(x.size)} · v${esc(x.version)}</div>
+      </div>
+      <button class="open" data-i="${i}">Ouvrir</button>
+    </article>`;
+}
+
+function openItem(index) {
+  const x = filtered()[index];
+  if (!x) return;
+
+  const fallbackImg = "https://via.placeholder.com/300x400/102033/28a9ff?text=evoX+Store";
+  $("mImg").src = x.icon || fallbackImg;
+  $("mImg").onerror = () => { $("mImg").src = fallbackImg; };
+  $("mTitle").textContent = x.title;
+  $("mDesc").textContent = x.description;
+
+  $("mBadges").innerHTML = [x.titleId, "v" + x.version, x.category, x.size]
+    .filter(Boolean)
+    .map(v => `<span class="badge">${esc(v)}</span>`).join("");
+
+  let linksHTML = "";
+  if (Array.isArray(x.rawLinks) && x.rawLinks.length > 0) {
+    linksHTML = x.rawLinks.map((l, n) => {
+      let url = typeof l === 'string' ? l : (l.url || '#');
+      let label = typeof l === 'object' && l.name ? l.name : `Télécharger Lien ${n + 1}`;
+      return `<a class="source-btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer"><span>↗ ${esc(label)}</span> <i>Télécharger</i></a>`;
+    }).join("");
+  } else if (typeof x.rawLinks === 'object' && x.rawLinks !== null) {
+    linksHTML = Object.keys(x.rawLinks).map(key => {
+      let val = x.rawLinks[key];
+      let url = typeof val === 'string' ? val : (Array.isArray(val) ? val[0] : '#');
+      return `<a class="source-btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer"><span>↗ ${esc(key)}</span> <i>Télécharger</i></a>`;
+    }).join("");
+  }
+
+  $("mLinks").innerHTML = linksHTML || "<span class='meta'>Aucun lien direct disponible.</span>";
+  $("dlg").showModal();
+}
+
+// Événements UI
+$("q").addEventListener("input", render);
+$("catalog").addEventListener("change", load);
+
+$("gridBtn").onclick = () => {
+  state.view = "grid";
+  $("gridBtn").classList.add("active");
+  $("listBtn").classList.remove("active");
+  render();
+};
+
+$("listBtn").onclick = () => {
+  state.view = "list";
+  $("listBtn").classList.add("active");
+  $("gridBtn").classList.remove("active");
+  render();
+};
+
+$("close").onclick = () => $("dlg").close();
+$("dlg").addEventListener("click", e => { if (e.target === $("dlg")) $("dlg").close(); });
+
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-i]");
+  if (el) openItem(Number(el.dataset.i));
+});
+
+// Initialisation
+load();
+</script>
+
+</body>
+</html>
