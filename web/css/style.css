@@ -393,6 +393,52 @@ body {
     max-width: 350px;
 }
 
+/* Pegasus Store Specifics */
+.pegasus-card-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 0.5rem;
+}
+
+.pegasus-item-meta {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.pegasus-download-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+}
+
+.btn-download-host {
+    background: var(--bg-hover);
+    color: var(--text-main);
+    padding: 0.35rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.2s;
+}
+
+.btn-download-host:hover {
+    border-color: var(--accent);
+    color: #fff;
+    background: var(--accent);
+}
+
 /* Wiki Section */
 .wiki-layout {
     display: grid;
