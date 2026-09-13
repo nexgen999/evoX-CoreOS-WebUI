@@ -1,6 +1,6 @@
 (function () {
     let rawCatalogData = [];
-    let currentViewMode = 'grid'; // 'grid' ou 'list'
+    let currentViewMode = 'grid';
 
     window.evoXPegasusStore = {
         init: function (config) {
@@ -8,18 +8,15 @@
                               document.getElementById('pegasus-store-container') || 
                               document.getElementById('tab-pegasus-store');
             
-            if (!container) {
-                console.error("Conteneur Pegasus Store introuvable dans le DOM.");
-                return;
-            }
+            if (!container) return;
 
             container.innerHTML = `
-                <div class="store-controls" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <div class="store-controls" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
                     <select id="pegasus-catalog-select" class="form-control" style="max-width: 250px;"></select>
-                    <input type="text" id="pegasus-search-input" class="form-control" placeholder="Rechercher un jeu ou un fichier dans Pegasus..." style="flex: 1;">
+                    <input type="text" id="pegasus-search-input" class="form-control" placeholder="Rechercher un jeu ou un fichier dans Pegasus..." style="flex: 1; min-width: 200px;">
                     <div class="view-toggle-btns" style="display: flex; gap: 0.5rem;">
-                        <button id="btn-view-grid" class="btn btn-secondary active"><i class="fa-solid fa-border-all"></i></button>
-                        <button id="btn-view-list" class="btn btn-secondary"><i class="fa-solid fa-list"></i></button>
+                        <button id="btn-view-grid" class="btn btn-secondary active" type="button"><i class="fa-solid fa-border-all"></i></button>
+                        <button id="btn-view-list" class="btn btn-secondary" type="button"><i class="fa-solid fa-list"></i></button>
                     </div>
                 </div>
                 <div id="pegasus-store-grid-container"></div>
@@ -72,50 +69,43 @@
 
             container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement du catalogue Pegasus...</p>';
 
-            // Liste de proxys à essayer séquentiellement pour contourner les erreurs CORS 403 / Failed to fetch
-            const proxies = [
-                (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-                (u) => `https://thingproxy.freeboard.io/fetch/${u}`,
-                (u) => `https://cors-anywhere.herokuapp.com/${u}`,
-                (u) => u // Tentative directe au cas où
-            ];
+            try {
+                let data = null;
 
-            let data = null;
-            let lastError = null;
-
-            for (const getProxyUrl of proxies) {
-                try {
-                    const targetUrl = getProxyUrl(url);
-                    const response = await fetch(targetUrl);
-                    if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
+                // Si le lien est local
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+                    data = await res.json();
+                } else {
+                    // Utilisation de AllOrigins via wrapper JSON pour bypass total des entêtes CORS
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                    const res = await fetch(proxyUrl);
+                    if (!res.ok) throw new Error(`Proxy Error ${res.status}`);
                     
-                    data = await response.json();
-                    if (data) break; // Succès, on sort de la boucle
-                } catch (err) {
-                    lastError = err;
+                    const wrapper = await res.json();
+                    if (!wrapper.contents) throw new Error("Réponse distante vide");
+                    
+                    data = JSON.parse(wrapper.contents);
                 }
-            }
 
-            if (!data) {
-                console.error("Erreur de chargement du catalogue Pegasus :", lastError);
-                container.innerHTML = `<p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible d'accéder au catalogue Pegasus à distance (CORS/Réseau). Veuillez héberger une copie locale du fichier .json.</p>`;
-                return;
-            }
+                if (Array.isArray(data)) {
+                    rawCatalogData = data;
+                } else if (Array.isArray(data.items)) {
+                    rawCatalogData = data.items;
+                } else if (Array.isArray(data.downloads)) {
+                    rawCatalogData = data.downloads;
+                } else if (Array.isArray(data.gameList)) {
+                    rawCatalogData = data.gameList;
+                } else {
+                    rawCatalogData = [];
+                }
 
-            // Normalisation des différentes structures JSON possibles dans les catalogues Pegasus
-            if (Array.isArray(data)) {
-                rawCatalogData = data;
-            } else if (Array.isArray(data.items)) {
-                rawCatalogData = data.items;
-            } else if (Array.isArray(data.downloads)) {
-                rawCatalogData = data.downloads;
-            } else if (Array.isArray(data.gameList)) {
-                rawCatalogData = data.gameList;
-            } else {
-                rawCatalogData = [];
+                this.render();
+            } catch (err) {
+                console.error("Erreur Pegasus Store :", err);
+                container.innerHTML = `<p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Erreur lors de la récupération des données (${err.message}).</p>`;
             }
-
-            this.render();
         },
 
         render: function () {
