@@ -580,13 +580,36 @@
     </div>
 
     <script>
-        const BASE_RAW = 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/';
-
-        const SOURCES = {
-            dlps: BASE_RAW + 'dlps.json',
-            pfs: BASE_RAW + 'pfs.json',
-            pippo: BASE_RAW + 'pippo.json'
-        };
+        // URLs multi-fallbacks (GitHub Pages / Raw GitHub / Proxies)
+        const CATALOG_CONFIG = [
+            {
+                key: 'dlps',
+                urls: [
+                    'https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/dlps.json',
+                    'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json',
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json'),
+                    'https://corsproxy.io/?' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json')
+                ]
+            },
+            {
+                key: 'pfs',
+                urls: [
+                    'https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pfs.json',
+                    'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json',
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json'),
+                    'https://corsproxy.io/?' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json')
+                ]
+            },
+            {
+                key: 'pippo',
+                urls: [
+                    'https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pippo.json',
+                    'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json',
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json'),
+                    'https://corsproxy.io/?' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json')
+                ]
+            }
+        ];
 
         let rawStoreData = [];
         let currentView = 'grid';
@@ -606,36 +629,33 @@
             });
         });
 
-        // Chargement autonome résistant aux erreurs CORS/Origin
+        // Tente de charger une source avec plusieurs miroirs
+        async function fetchSourceWithFallback(sourceObj) {
+            for (let url of sourceObj.urls) {
+                try {
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        const json = await res.json();
+                        return json;
+                    }
+                } catch (e) {
+                    console.warn(`[evoX Store] Échec du fetch vers ${url}`, e);
+                }
+            }
+            return null;
+        }
+
         async function loadAllData() {
             rawStoreData = [];
-            const keys = Object.keys(SOURCES);
             const container = document.getElementById('catalogContainer');
 
-            for (let key of keys) {
-                try {
-                    let response;
-                    try {
-                        // tentative directe HTTPS
-                        response = await fetch(SOURCES[key]);
-                        if (!response.ok) throw new Error('Direct fetch failed');
-                    } catch (directErr) {
-                        // Fallback via proxy si bloqué par CORS local/github
-                        const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(SOURCES[key]);
-                        response = await fetch(proxyUrl);
-                    }
-
-                    if (!response.ok) continue;
-
-                    const json = await response.json();
-                    const items = Array.isArray(json) ? json : (json.games || json.items || []);
-
+            for (let sourceObj of CATALOG_CONFIG) {
+                const data = await fetchSourceWithFallback(sourceObj);
+                if (data) {
+                    const items = Array.isArray(data) ? data : (data.games || data.items || []);
                     items.forEach(item => {
-                        rawStoreData.push(normalizeItem(item, key));
+                        rawStoreData.push(normalizeItem(item, sourceObj.key));
                     });
-
-                } catch (e) {
-                    console.warn(`Erreur de chargement pour la source ${key}:`, e);
                 }
             }
 
@@ -644,7 +664,7 @@
                     <div class="loading" style="color: #ff0055;">
                         <i class="fa-solid fa-triangle-exclamation"></i><br><br>
                         Impossible d'extraire les catalogues JSON.<br>
-                        Assurez-vous d'être connecté à internet.
+                        Vérifiez que les fichiers sont accessibles sur GitHub ou votre connexion.
                     </div>`;
                 return;
             }
@@ -652,7 +672,6 @@
             filterAndRender();
         }
 
-        // Normalisation dynamique des structures JSON variees
         function normalizeItem(raw, sourceKey) {
             return {
                 id: raw.id || raw.title_id || raw.game_id || raw.pkg_id || 'N/A',
@@ -666,7 +685,6 @@
             };
         }
 
-        // Tri exhaustif par catégorie (Jeu, DLC, Backport, Hôtes/Parties)
         function parseAndCategorizeLinks(links) {
             const categorized = { game: [], dlc: [], backport: [], other: [] };
             if (!links) return categorized;
