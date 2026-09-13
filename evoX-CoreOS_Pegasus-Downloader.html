@@ -1,854 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>evoX-CoreOS Pegasus Store</title>
-    <!-- FontAwesome pour les icônes -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-primary: #0a0c10;
-            --bg-secondary: #121620;
-            --bg-card: rgba(22, 28, 41, 0.75);
-            --bg-card-hover: rgba(30, 39, 58, 0.9);
-            --accent-green: #00ff88;
-            --accent-cyan: #00e5ff;
-            --accent-purple: #9d4edd;
-            --text-main: #f0f4f8;
-            --text-muted: #8b9bb4;
-            --border-color: rgba(0, 229, 255, 0.15);
-            --border-hover: rgba(0, 255, 136, 0.4);
-            --radius-soft: 16px;
-            --radius-btn: 10px;
-            --shadow-glow: 0 0 20px rgba(0, 229, 255, 0.15);
-            --glass-blur: blur(12px);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Rajdhani', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-primary);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(157, 78, 221, 0.05) 0%, transparent 40%);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-
-        /* HEADER */
-        header {
-            background: var(--bg-secondary);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-soft);
-            padding: 20px 30px;
-            margin-bottom: 25px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .brand i {
-            font-size: 2.2rem;
-            color: var(--accent-green);
-            filter: drop-shadow(0 0 8px var(--accent-green));
-        }
-
-        .brand h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            letter-spacing: 1.5px;
-            background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-        }
-
-        .brand span {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            display: block;
-            margin-top: -4px;
-        }
-
-        /* CONTROLS */
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .search-box {
-            position: relative;
-            min-width: 260px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 10px 15px 10px 40px;
-            background: rgba(10, 12, 16, 0.6);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-btn);
-            color: var(--text-main);
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .search-box input:focus {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        select {
-            background: rgba(10, 12, 16, 0.6);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 10px 16px;
-            border-radius: var(--radius-btn);
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        select:hover {
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-        }
-
-        .view-toggle {
-            display: flex;
-            background: rgba(10, 12, 16, 0.8);
-            border-radius: var(--radius-btn);
-            padding: 3px;
-            border: 1px solid var(--border-color);
-        }
-
-        .view-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .view-btn.active {
-            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
-            color: #000;
-            font-weight: bold;
-        }
-
-        /* STATS BAR */
-        .stats-bar {
-            margin-bottom: 15px;
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 5px;
-        }
-
-        /* GRID VIEW */
-        .store-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-soft);
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-        }
-
-        .card:hover {
-            transform: translateY(-6px);
-            border-color: var(--border-hover);
-            box-shadow: var(--shadow-glow);
-            background: var(--bg-card-hover);
-        }
-
-        .card-img-container {
-            width: 100%;
-            height: 180px;
-            background: #000;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .card:hover .card-img {
-            transform: scale(1.05);
-        }
-
-        .card-source-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(4px);
-            border: 1px solid var(--accent-cyan);
-            color: var(--accent-cyan);
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .card-body {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-
-        .card-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.05rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .card-info {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .info-tag {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .card-footer {
-            margin-top: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 10px;
-        }
-
-        .badge-type {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: bold;
-            background: rgba(0, 255, 136, 0.15);
-            color: var(--accent-green);
-        }
-
-        /* LIST VIEW */
-        .store-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .list-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-soft);
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .list-item:hover {
-            border-color: var(--border-hover);
-            background: var(--bg-card-hover);
-            transform: translateX(4px);
-        }
-
-        .list-img {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        .list-details {
-            flex-grow: 1;
-        }
-
-        .list-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1rem;
-            color: var(--text-main);
-        }
-
-        .list-sub {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        /* MODAL */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .modal-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--accent-cyan);
-            border-radius: var(--radius-soft);
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.25);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            animation: modalUp 0.3s ease forwards;
-        }
-
-        @keyframes modalUp {
-            from { transform: translateY(30px) scale(0.95); }
-            to { transform: translateY(0) scale(1); }
-        }
-
-        .modal-header {
-            position: relative;
-            height: 250px;
-        }
-
-        .modal-cover {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid var(--border-color);
-            color: #fff;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.2s ease;
-            z-index: 2;
-        }
-
-        .modal-close:hover {
-            background: #ff0055;
-            border-color: #ff0055;
-        }
-
-        .modal-content {
-            padding: 25px;
-        }
-
-        .modal-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.6rem;
-            color: var(--accent-green);
-            margin-bottom: 10px;
-        }
-
-        .modal-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 15px;
-        }
-
-        .dl-section {
-            margin-top: 15px;
-        }
-
-        .dl-section h3 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
-            color: var(--accent-cyan);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px dashed rgba(0, 229, 255, 0.3);
-            padding-bottom: 5px;
-        }
-
-        .dl-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .dl-item {
-            background: rgba(10, 12, 16, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 10px 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-        }
-
-        .dl-item:hover {
-            border-color: var(--accent-green);
-        }
-
-        .dl-btn {
-            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
-            color: #000;
-            padding: 6px 14px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 0.85rem;
-            transition: opacity 0.2s;
-        }
-
-        .dl-btn:hover {
-            opacity: 0.85;
-        }
-
-        /* LOADING */
-        .loading {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.2rem;
-            color: var(--accent-cyan);
-        }
-
-        .spinner {
-            border: 4px solid rgba(0, 229, 255, 0.1);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border-left-color: var(--accent-cyan);
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>evoX-CoreOS - Pegasus Downloader</title>
+<style>
+:root{--bg:#07101c;--panel:#0d1928;--panel2:#111f31;--line:#203247;--text:#eef5ff;--muted:#91a3b8;--accent:#28a9ff;--accent2:#5c7cff;--shadow:0 18px 55px #0008}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#12365a 0,transparent 32%),linear-gradient(145deg,#050b13,#091321 55%,#07101c);color:var(--text);font:15px/1.5 Inter,Segoe UI,Arial,sans-serif;min-height:100vh}
+button,input,select{font:inherit}.top{position:sticky;top:0;z-index:20;background:#07101ce8;backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.nav{max-width:1500px;margin:auto;padding:18px 24px;display:flex;align-items:center;gap:18px}.brand{display:flex;align-items:center;gap:13px;font-weight:800;font-size:20px;white-space:nowrap}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#1bb6ff,#3864ff);display:grid;place-items:center;box-shadow:0 8px 30px #208cff55}.logo:after{content:"eX";font-weight:900;color:white}
+.controls{max-width:1500px;margin:auto;padding:22px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}.search{flex:1;min-width:260px;position:relative}.search input{width:100%;padding:14px 16px 14px 44px;border-radius:14px;border:1px solid var(--line);background:#0a1523;color:var(--text);outline:none}.search input:focus{border-color:var(--accent)}.search span{position:absolute;left:15px;top:11px;font-size:20px}.select,.viewbtn{padding:13px 15px;border:1px solid var(--line);border-radius:14px;background:#0a1523;color:var(--text);cursor:pointer}.viewbtn.active{background:#173a61;border-color:#2c8fda}.hero{max-width:1500px;margin:0 auto;padding:25px 24px 8px}.hero h1{font-size:clamp(30px,4vw,48px);margin:0 0 6px}.hero p{color:var(--muted);margin:0}.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.stat{background:#0d1928;border:1px solid var(--line);padding:9px 13px;border-radius:999px;color:#b9c8da}.stat b{color:white}
+main{max-width:1500px;margin:auto;padding:22px 24px 60px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:18px}.card{background:linear-gradient(180deg,#102033,#0b1725);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 28px #0003;cursor:pointer;transition:.2s}.card:hover{transform:translateY(-4px);border-color:#2b7fba;box-shadow:var(--shadow)}.poster{aspect-ratio:2/2.55;background:#101b29;overflow:hidden}.poster img{width:100%;height:100%;object-fit:cover;display:block}.info{padding:14px}.title{font-weight:750;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta{color:var(--muted);font-size:12px;margin-top:6px}.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.badge{font-size:11px;border:1px solid #2a4259;border-radius:999px;padding:3px 7px;color:#a9c5dd}
+.list{display:none}.list .row{display:grid;grid-template-columns:72px 1fr auto;gap:15px;align-items:center;background:#0d1928;border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:10px}.list .thumb{width:72px;height:90px;border-radius:10px;overflow:hidden;background:#111}.list img{width:100%;height:100%;object-fit:cover}.list .title{font-size:16px}.open{border:1px solid #2b6e9d;background:#102b43;color:#dff3ff;padding:9px 12px;border-radius:10px;cursor:pointer}.empty{text-align:center;padding:70px 20px;color:var(--muted)}
+dialog{width:min(900px,94vw);border:1px solid #2a4058;border-radius:22px;background:#091523;color:var(--text);padding:0;box-shadow:0 30px 100px #000b}.modal{display:grid;grid-template-columns:250px 1fr;gap:25px;padding:25px}.modalposter{width:100%;aspect-ratio:2/2.55;border-radius:16px;overflow:hidden;background:#111}.modalposter img{width:100%;height:100%;object-fit:cover}.modal h2{margin:0 35px 8px 0;font-size:30px}.close{position:absolute;right:16px;top:13px;border:0;background:#182536;color:white;border-radius:10px;width:36px;height:36px;cursor:pointer}.desc{color:#aebed0;white-space:pre-line}.links{margin-top:20px;display:flex;gap:8px;flex-wrap:wrap}.source{display:inline-block;padding:10px 13px;border-radius:10px;background:#15314a;border:1px solid #2c638b;color:#dff4ff;text-decoration:none}.notice{margin-top:18px;padding:12px 14px;border:1px solid #624b22;background:#2c2414;color:#e7cf99;border-radius:12px;font-size:13px}
+@media(max-width:700px){.nav{padding:14px}.controls,.hero,main{padding-left:14px;padding-right:14px}.modal{grid-template-columns:1fr}.modalposter{max-width:220px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+</style>
 </head>
 <body>
+<header class="top">
+  <div class="nav"><div class="brand"><div class="logo"></div><span>evoX-CoreOS · Pegasus Downloader</span></div></div>
+  <div class="controls">
+    <div class="search"><span>⌕</span><input id="q" placeholder="Rechercher un jeu, Title ID, catégorie…"></div>
+    <select id="catalog" class="select">
+      <option value="pfs">PFS Catalog</option>
+      <option value="dlps">DLPS Catalog</option>
+      <option value="pippo">Pippo Catalog</option>
+    </select>
+    <button class="viewbtn active" id="gridBtn">▦ Grille</button>
+    <button class="viewbtn" id="listBtn">☰ Liste</button>
+  </div>
+</header>
+<section class="hero">
+  <h1 id="heading">PFS Catalog</h1>
+  <p>Catalogue Pegasus chargé directement depuis le dépôt evoX-CoreOS.</p>
+  <div class="stats"><div class="stat">Entrées : <b id="count">0</b></div><div class="stat">Catégories : <b id="cats">0</b></div><div class="stat">Source : <b>GitHub</b></div></div>
+</section>
+<main>
+  <div id="grid" class="grid"></div>
+  <div id="list" class="list"></div>
+  <div id="empty" class="empty" hidden>Aucun résultat.</div>
+</main>
 
-    <!-- HEADER -->
-    <header>
-        <div class="brand">
-            <i class="fa-solid fa-cube"></i>
-            <div>
-                <h1>evoX-CoreOS</h1>
-                <span>Pegasus Store Catalog</span>
-            </div>
-        </div>
-
-        <div class="controls">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Rechercher un jeu, ID, auteur...">
-            </div>
-
-            <select id="sourceSelect">
-                <option value="ALL">Toutes les listes</option>
-                <option value="dlps">DLPS Catalog</option>
-                <option value="pfs">PFS Catalog</option>
-                <option value="pippo">Pippo Catalog</option>
-            </select>
-
-            <div class="view-toggle">
-                <button class="view-btn active" id="btnViewGrid" title="Vue Tuiles"><i class="fa-solid fa-border-all"></i></button>
-                <button class="view-btn" id="btnViewList" title="Vue Liste"><i class="fa-solid fa-list"></i></button>
-            </div>
-        </div>
-    </header>
-
-    <!-- METRIQUES & STATS -->
-    <div class="stats-bar">
-        <span id="itemsCount">Chargement des paquets...</span>
-        <span id="activeFilter">Source : Toutes</span>
+<dialog id="dlg">
+  <button class="close" id="close">×</button>
+  <div class="modal">
+    <div class="modalposter"><img id="mImg" alt=""></div>
+    <div>
+      <h2 id="mTitle"></h2>
+      <div class="badges" id="mBadges"></div>
+      <p class="desc" id="mDesc"></p>
+      <div class="links" id="mLinks"></div>
+      <div class="notice">Les boutons ci-dessus affichent uniquement les sources du catalogue. Pour les jeux commerciaux, utilise des copies et téléchargements que tu es légalement autorisé à distribuer.</div>
     </div>
+  </div>
+</dialog>
 
-    <!-- CATALOGUE -->
-    <main id="catalogContainer">
-        <div class="loading">
-            <div class="spinner"></div>
-            Chargement et harmonisation des données evoX...
-        </div>
-    </main>
-
-    <!-- MODAL DETAILS -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-card">
-            <button class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></button>
-            <div class="modal-header">
-                <img src="" id="modalImg" class="modal-cover" alt="Cover">
-            </div>
-            <div class="modal-content">
-                <h2 class="modal-title" id="modalTitle">Game Title</h2>
-                <div class="modal-meta" id="modalMeta"></div>
-                <div id="modalLinks"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // URLs multi-fallbacks (GitHub Pages / Raw GitHub / Proxies)
-        const CATALOG_CONFIG = [
-            {
-                key: 'dlps',
-                urls: [
-                    'https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/dlps.json',
-                    'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json',
-                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json'),
-                    'https://corsproxy.io/?' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json')
-                ]
-            },
-            {
-                key: 'pfs',
-                urls: [
-                    'https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pfs.json',
-                    'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json',
-                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json'),
-                    'https://corsproxy.io/?' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json')
-                ]
-            },
-            {
-                key: 'pippo',
-                urls: [
-                    'https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pippo.json',
-                    'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json',
-                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json'),
-                    'https://corsproxy.io/?' + encodeURIComponent('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json')
-                ]
-            }
-        ];
-
-        let rawStoreData = [];
-        let currentView = 'grid';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAllData();
-
-            document.getElementById('searchInput').addEventListener('input', filterAndRender);
-            document.getElementById('sourceSelect').addEventListener('change', filterAndRender);
-            
-            document.getElementById('btnViewGrid').addEventListener('click', () => setView('grid'));
-            document.getElementById('btnViewList').addEventListener('click', () => setView('list'));
-
-            document.getElementById('modalClose').addEventListener('click', closeModal);
-            document.getElementById('modalOverlay').addEventListener('click', (e) => {
-                if (e.target.id === 'modalOverlay') closeModal();
-            });
-        });
-
-        // Tente de charger une source avec plusieurs miroirs
-        async function fetchSourceWithFallback(sourceObj) {
-            for (let url of sourceObj.urls) {
-                try {
-                    const res = await fetch(url);
-                    if (res.ok) {
-                        const json = await res.json();
-                        return json;
-                    }
-                } catch (e) {
-                    console.warn(`[evoX Store] Échec du fetch vers ${url}`, e);
-                }
-            }
-            return null;
-        }
-
-        async function loadAllData() {
-            rawStoreData = [];
-            const container = document.getElementById('catalogContainer');
-
-            for (let sourceObj of CATALOG_CONFIG) {
-                const data = await fetchSourceWithFallback(sourceObj);
-                if (data) {
-                    const items = Array.isArray(data) ? data : (data.games || data.items || []);
-                    items.forEach(item => {
-                        rawStoreData.push(normalizeItem(item, sourceObj.key));
-                    });
-                }
-            }
-
-            if (rawStoreData.length === 0) {
-                container.innerHTML = `
-                    <div class="loading" style="color: #ff0055;">
-                        <i class="fa-solid fa-triangle-exclamation"></i><br><br>
-                        Impossible d'extraire les catalogues JSON.<br>
-                        Vérifiez que les fichiers sont accessibles sur GitHub ou votre connexion.
-                    </div>`;
-                return;
-            }
-
-            filterAndRender();
-        }
-
-        function normalizeItem(raw, sourceKey) {
-            return {
-                id: raw.id || raw.title_id || raw.game_id || raw.pkg_id || 'N/A',
-                title: raw.title || raw.name || raw.filename || 'Titre Inconnu',
-                image: raw.image || raw.icon || raw.cover || raw.artwork || 'https://via.placeholder.com/400x225/121620/00e5ff?text=evoX+Store',
-                size: raw.size || raw.file_size || raw.filesize || 'N/A',
-                version: raw.version || raw.app_ver || raw.ver || '1.00',
-                region: raw.region || raw.lang || 'GLOBAL',
-                source: sourceKey,
-                rawLinks: raw.links || raw.download_links || raw.urls || (raw.url ? [raw.url] : [])
-            };
-        }
-
-        function parseAndCategorizeLinks(links) {
-            const categorized = { game: [], dlc: [], backport: [], other: [] };
-            if (!links) return categorized;
-
-            let linkList = [];
-            if (Array.isArray(links)) {
-                linkList = links;
-            } else if (typeof links === 'object') {
-                Object.keys(links).forEach(k => {
-                    if (Array.isArray(links[k])) {
-                        links[k].forEach(l => linkList.push({ label: k, url: l }));
-                    } else {
-                        linkList.push({ label: k, url: links[k] });
-                    }
-                });
-            }
-
-            linkList.forEach((item, idx) => {
-                let url = typeof item === 'string' ? item : (item.url || item.link || '');
-                let label = typeof item === 'object' && item.label ? item.label : `Partie / Lien ${idx + 1}`;
-                let str = (url + ' ' + label).toLowerCase();
-
-                let obj = { label, url };
-
-                if (str.includes('backport') || str.includes('fix')) {
-                    categorized.backport.push(obj);
-                } else if (str.includes('dlc') || str.includes('addon')) {
-                    categorized.dlc.push(obj);
-                } else if (str.includes('pkg') || str.includes('part') || str.includes('game') || str.includes('main')) {
-                    categorized.game.push(obj);
-                } else {
-                    categorized.other.push(obj);
-                }
-            });
-
-            return categorized;
-        }
-
-        function filterAndRender() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const source = document.getElementById('sourceSelect').value;
-
-            document.getElementById('activeFilter').innerText = `Source : ${source.toUpperCase()}`;
-
-            const filtered = rawStoreData.filter(item => {
-                const matchesSource = (source === 'ALL' || item.source === source);
-                const matchesQuery = item.title.toLowerCase().includes(query) || 
-                                     item.id.toLowerCase().includes(query);
-                return matchesSource && matchesQuery;
-            });
-
-            document.getElementById('itemsCount').innerText = `${filtered.length} paquet(s) affiché(s)`;
-            renderStore(filtered);
-        }
-
-        function setView(view) {
-            currentView = view;
-            document.getElementById('btnViewGrid').classList.toggle('active', view === 'grid');
-            document.getElementById('btnViewList').classList.toggle('active', view === 'list');
-            filterAndRender();
-        }
-
-        function renderStore(data) {
-            const container = document.getElementById('catalogContainer');
-            if (data.length === 0) {
-                container.className = '';
-                container.innerHTML = `<div class="loading">Aucun résultat ne correspond à votre recherche.</div>`;
-                return;
-            }
-
-            if (currentView === 'grid') {
-                container.className = 'store-grid';
-                container.innerHTML = data.map((item, index) => `
-                    <div class="card" onclick="openModal(${index})">
-                        <div class="card-img-container">
-                            <span class="card-source-badge">${item.source}</span>
-                            <img src="${item.image}" class="card-img" alt="${item.title}" onerror="this.src='https://via.placeholder.com/400x225/121620/00e5ff?text=evoX+Store'">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">${item.title}</div>
-                            <div class="card-info">
-                                <span class="info-tag"><i class="fa-solid fa-barcode"></i> ${item.id}</span>
-                                <span class="info-tag"><i class="fa-solid fa-hard-drive"></i> ${item.size}</span>
-                            </div>
-                            <div class="card-footer">
-                                <span class="badge-type">v${item.version}</span>
-                                <i class="fa-solid fa-circle-info" style="color: var(--accent-cyan)"></i>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                container.className = 'store-list';
-                container.innerHTML = data.map((item, index) => `
-                    <div class="list-item" onclick="openModal(${index})">
-                        <img src="${item.image}" class="list-img" alt="${item.title}" onerror="this.src='https://via.placeholder.com/100/121620/00e5ff?text=evoX'">
-                        <div class="list-details">
-                            <div class="list-title">${item.title}</div>
-                            <div class="list-sub">${item.id} | Taille: ${item.size} | Version: ${item.version}</div>
-                        </div>
-                        <span class="card-source-badge" style="position:static;">${item.source}</span>
-                        <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
-                    </div>
-                `).join('');
-            }
-
-            window.currentRenderedData = data;
-        }
-
-        function openModal(index) {
-            const item = window.currentRenderedData[index];
-            if (!item) return;
-
-            document.getElementById('modalImg').src = item.image;
-            document.getElementById('modalTitle').innerText = item.title;
-            
-            document.getElementById('modalMeta').innerHTML = `
-                <span><i class="fa-solid fa-barcode"></i> ID: <strong>${item.id}</strong></span>
-                <span><i class="fa-solid fa-hard-drive"></i> Taille: <strong>${item.size}</strong></span>
-                <span><i class="fa-solid fa-code-branch"></i> Version: <strong>${item.version}</strong></span>
-                <span><i class="fa-solid fa-globe"></i> Région: <strong>${item.region}</strong></span>
-                <span><span class="card-source-badge" style="position:static;">${item.source}</span></span>
-            `;
-
-            const categorizedLinks = parseAndCategorizeLinks(item.rawLinks);
-            const linksContainer = document.getElementById('modalLinks');
-            linksContainer.innerHTML = '';
-
-            const createSection = (title, iconClass, linkList) => {
-                if (!linkList || linkList.length === 0) return '';
-                return `
-                    <div class="dl-section">
-                        <h3><i class="${iconClass}"></i> ${title}</h3>
-                        <div class="dl-grid">
-                            ${linkList.map(l => `
-                                <div class="dl-item">
-                                    <span>${l.label}</span>
-                                    <a href="${l.url}" target="_blank" class="dl-btn" rel="noopener noreferrer">
-                                        <i class="fa-solid fa-download"></i> Télécharger
-                                    </a>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            };
-
-            let html = '';
-            html += createSection('Fichiers de jeu principal / Packages', 'fa-solid fa-gamepad', categorizedLinks.game);
-            html += createSection('Contenus téléchargeables (DLC)', 'fa-solid fa-puzzle-piece', categorizedLinks.dlc);
-            html += createSection('Fixes & Backports', 'fa-solid fa-wrench', categorizedLinks.backport);
-            html += createSection('Autres Téléchargements / Hébergeurs', 'fa-solid fa-link', categorizedLinks.other);
-
-            if (!html) {
-                html = `<div style="color: var(--text-muted); text-align:center; padding: 20px;">Aucun lien direct n'a été répertorié pour cette entrée.</div>`;
-            }
-
-            linksContainer.innerHTML = html;
-            document.getElementById('modalOverlay').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-        }
-    </script>
+<script>
+const SOURCES={
+  dlps:"https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json",
+  pfs:"https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json",
+  pippo:"https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json"
+};
+const state={items:[],view:"grid"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function fmt(bytes){if(!bytes)return "Taille inconnue";let n=Number(bytes),u=["B","KB","MB","GB","TB"],i=0;while(n>=1024&&i<u.length-1){n/=1024;i++}return n.toFixed(n>=100?0:n>=10?1:2)+" "+u[i]}
+function normalized(d){return Array.isArray(d)?d:(Array.isArray(d?.packages)?d.packages:Array.isArray(d?.games)?d.games:[])}
+async function load(){
+  const key=$("catalog").value, url=SOURCES[key];
+  $("heading").textContent=key.toUpperCase()+" Catalog";
+  $("grid").innerHTML='<div class="empty">Chargement…</div>'; $("list").innerHTML="";
+  try{
+    const r=await fetch(url,{cache:"no-store"}); if(!r.ok) throw Error(r.status);
+    const d=await r.json(); state.items=normalized(d); render();
+  }catch(e){
+    state.items=[];$("grid").innerHTML="";$("empty").hidden=false;$("empty").textContent="Impossible de charger le catalogue : "+e.message;
+  }
+}
+function filtered(){
+  const q=$("q").value.trim().toLowerCase();
+  return state.items.filter(x=>!q||[x.title,x.name,x.titleId,x.category,x.version,x.description].some(v=>String(v??"").toLowerCase().includes(q)));
+}
+function render(){
+ const items=filtered(), cats=new Set(items.map(x=>x.category).filter(Boolean));
+ $("count").textContent=items.length;$("cats").textContent=cats.size;$("empty").hidden=items.length!==0;
+ $("grid").style.display=state.view==="grid"?"grid":"none";$("list").style.display=state.view==="list"?"block":"none";
+ $("grid").innerHTML=items.map((x,i)=>card(x,i)).join("");
+ $("list").innerHTML=items.map((x,i)=>row(x,i)).join("");
+}
+function card(x,i){return `<article class="card" data-i="${i}"><div class="poster"><img loading="lazy" src="${esc(x.posterUrl||x.icon||"")}" onerror="this.style.opacity=.2" alt=""></div><div class="info"><div class="title">${esc(x.title||x.name||"Sans titre")}</div><div class="meta">${esc(x.titleId||"")} · ${esc(fmt(x.sizeBytes))}</div><div class="badges"><span class="badge">${esc(x.category||"catalogue")}</span><span class="badge">v${esc(x.version||"—")}</span></div></div></article>`}
+function row(x,i){return `<article class="row"><div class="thumb"><img loading="lazy" src="${esc(x.posterUrl||x.icon||"")}" alt=""></div><div><div class="title">${esc(x.title||x.name||"Sans titre")}</div><div class="meta">${esc(x.titleId||"")} · ${esc(x.category||"")} · ${esc(fmt(x.sizeBytes))} · v${esc(x.version||"—")}</div></div><button class="open" data-i="${i}">Ouvrir</button></article>`}
+function openItem(index){
+ const x=filtered()[index]; if(!x)return;
+ $("mImg").src=x.posterUrl||x.icon||"";$("mTitle").textContent=x.title||x.name||"Sans titre";
+ $("mDesc").textContent=x.description||"Aucune description.";
+ $("mBadges").innerHTML=[x.titleId,x.version&&"v"+x.version,x.category,fmt(x.sizeBytes)].filter(Boolean).map(v=>`<span class="badge">${esc(v)}</span>`).join("");
+ const links=Array.isArray(x.downloadLinks)?x.downloadLinks:[];
+ $("mLinks").innerHTML=links.length?links.map((l,n)=>`<a class="source" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">↗ ${esc(l.name||"Source "+(n+1))}</a>`).join(""):"<span class='meta'>Aucun lien source.</span>";
+ $("dlg").showModal();
+}
+$("q").addEventListener("input",render);$("catalog").addEventListener("change",load);
+$("gridBtn").onclick=()=>{state.view="grid";$("gridBtn").classList.add("active");$("listBtn").classList.remove("active");render()};
+$("listBtn").onclick=()=>{state.view="list";$("listBtn").classList.add("active");$("gridBtn").classList.remove("active");render()};
+$("close").onclick=()=>$("dlg").close();$("dlg").addEventListener("click",e=>{if(e.target===$("dlg"))$("dlg").close()});
+document.addEventListener("click",e=>{const el=e.target.closest("[data-i]");if(el)openItem(Number(el.dataset.i))});
+load();
+</script>
 </body>
 </html>
