@@ -4,7 +4,6 @@
 
     window.evoXPegasusStore = {
         init: function (config) {
-            // Recherche le conteneur principal quel que soit son ID dans index.html
             const container = document.getElementById('pegasus-store-app') || 
                               document.getElementById('pegasus-store-container') || 
                               document.getElementById('tab-pegasus-store');
@@ -14,7 +13,6 @@
                 return;
             }
 
-            // Injection de la structure de l'interface
             container.innerHTML = `
                 <div class="store-controls" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
                     <select id="pegasus-catalog-select" class="form-control" style="max-width: 250px;"></select>
@@ -74,7 +72,8 @@
 
             container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement du catalogue Pegasus...</p>';
 
-            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+            // Utilisation du proxy AllOrigins pour contourner le blocage 403 / CORS
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
             try {
                 const response = await fetch(proxyUrl);
