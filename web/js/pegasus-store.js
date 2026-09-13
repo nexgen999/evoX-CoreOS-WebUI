@@ -72,30 +72,50 @@
 
             container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement du catalogue Pegasus...</p>';
 
-            // Utilisation du proxy AllOrigins pour contourner le blocage 403 / CORS
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+            // Liste de proxys à essayer séquentiellement pour contourner les erreurs CORS 403 / Failed to fetch
+            const proxies = [
+                (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+                (u) => `https://thingproxy.freeboard.io/fetch/${u}`,
+                (u) => `https://cors-anywhere.herokuapp.com/${u}`,
+                (u) => u // Tentative directe au cas où
+            ];
 
-            try {
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
+            let data = null;
+            let lastError = null;
 
-                const data = await response.json();
-                
-                if (Array.isArray(data)) {
-                    rawCatalogData = data;
-                } else if (Array.isArray(data.items)) {
-                    rawCatalogData = data.items;
-                } else if (Array.isArray(data.downloads)) {
-                    rawCatalogData = data.downloads;
-                } else {
-                    rawCatalogData = [];
+            for (const getProxyUrl of proxies) {
+                try {
+                    const targetUrl = getProxyUrl(url);
+                    const response = await fetch(targetUrl);
+                    if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
+                    
+                    data = await response.json();
+                    if (data) break; // Succès, on sort de la boucle
+                } catch (err) {
+                    lastError = err;
                 }
-
-                this.render();
-            } catch (err) {
-                console.error("Erreur de chargement du catalogue Pegasus :", err);
-                container.innerHTML = `<p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Erreur lors de la récupération des données (${err.message}).</p>`;
             }
+
+            if (!data) {
+                console.error("Erreur de chargement du catalogue Pegasus :", lastError);
+                container.innerHTML = `<p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible d'accéder au catalogue Pegasus à distance (CORS/Réseau). Veuillez héberger une copie locale du fichier .json.</p>`;
+                return;
+            }
+
+            // Normalisation des différentes structures JSON possibles dans les catalogues Pegasus
+            if (Array.isArray(data)) {
+                rawCatalogData = data;
+            } else if (Array.isArray(data.items)) {
+                rawCatalogData = data.items;
+            } else if (Array.isArray(data.downloads)) {
+                rawCatalogData = data.downloads;
+            } else if (Array.isArray(data.gameList)) {
+                rawCatalogData = data.gameList;
+            } else {
+                rawCatalogData = [];
+            }
+
+            this.render();
         },
 
         render: function () {
