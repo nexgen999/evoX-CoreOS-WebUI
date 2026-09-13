@@ -20,6 +20,8 @@
             <button class="nav-btn" data-tab="downloads"><i class="fa-solid fa-download"></i> Packs AIO</button>
             <button class="nav-btn" data-tab="store"><i class="fa-solid fa-cart-shopping"></i> Store JSON</button>
             <button class="nav-btn" data-tab="pegasus"><i class="fa-solid fa-copy"></i> Pegasus</button>
+            <!-- ONGLET PEGASUS STORE (Contrôlé via config.json) -->
+            <button class="nav-btn" data-tab="pegasus-store" id="nav-btn-pegasus-store" style="display: none;"><i class="fa-solid fa-store"></i> Pegasus Store</button>
             <button class="nav-btn" data-tab="services"><i class="fa-solid fa-server"></i> Services</button>
             <button class="nav-btn" data-tab="webkit"><i class="fa-solid fa-globe"></i> WebKit</button>
             <button class="nav-btn" data-tab="ps5-webui"><i class="fa-solid fa-gamepad"></i> Accès WebUI</button>
@@ -135,6 +137,27 @@
             <div id="pegasus-container" class="cards-grid" style="margin-top: 1rem;"></div>
         </section>
 
+        <!-- TAB: PEGASUS STORE -->
+        <section id="tab-pegasus-store" class="tab-content">
+            <h2><i class="fa-solid fa-store accent"></i> Pegasus Store</h2>
+            <p class="section-desc">Explorez et téléchargez directement le contenu extrait des catalogues Pegasus.</p>
+
+            <div class="store-controls" style="margin-top: 1rem;">
+                <select id="pegasus-catalog-select" class="select-filter" style="min-width: 200px;">
+                    <option value="">Chargement des catalogues...</option>
+                </select>
+
+                <input type="text" id="pegasus-store-search" placeholder="Rechercher un jeu ou un fichier dans Pegasus..." class="input-search">
+
+                <div class="view-toggle">
+                    <button id="btn-ps-view-grid" class="btn btn-secondary active" title="Vue Grille"><i class="fa-solid fa-border-all"></i></button>
+                    <button id="btn-ps-view-list" class="btn btn-secondary" title="Vue Liste Détaillée"><i class="fa-solid fa-list"></i></button>
+                </div>
+            </div>
+
+            <div id="pegasus-store-container" class="cards-grid" style="margin-top: 1rem;"></div>
+        </section>
+
         <!-- TAB: SERVICES -->
         <section id="tab-services" class="tab-content">
             <h2><i class="fa-solid fa-server"></i> Services Extensibles</h2>
@@ -229,6 +252,7 @@
     <script src="web/js/webui-manager.js"></script>
     <script src="web/js/youtube-manager.js"></script>
     <script src="web/js/store.js"></script>
+    <script src="web/js/pegasus-store.js"></script>
     <script src="web/js/app.js"></script>
 </body>
 </html>
