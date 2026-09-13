@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>evoX-CoreOS Pegasus Store</title>
+    <!-- FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0c10;
+            --bg-secondary: #121620;
+            --bg-card: rgba(22, 28, 41, 0.75);
+            --bg-card-hover: rgba(30, 39, 58, 0.9);
+            --accent-green: #00ff88;
+            --accent-cyan: #00e5ff;
+            --accent-purple: #9d4edd;
+            --text-main: #f0f4f8;
+            --text-muted: #8b9bb4;
+            --border-color: rgba(0, 229, 255, 0.15);
+            --border-hover: rgba(0, 255, 136, 0.4);
+            --radius-soft: 16px;
+            --radius-btn: 10px;
+            --shadow-glow: 0 0 20px rgba(0, 229, 255, 0.15);
+            --glass-blur: blur(12px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(157, 78, 221, 0.05) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--bg-secondary);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-soft);
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand i {
+            font-size: 2.2rem;
+            color: var(--accent-green);
+            filter: drop-shadow(0 0 8px var(--accent-green));
+        }
+
+        .brand h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 1.5px;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .brand span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: block;
+            margin-top: -4px;
+        }
+
+        /* CONTROLS & BARRE DE RECHERCHE */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 260px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            background: rgba(10, 12, 16, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-btn);
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        select, .btn {
+            background: rgba(10, 12, 16, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 16px;
+            border-radius: var(--radius-btn);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        select:hover, .btn:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .view-toggle {
+            display: flex;
+            background: rgba(10, 12, 16, 0.8);
+            border-radius: var(--radius-btn);
+            padding: 3px;
+            border: 1px solid var(--border-color);
+        }
+
+        .view-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* COMPTEUR DE RESULTATS */
+        .stats-bar {
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5px;
+        }
+
+        /* GRID VIEW (TUILES) */
+        .store-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-soft);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-glow);
+            background: var(--bg-card-hover);
+        }
+
+        .card-img-container {
+            width: 100%;
+            height: 180px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-img {
+            transform: scale(1.05);
+        }
+
+        .card-source-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .card-body {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .info-tag {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 10px;
+        }
+
+        .badge-type {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--accent-green);
+        }
+
+        /* LIST VIEW */
+        .store-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .list-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-soft);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .list-item:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+            transform: translateX(4px);
+        }
+
+        .list-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .list-details {
+            flex-grow: 1;
+        }
+
+        .list-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .list-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* MODAL / POPUP */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent-cyan);
+            border-radius: var(--radius-soft);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.25);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            animation: modalUp 0.3s ease forwards;
+        }
+
+        @keyframes modalUp {
+            from { transform: translateY(30px) scale(0.95); }
+            to { transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            position: relative;
+            height: 250px;
+        }
+
+        .modal-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+            z-index: 2;
+        }
+
+        .modal-close:hover {
+            background: #ff0055;
+            border-color: #ff0055;
+        }
+
+        .modal-content {
+            padding: 25px;
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            color: var(--accent-green);
+            margin-bottom: 10px;
+        }
+
+        .modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+        }
+
+        .dl-section {
+            margin-top: 15px;
+        }
+
+        .dl-section h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--accent-cyan);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px dashed rgba(0, 229, 255, 0.3);
+            padding-bottom: 5px;
+        }
+
+        .dl-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .dl-item {
+            background: rgba(10, 12, 16, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .dl-item:hover {
+            border-color: var(--accent-green);
+        }
+
+        .dl-btn {
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            color: #000;
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
+        }
+
+        .dl-btn:hover {
+            opacity: 0.85;
+        }
+
+        /* LOADING & SPINNER */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 229, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: var(--accent-cyan);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="brand">
+            <i class="fa-solid fa-cube"></i>
+            <div>
+                <h1>evoX-CoreOS</h1>
+                <span>Pegasus Store Catalog</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <!-- Barre de recherche -->
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Rechercher un jeu, ID, auteur...">
+            </div>
+
+            <!-- Filtre de source JSON -->
+            <select id="sourceSelect">
+                <option value="ALL">Toutes les listes</option>
+                <option value="dlps">DLPS Catalog</option>
+                <option value="pfs">PFS Catalog</option>
+                <option value="pippo">Pippo Catalog</option>
+            </select>
+
+            <!-- Vues Grid / List -->
+            <div class="view-toggle">
+                <button class="view-btn active" id="btnViewGrid" title="Vue Tuiles"><i class="fa-solid fa-border-all"></i></button>
+                <button class="view-btn" id="btnViewList" title="Vue Liste"><i class="fa-solid fa-list"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- METRIQUES & STATS -->
+    <div class="stats-bar">
+        <span id="itemsCount">Chargement des paquets...</span>
+        <span id="activeFilter">Source : Toutes</span>
+    </div>
+
+    <!-- CONTENEUR DU CATALOGUE -->
+    <main id="catalogContainer">
+        <div class="loading">
+            <div class="spinner"></div>
+            Chargement et harmonisation des données evoX...
+        </div>
+    </main>
+
+    <!-- MODAL DE DETAILS (POPUP) -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-card">
+            <button class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <img src="" id="modalImg" class="modal-cover" alt="Cover">
+            </div>
+            <div class="modal-content">
+                <h2 class="modal-title" id="modalTitle">Game Title</h2>
+                <div class="modal-meta" id="modalMeta"></div>
+                <div id="modalLinks"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sources des fichiers JSON sur GitHub
+        const SOURCES = {
+            dlps: 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json',
+            pfs: 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json',
+            pippo: 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json'
+        };
+
+        let rawStoreData = [];
+        let currentView = 'grid'; // 'grid' ou 'list'
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllData();
+
+            // Evénements UI
+            document.getElementById('searchInput').addEventListener('input', filterAndRender);
+            document.getElementById('sourceSelect').addEventListener('change', filterAndRender);
+            
+            document.getElementById('btnViewGrid').addEventListener('click', () => setView('grid'));
+            document.getElementById('btnViewList').addEventListener('click', () => setView('list'));
+
+            document.getElementById('modalClose').addEventListener('click', closeModal);
+            document.getElementById('modalOverlay').addEventListener('click', (e) => {
+                if (e.target.id === 'modalOverlay') closeModal();
+            });
+        });
+
+        // Chargement et normalisation multi-fichiers
+        async function loadAllData() {
+            rawStoreData = [];
+            const keys = Object.keys(SOURCES);
+
+            for (let key of keys) {
+                try {
+                    const res = await fetch(SOURCES[key]);
+                    if (!res.ok) continue;
+                    const json = await res.json();
+                    
+                    // Normalisation : s'assurer que chaque élément a une structure uniforme
+                    const items = Array.isArray(json) ? json : (json.games || json.items || []);
+                    items.forEach(item => {
+                        rawStoreData.push(normalizeItem(item, key));
+                    });
+                } catch (e) {
+                    console.error(`Erreur de chargement de la source ${key}:`, e);
+                }
+            }
+
+            filterAndRender();
+        }
+
+        // Normaliseur universel pour la tolérance de schéma evoX/Pegasus
+        function normalizeItem(raw, sourceKey) {
+            return {
+                id: raw.id || raw.title_id || raw.game_id || 'N/A',
+                title: raw.title || raw.name || 'Titre Inconnu',
+                image: raw.image || raw.icon || raw.cover || 'https://via.placeholder.com/400x225/121620/00e5ff?text=No+Image',
+                size: raw.size || raw.file_size || 'N/A',
+                version: raw.version || raw.app_ver || '1.00',
+                region: raw.region || 'GLOBAL',
+                source: sourceKey,
+                rawLinks: raw.links || raw.download_links || raw.urls || (raw.url ? [raw.url] : [])
+            };
+        }
+
+        // Tri intelligent des liens : Jeu principal, DLC, Backport, Parties de liens/Hébergeurs
+        function parseAndCategorizeLinks(links) {
+            const categorized = {
+                game: [],
+                dlc: [],
+                backport: [],
+                other: []
+            };
+
+            if (!links) return categorized;
+
+            // Harmonisation si array ou object
+            let linkList = [];
+            if (Array.isArray(links)) {
+                linkList = links;
+            } else if (typeof links === 'object') {
+                Object.keys(links).forEach(k => {
+                    if (Array.isArray(links[k])) {
+                        links[k].forEach(l => linkList.push({ label: k, url: l }));
+                    } else {
+                        linkList.push({ label: k, url: links[k] });
+                    }
+                });
+            }
+
+            linkList.forEach((item, idx) => {
+                let url = typeof item === 'string' ? item : (item.url || item.link || '');
+                let label = typeof item === 'object' && item.label ? item.label : `Lien ${idx + 1}`;
+                let strToCheck = (url + ' ' + label).toLowerCase();
+
+                let linkObj = { label, url };
+
+                if (strToCheck.includes('backport') || strToCheck.includes('fix')) {
+                    categorized.backport.push(linkObj);
+                } else if (strToCheck.includes('dlc') || strToCheck.includes('addon')) {
+                    categorized.dlc.push(linkObj);
+                } else if (strToCheck.includes('pkg') || strToCheck.includes('part') || strToCheck.includes('game') || strToCheck.includes('main')) {
+                    categorized.game.push(linkObj);
+                } else {
+                    categorized.other.push(linkObj);
+                }
+            });
+
+            return categorized;
+        }
+
+        // Filtrage & Rendu
+        function filterAndRender() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const source = document.getElementById('sourceSelect').value;
+
+            document.getElementById('activeFilter').innerText = `Source : ${source.toUpperCase()}`;
+
+            const filtered = rawStoreData.filter(item => {
+                const matchesSource = (source === 'ALL' || item.source === source);
+                const matchesQuery = item.title.toLowerCase().includes(query) || 
+                                     item.id.toLowerCase().includes(query);
+                return matchesSource && matchesQuery;
+            });
+
+            document.getElementById('itemsCount').innerText = `${filtered.length} élément(s) trouvé(s)`;
+
+            renderStore(filtered);
+        }
+
+        function setView(view) {
+            currentView = view;
+            document.getElementById('btnViewGrid').classList.toggle('active', view === 'grid');
+            document.getElementById('btnViewList').classList.toggle('active', view === 'list');
+            filterAndRender();
+        }
+
+        // Generateur d'interface HTML
+        function renderStore(data) {
+            const container = document.getElementById('catalogContainer');
+            if (data.length === 0) {
+                container.innerHTML = `<div class="loading">Aucun résultat ne correspond à votre recherche.</div>`;
+                return;
+            }
+
+            if (currentView === 'grid') {
+                container.className = 'store-grid';
+                container.innerHTML = data.map((item, index) => `
+                    <div class="card" onclick="openModal(${index}, '${item.id}')">
+                        <div class="card-img-container">
+                            <span class="card-source-badge">${item.source}</span>
+                            <img src="${item.image}" class="card-img" alt="${item.title}" onerror="this.src='https://via.placeholder.com/400x225/121620/00e5ff?text=evoX+Store'">
+                        </div>
+                        <div class="card-body">
+                            <div class="card-title">${item.title}</div>
+                            <div class="card-info">
+                                <span class="info-tag"><i class="fa-solid fa-barcode"></i> ${item.id}</span>
+                                <span class="info-tag"><i class="fa-solid fa-hard-drive"></i> ${item.size}</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="badge-type">v${item.version}</span>
+                                <i class="fa-solid fa-circle-info" style="color: var(--accent-cyan)"></i>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.className = 'store-list';
+                container.innerHTML = data.map((item, index) => `
+                    <div class="list-item" onclick="openModal(${index}, '${item.id}')">
+                        <img src="${item.image}" class="list-img" alt="${item.title}" onerror="this.src='https://via.placeholder.com/100/121620/00e5ff?text=evoX'">
+                        <div class="list-details">
+                            <div class="list-title">${item.title}</div>
+                            <div class="list-sub">${item.id} | Taille: ${item.size} | Version: ${item.version}</div>
+                        </div>
+                        <span class="card-source-badge" style="position:static;">${item.source}</span>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
+                    </div>
+                `).join('');
+            }
+
+            // Attacher les données aux index pour la modal
+            window.currentRenderedData = data;
+        }
+
+        // Ouverture de la Modal avec classement exhaustif des liens
+        function openModal(index, id) {
+            const item = window.currentRenderedData[index];
+            if (!item) return;
+
+            document.getElementById('modalImg').src = item.image;
+            document.getElementById('modalTitle').innerText = item.title;
+            
+            document.getElementById('modalMeta').innerHTML = `
+                <span><i class="fa-solid fa-barcode"></i> ID: <strong>${item.id}</strong></span>
+                <span><i class="fa-solid fa-hard-drive"></i> Taille: <strong>${item.size}</strong></span>
+                <span><i class="fa-solid fa-code-branch"></i> Version: <strong>${item.version}</strong></span>
+                <span><i class="fa-solid fa-globe"></i> Région: <strong>${item.region}</strong></span>
+                <span><span class="card-source-badge" style="position:static;">${item.source}</span></span>
+            `;
+
+            const categorizedLinks = parseAndCategorizeLinks(item.rawLinks);
+            const linksContainer = document.getElementById('modalLinks');
+            linksContainer.innerHTML = '';
+
+            const createSection = (title, iconClass, linkList) => {
+                if (!linkList || linkList.length === 0) return '';
+                return `
+                    <div class="dl-section">
+                        <h3><i class="${iconClass}"></i> ${title}</h3>
+                        <div class="dl-grid">
+                            ${linkList.map(l => `
+                                <div class="dl-item">
+                                    <span>${l.label}</span>
+                                    <a href="${l.url}" target="_blank" class="dl-btn">
+                                        <i class="fa-solid fa-download"></i> Télécharger
+                                    </a>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            };
+
+            let html = '';
+            html += createSection('Fichiers de jeu principal / Packages', 'fa-solid fa-gamepad', categorizedLinks.game);
+            html += createSection('Contenus téléchargeables (DLC)', 'fa-solid fa-puzzle-piece', categorizedLinks.dlc);
+            html += createSection('Fixes & Backports', 'fa-solid fa-wrench', categorizedLinks.backport);
+            html += createSection('Autres Téléchargements / Hébergeurs', 'fa-solid fa-link', categorizedLinks.other);
+
+            if (!html) {
+                html = `<div style="color: var(--text-muted); text-align:center; padding: 20px;">Aucun lien de téléchargement extrait pour ce package.</div>`;
+            }
+
+            linksContainer.innerHTML = html;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
