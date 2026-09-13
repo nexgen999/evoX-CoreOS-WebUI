@@ -4,22 +4,27 @@
 
     window.evoXPegasusStore = {
         init: function (config) {
-            const container = document.getElementById('pegasus-store-app');
-            if (!container) return;
+            // Recherche le conteneur principal quel que soit son ID dans index.html
+            const container = document.getElementById('pegasus-store-app') || 
+                              document.getElementById('pegasus-store-container') || 
+                              document.getElementById('tab-pegasus-store');
+            
+            if (!container) {
+                console.error("Conteneur Pegasus Store introuvable dans le DOM.");
+                return;
+            }
 
-            // Structure HTML de base du Store
+            // Injection de la structure de l'interface
             container.innerHTML = `
                 <div class="store-controls" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                    <select id="pegasus-catalog-select" class="form-control" style="max-width: 250px;">
-                        <!-- Les options seront générées ici -->
-                    </select>
+                    <select id="pegasus-catalog-select" class="form-control" style="max-width: 250px;"></select>
                     <input type="text" id="pegasus-search-input" class="form-control" placeholder="Rechercher un jeu ou un fichier dans Pegasus..." style="flex: 1;">
                     <div class="view-toggle-btns" style="display: flex; gap: 0.5rem;">
                         <button id="btn-view-grid" class="btn btn-secondary active"><i class="fa-solid fa-border-all"></i></button>
                         <button id="btn-view-list" class="btn btn-secondary"><i class="fa-solid fa-list"></i></button>
                     </div>
                 </div>
-                <div id="pegasus-store-container"></div>
+                <div id="pegasus-store-grid-container"></div>
             `;
 
             const selectEl = document.getElementById('pegasus-catalog-select');
@@ -30,14 +35,12 @@
             const catalogs = config.sources?.pegasus || [];
 
             if (catalogs.length === 0) {
-                document.getElementById('pegasus-store-container').innerHTML = '<p class="section-desc">Aucun catalogue Pegasus configuré.</p>';
+                document.getElementById('pegasus-store-grid-container').innerHTML = '<p class="section-desc">Aucun catalogue Pegasus configuré.</p>';
                 return;
             }
 
-            // Alimenter le select avec les catalogues
             selectEl.innerHTML = catalogs.map(cat => `<option value="${cat.url}">${cat.name}</option>`).join('');
 
-            // Événements
             selectEl.addEventListener('change', (e) => {
                 this.loadCatalog(e.target.value);
             });
@@ -60,19 +63,17 @@
                 this.render();
             });
 
-            // Charger le premier catalogue au démarrage
             if (catalogs.length > 0) {
                 this.loadCatalog(catalogs[0].url);
             }
         },
 
         loadCatalog: async function (url) {
-            const container = document.getElementById('pegasus-store-container');
+            const container = document.getElementById('pegasus-store-grid-container');
             if (!container) return;
 
             container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement du catalogue Pegasus...</p>';
 
-            // Proxy CORS pour débloquer les requêtes entre domaines
             const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
 
             try {
@@ -99,7 +100,7 @@
         },
 
         render: function () {
-            const container = document.getElementById('pegasus-store-container');
+            const container = document.getElementById('pegasus-store-grid-container');
             const searchVal = document.getElementById('pegasus-search-input')?.value.toLowerCase() || '';
 
             if (!container) return;
