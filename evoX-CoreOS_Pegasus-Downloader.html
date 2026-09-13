@@ -93,7 +93,7 @@
             margin-top: -4px;
         }
 
-        /* CONTROLS & BARRE DE RECHERCHE */
+        /* CONTROLS */
         .controls {
             display: flex;
             flex-wrap: wrap;
@@ -131,7 +131,7 @@
             color: var(--text-muted);
         }
 
-        select, .btn {
+        select {
             background: rgba(10, 12, 16, 0.6);
             border: 1px solid var(--border-color);
             color: var(--text-main);
@@ -142,12 +142,9 @@
             cursor: pointer;
             outline: none;
             transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        select:hover, .btn:hover {
+        select:hover {
             border-color: var(--accent-green);
             color: var(--accent-green);
         }
@@ -176,7 +173,7 @@
             font-weight: bold;
         }
 
-        /* COMPTEUR DE RESULTATS */
+        /* STATS BAR */
         .stats-bar {
             margin-bottom: 15px;
             font-size: 0.95rem;
@@ -187,7 +184,7 @@
             padding: 0 5px;
         }
 
-        /* GRID VIEW (TUILES) */
+        /* GRID VIEW */
         .store-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -203,7 +200,6 @@
             display: flex;
             flex-direction: column;
             cursor: pointer;
-            position: relative;
         }
 
         .card:hover {
@@ -345,7 +341,7 @@
             color: var(--text-muted);
         }
 
-        /* MODAL / POPUP */
+        /* MODAL */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -498,7 +494,7 @@
             opacity: 0.85;
         }
 
-        /* LOADING & SPINNER */
+        /* LOADING */
         .loading {
             text-align: center;
             padding: 50px;
@@ -535,13 +531,11 @@
         </div>
 
         <div class="controls">
-            <!-- Barre de recherche -->
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="searchInput" placeholder="Rechercher un jeu, ID, auteur...">
             </div>
 
-            <!-- Filtre de source JSON -->
             <select id="sourceSelect">
                 <option value="ALL">Toutes les listes</option>
                 <option value="dlps">DLPS Catalog</option>
@@ -549,7 +543,6 @@
                 <option value="pippo">Pippo Catalog</option>
             </select>
 
-            <!-- Vues Grid / List -->
             <div class="view-toggle">
                 <button class="view-btn active" id="btnViewGrid" title="Vue Tuiles"><i class="fa-solid fa-border-all"></i></button>
                 <button class="view-btn" id="btnViewList" title="Vue Liste"><i class="fa-solid fa-list"></i></button>
@@ -563,7 +556,7 @@
         <span id="activeFilter">Source : Toutes</span>
     </div>
 
-    <!-- CONTENEUR DU CATALOGUE -->
+    <!-- CATALOGUE -->
     <main id="catalogContainer">
         <div class="loading">
             <div class="spinner"></div>
@@ -571,7 +564,7 @@
         </div>
     </main>
 
-    <!-- MODAL DE DETAILS (POPUP) -->
+    <!-- MODAL DETAILS -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-card">
             <button class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></button>
@@ -587,21 +580,20 @@
     </div>
 
     <script>
-        // Sources des fichiers JSON sur GitHub
+        const BASE_RAW = 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/';
+
         const SOURCES = {
-            dlps: 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json',
-            pfs: 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json',
-            pippo: 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json'
+            dlps: BASE_RAW + 'dlps.json',
+            pfs: BASE_RAW + 'pfs.json',
+            pippo: BASE_RAW + 'pippo.json'
         };
 
         let rawStoreData = [];
-        let currentView = 'grid'; // 'grid' ou 'list'
+        let currentView = 'grid';
 
-        // Initialisation
         document.addEventListener('DOMContentLoaded', () => {
             loadAllData();
 
-            // Evénements UI
             document.getElementById('searchInput').addEventListener('input', filterAndRender);
             document.getElementById('sourceSelect').addEventListener('change', filterAndRender);
             
@@ -614,56 +606,71 @@
             });
         });
 
-        // Chargement et normalisation multi-fichiers
+        // Chargement autonome résistant aux erreurs CORS/Origin
         async function loadAllData() {
             rawStoreData = [];
             const keys = Object.keys(SOURCES);
+            const container = document.getElementById('catalogContainer');
 
             for (let key of keys) {
                 try {
-                    const res = await fetch(SOURCES[key]);
-                    if (!res.ok) continue;
-                    const json = await res.json();
-                    
-                    // Normalisation : s'assurer que chaque élément a une structure uniforme
+                    let response;
+                    try {
+                        // tentative directe HTTPS
+                        response = await fetch(SOURCES[key]);
+                        if (!response.ok) throw new Error('Direct fetch failed');
+                    } catch (directErr) {
+                        // Fallback via proxy si bloqué par CORS local/github
+                        const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(SOURCES[key]);
+                        response = await fetch(proxyUrl);
+                    }
+
+                    if (!response.ok) continue;
+
+                    const json = await response.json();
                     const items = Array.isArray(json) ? json : (json.games || json.items || []);
+
                     items.forEach(item => {
                         rawStoreData.push(normalizeItem(item, key));
                     });
+
                 } catch (e) {
-                    console.error(`Erreur de chargement de la source ${key}:`, e);
+                    console.warn(`Erreur de chargement pour la source ${key}:`, e);
                 }
+            }
+
+            if (rawStoreData.length === 0) {
+                container.innerHTML = `
+                    <div class="loading" style="color: #ff0055;">
+                        <i class="fa-solid fa-triangle-exclamation"></i><br><br>
+                        Impossible d'extraire les catalogues JSON.<br>
+                        Assurez-vous d'être connecté à internet.
+                    </div>`;
+                return;
             }
 
             filterAndRender();
         }
 
-        // Normaliseur universel pour la tolérance de schéma evoX/Pegasus
+        // Normalisation dynamique des structures JSON variees
         function normalizeItem(raw, sourceKey) {
             return {
-                id: raw.id || raw.title_id || raw.game_id || 'N/A',
-                title: raw.title || raw.name || 'Titre Inconnu',
-                image: raw.image || raw.icon || raw.cover || 'https://via.placeholder.com/400x225/121620/00e5ff?text=No+Image',
-                size: raw.size || raw.file_size || 'N/A',
-                version: raw.version || raw.app_ver || '1.00',
-                region: raw.region || 'GLOBAL',
+                id: raw.id || raw.title_id || raw.game_id || raw.pkg_id || 'N/A',
+                title: raw.title || raw.name || raw.filename || 'Titre Inconnu',
+                image: raw.image || raw.icon || raw.cover || raw.artwork || 'https://via.placeholder.com/400x225/121620/00e5ff?text=evoX+Store',
+                size: raw.size || raw.file_size || raw.filesize || 'N/A',
+                version: raw.version || raw.app_ver || raw.ver || '1.00',
+                region: raw.region || raw.lang || 'GLOBAL',
                 source: sourceKey,
                 rawLinks: raw.links || raw.download_links || raw.urls || (raw.url ? [raw.url] : [])
             };
         }
 
-        // Tri intelligent des liens : Jeu principal, DLC, Backport, Parties de liens/Hébergeurs
+        // Tri exhaustif par catégorie (Jeu, DLC, Backport, Hôtes/Parties)
         function parseAndCategorizeLinks(links) {
-            const categorized = {
-                game: [],
-                dlc: [],
-                backport: [],
-                other: []
-            };
-
+            const categorized = { game: [], dlc: [], backport: [], other: [] };
             if (!links) return categorized;
 
-            // Harmonisation si array ou object
             let linkList = [];
             if (Array.isArray(links)) {
                 linkList = links;
@@ -679,26 +686,25 @@
 
             linkList.forEach((item, idx) => {
                 let url = typeof item === 'string' ? item : (item.url || item.link || '');
-                let label = typeof item === 'object' && item.label ? item.label : `Lien ${idx + 1}`;
-                let strToCheck = (url + ' ' + label).toLowerCase();
+                let label = typeof item === 'object' && item.label ? item.label : `Partie / Lien ${idx + 1}`;
+                let str = (url + ' ' + label).toLowerCase();
 
-                let linkObj = { label, url };
+                let obj = { label, url };
 
-                if (strToCheck.includes('backport') || strToCheck.includes('fix')) {
-                    categorized.backport.push(linkObj);
-                } else if (strToCheck.includes('dlc') || strToCheck.includes('addon')) {
-                    categorized.dlc.push(linkObj);
-                } else if (strToCheck.includes('pkg') || strToCheck.includes('part') || strToCheck.includes('game') || strToCheck.includes('main')) {
-                    categorized.game.push(linkObj);
+                if (str.includes('backport') || str.includes('fix')) {
+                    categorized.backport.push(obj);
+                } else if (str.includes('dlc') || str.includes('addon')) {
+                    categorized.dlc.push(obj);
+                } else if (str.includes('pkg') || str.includes('part') || str.includes('game') || str.includes('main')) {
+                    categorized.game.push(obj);
                 } else {
-                    categorized.other.push(linkObj);
+                    categorized.other.push(obj);
                 }
             });
 
             return categorized;
         }
 
-        // Filtrage & Rendu
         function filterAndRender() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const source = document.getElementById('sourceSelect').value;
@@ -712,8 +718,7 @@
                 return matchesSource && matchesQuery;
             });
 
-            document.getElementById('itemsCount').innerText = `${filtered.length} élément(s) trouvé(s)`;
-
+            document.getElementById('itemsCount').innerText = `${filtered.length} paquet(s) affiché(s)`;
             renderStore(filtered);
         }
 
@@ -724,10 +729,10 @@
             filterAndRender();
         }
 
-        // Generateur d'interface HTML
         function renderStore(data) {
             const container = document.getElementById('catalogContainer');
             if (data.length === 0) {
+                container.className = '';
                 container.innerHTML = `<div class="loading">Aucun résultat ne correspond à votre recherche.</div>`;
                 return;
             }
@@ -735,7 +740,7 @@
             if (currentView === 'grid') {
                 container.className = 'store-grid';
                 container.innerHTML = data.map((item, index) => `
-                    <div class="card" onclick="openModal(${index}, '${item.id}')">
+                    <div class="card" onclick="openModal(${index})">
                         <div class="card-img-container">
                             <span class="card-source-badge">${item.source}</span>
                             <img src="${item.image}" class="card-img" alt="${item.title}" onerror="this.src='https://via.placeholder.com/400x225/121620/00e5ff?text=evoX+Store'">
@@ -756,7 +761,7 @@
             } else {
                 container.className = 'store-list';
                 container.innerHTML = data.map((item, index) => `
-                    <div class="list-item" onclick="openModal(${index}, '${item.id}')">
+                    <div class="list-item" onclick="openModal(${index})">
                         <img src="${item.image}" class="list-img" alt="${item.title}" onerror="this.src='https://via.placeholder.com/100/121620/00e5ff?text=evoX'">
                         <div class="list-details">
                             <div class="list-title">${item.title}</div>
@@ -768,12 +773,10 @@
                 `).join('');
             }
 
-            // Attacher les données aux index pour la modal
             window.currentRenderedData = data;
         }
 
-        // Ouverture de la Modal avec classement exhaustif des liens
-        function openModal(index, id) {
+        function openModal(index) {
             const item = window.currentRenderedData[index];
             if (!item) return;
 
@@ -801,7 +804,7 @@
                             ${linkList.map(l => `
                                 <div class="dl-item">
                                     <span>${l.label}</span>
-                                    <a href="${l.url}" target="_blank" class="dl-btn">
+                                    <a href="${l.url}" target="_blank" class="dl-btn" rel="noopener noreferrer">
                                         <i class="fa-solid fa-download"></i> Télécharger
                                     </a>
                                 </div>
@@ -818,7 +821,7 @@
             html += createSection('Autres Téléchargements / Hébergeurs', 'fa-solid fa-link', categorizedLinks.other);
 
             if (!html) {
-                html = `<div style="color: var(--text-muted); text-align:center; padding: 20px;">Aucun lien de téléchargement extrait pour ce package.</div>`;
+                html = `<div style="color: var(--text-muted); text-align:center; padding: 20px;">Aucun lien direct n'a été répertorié pour cette entrée.</div>`;
             }
 
             linksContainer.innerHTML = html;
