@@ -6,6 +6,8 @@
     <title>evoX CoreOS WebUI</title>
     <link rel="stylesheet" href="web/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Parser Markdown pour le CHANGELOG.md -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
@@ -59,14 +61,11 @@
             <ul id="credits-list" class="credits-list"></ul>
         </section>
 
-        <!-- TAB NEWS -->
+        <!-- TAB NEWS & FEEDS (Chargement dynamique CHANGELOG.md) -->
         <section id="tab-news" class="tab-content">
             <h2>Nouveautés & Feeds</h2>
-            <p class="section-desc">Dernières mises à jour et annonces du projet.</p>
-            <div class="item-card">
-                <h3><i class="fa-solid fa-bullhorn accent"></i> evoX CoreOS v1.0</h3>
-                <p style="color: var(--text-muted); margin-top: 0.5rem;">Interface WebUI mise à jour avec support multi-catalogue Pegasus et gestionnaire JSON direct.</p>
-            </div>
+            <p class="section-desc">Dernières mises à jour et changelog du projet.</p>
+            <div id="news-container"></div>
         </section>
 
         <!-- TAB PACKS AIO -->
@@ -77,20 +76,16 @@
                 <div class="item-card">
                     <h3><i class="fa-solid fa-box accent"></i> Pack Payload Manager</h3>
                     <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0;">Ensemble complet de scripts auto-updater et payloads PS5.</p>
-                    <a href="https://github.com/nexgen999" target="_blank" class="btn btn-primary btn-sm">Accéder</a>
+                    <a href="https://github.com/nexgen999/evoX-CoreOS" target="_blank" class="btn btn-primary btn-sm">Accéder aux Releases</a>
                 </div>
             </div>
         </section>
 
-        <!-- TAB STORE JSON -->
+        <!-- TAB STORE JSON (Chargement dynamique payloads.json) -->
         <section id="tab-store-json" class="tab-content">
             <h2>Store JSON</h2>
-            <p class="section-desc">Gestion et liens vers les fichiers de configuration JSON.</p>
-            <div class="item-card">
-                <h3><i class="fa-solid fa-file-code accent"></i> payloads.json</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; word-break: break-all; margin: 0.5rem 0;">https://nexgen999.github.io/evoX-CoreOS/json/payloads.json</p>
-                <a href="json/payloads.json" target="_blank" class="btn btn-secondary btn-sm">Ouvrir le JSON</a>
-            </div>
+            <p class="section-desc">Fichiers de configuration et liste des payloads disponibles.</p>
+            <div id="store-json-container"></div>
         </section>
 
         <!-- TAB PEGASUS -->
@@ -105,7 +100,7 @@
             </div>
         </section>
 
-        <!-- TAB PEGASUS STORE -->
+        <!-- TAB PEGASUS STORE (Catalogue dynamique) -->
         <section id="tab-pegasus-store" class="tab-content">
             <h2><i class="fa-solid fa-store accent"></i> Pegasus Store</h2>
             <p class="section-desc">Téléchargez et explorez les catalogues disponibles.</p>
@@ -116,10 +111,10 @@
                     <option value="https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json">PFS Catalog</option>
                     <option value="https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json">Pippo Catalog</option>
                 </select>
-                <input type="text" id="pegasus-search-input" class="form-control" placeholder="Rechercher..." style="flex: 1; min-width: 200px;">
+                <input type="text" id="pegasus-search-input" class="form-control" placeholder="Rechercher un pkg ou un titre..." style="flex: 1; min-width: 200px;">
             </div>
 
-            <div id="pegasus-store-grid-container" class="store-grid"></div>
+            <div id="pegasus-store-grid-container"></div>
         </section>
 
         <!-- TAB WEBKIT -->
