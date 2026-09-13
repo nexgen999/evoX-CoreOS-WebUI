@@ -11,67 +11,67 @@ window.evoXPegasusStore = {
 
     init: function () {
         const container = document.getElementById('pegasus-store-app');
-        if (!container || this.initialized) return;
+        if (!container) return;
 
-        this.initialized = true;
-
-        container.innerHTML = `
-            <div class="store-controls" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
-                <select id="pegasus-catalog-select" class="form-control" style="max-width: 250px;"></select>
-                <input type="text" id="pegasus-search-input" class="form-control" placeholder="Rechercher..." style="flex: 1; min-width: 200px;">
-                <div class="view-toggle-btns" style="display: flex; gap: 0.5rem;">
-                    <button id="btn-view-grid" class="btn btn-secondary active" type="button"><i class="fa-solid fa-border-all"></i></button>
-                    <button id="btn-view-list" class="btn btn-secondary" type="button"><i class="fa-solid fa-list"></i></button>
+        if (!this.initialized) {
+            this.initialized = true;
+            container.innerHTML = `
+                <div class="store-controls" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
+                    <select id="pegasus-catalog-select" class="form-control" style="max-width: 250px;"></select>
+                    <input type="text" id="pegasus-search-input" class="form-control" placeholder="Rechercher..." style="flex: 1; min-width: 200px;">
+                    <div class="view-toggle-btns" style="display: flex; gap: 0.5rem;">
+                        <button id="btn-view-grid" class="btn btn-secondary active" type="button"><i class="fa-solid fa-border-all"></i></button>
+                        <button id="btn-view-list" class="btn btn-secondary" type="button"><i class="fa-solid fa-list"></i></button>
+                    </div>
                 </div>
-            </div>
-            <div id="pegasus-store-grid-container"></div>
-        `;
+                <div id="pegasus-store-grid-container"></div>
+            `;
 
-        const selectEl = document.getElementById('pegasus-catalog-select');
-        const searchEl = document.getElementById('pegasus-search-input');
-        const btnGrid = document.getElementById('btn-view-grid');
-        const btnList = document.getElementById('btn-view-list');
+            const selectEl = document.getElementById('pegasus-catalog-select');
+            const searchEl = document.getElementById('pegasus-search-input');
+            const btnGrid = document.getElementById('btn-view-grid');
+            const btnList = document.getElementById('btn-view-list');
 
-        selectEl.innerHTML = this.LOCAL_CATALOGS.map(cat => `<option value="${cat.url}">${cat.name}</option>`).join('');
+            selectEl.innerHTML = this.LOCAL_CATALOGS.map(cat => `<option value="${cat.url}">${cat.name}</option>`).join('');
 
-        selectEl.addEventListener('change', (e) => {
-            this.loadCatalog(e.target.value);
-        });
+            selectEl.addEventListener('change', (e) => {
+                this.loadCatalog(e.target.value);
+            });
 
-        searchEl.addEventListener('input', () => {
-            this.render();
-        });
+            searchEl.addEventListener('input', () => {
+                this.render();
+            });
 
-        btnGrid.addEventListener('click', () => {
-            this.currentViewMode = 'grid';
-            btnGrid.classList.add('active');
-            btnList.classList.remove('active');
-            this.render();
-        });
+            btnGrid.addEventListener('click', () => {
+                this.currentViewMode = 'grid';
+                btnGrid.classList.add('active');
+                btnList.classList.remove('active');
+                this.render();
+            });
 
-        btnList.addEventListener('click', () => {
-            this.currentViewMode = 'list';
-            btnList.classList.add('active');
-            btnGrid.classList.remove('active');
-            this.render();
-        });
+            btnList.addEventListener('click', () => {
+                this.currentViewMode = 'list';
+                btnList.classList.add('active');
+                btnGrid.classList.remove('active');
+                this.render();
+            });
 
-        this.loadCatalog(this.LOCAL_CATALOGS[0].url);
+            this.loadCatalog(this.LOCAL_CATALOGS[0].url);
+        }
     },
 
     loadCatalog: async function (url) {
         const container = document.getElementById('pegasus-store-grid-container');
         if (!container) return;
 
-        container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement du catalogue Pegasus...</p>';
+        container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement du catalogue...</p>';
 
         try {
             const response = await fetch(url);
-            if (!response.ok) throw new Error(`Status ${response.status}`);
+            if (!response.ok) throw new Error(`Code HTTP ${response.status}`);
             
             const data = await response.json();
 
-            // Extraction robuste selon les clés possibles du JSON
             if (Array.isArray(data)) {
                 this.rawCatalogData = data;
             } else if (typeof data === 'object' && data !== null) {
@@ -82,8 +82,8 @@ window.evoXPegasusStore = {
 
             this.render();
         } catch (err) {
-            console.error("Erreur Pegasus :", err);
-            container.innerHTML = `<p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de charger le catalogue (${err.message}). Vérifie l'accès au fichier.</p>`;
+            console.error("Erreur Pegasus Store :", err);
+            container.innerHTML = `<p style="color: var(--accent); margin-top: 1rem;"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de charger le fichier (${err.message}).</p>`;
         }
     },
 
@@ -99,14 +99,14 @@ window.evoXPegasusStore = {
         });
 
         if (filteredData.length === 0) {
-            container.innerHTML = '<p class="section-desc">Aucun élément disponible ou correspondant à la recherche.</p>';
+            container.innerHTML = '<p class="section-desc" style="margin-top: 1rem;">Aucun élément disponible ou correspondant à la recherche.</p>';
             return;
         }
 
         if (this.currentViewMode === 'grid') {
             container.className = 'store-grid';
             container.style.display = 'grid';
-            container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+            container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(260px, 1fr))';
             container.style.gap = '1rem';
 
             container.innerHTML = filteredData.map(item => {
