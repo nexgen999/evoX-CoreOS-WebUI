@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeSection.classList.add('active');
             }
 
+            // Chargement sécurisé du Pegasus Store
             if (targetTab === 'pegasus-store' && window.evoXPegasusStore) {
                 window.evoXPegasusStore.init();
             }
