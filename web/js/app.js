@@ -36,10 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadStoreData(config.sources.json);
     }
 
-    if (window.evoXPegasusStore) {
-        window.evoXPegasusStore.init(config);
-    }
-
     if (window.evoXChangelog) {
         const changelogUrl = config.sources?.changelog || 'CHANGELOG.md';
         window.evoXChangelog.init(changelogUrl, 'news-container');
