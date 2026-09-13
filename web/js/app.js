@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 1. GESTION DE LA NAVIGATION PAR ONGLETS
+    // --- NAVIGATION ENTRE ONGLETS ---
     const navButtons = document.querySelectorAll('.nav-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
@@ -8,42 +8,36 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             const targetTab = btn.getAttribute('data-tab');
 
-            // Retirer l'état actif de tous les boutons et onglets
             navButtons.forEach(b => b.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
 
-            // Activer l'onglet sélectionné
             btn.classList.add('active');
             const activeSection = document.getElementById(`tab-${targetTab}`);
             if (activeSection) {
                 activeSection.classList.add('active');
             }
 
-            // Charger le store Pegasus si on clique sur son onglet
-            if (targetTab === 'pegasus-store') {
-                loadPegasusStore();
-            }
+            // Déclencheurs de chargement dynamique
+            if (targetTab === 'news') loadChangelog();
+            if (targetTab === 'store-json') loadPayloadsJson();
+            if (targetTab === 'pegasus-store') initPegasusStore();
         });
     });
 
-    // 2. CRÉDITS SUR LA PAGE D'ACCUEIL
+    // --- CRÉDITS ---
     const creditsList = document.getElementById('credits-list');
     if (creditsList) {
         const credits = [
-            'nexgen999',
-            'ItsPLK for PLDMGR',
+            'nexgen999', 'ItsPLK for PLDMGR',
             'Master, Mustafa, SeregonWar, maj0r, ArkSama',
             'aldostools, VoX DoN, BX-AM',
             'Pippo, Phoenixx, Pegasus Dev, DLPS Team',
             'All Scene Community'
         ];
-
-        creditsList.innerHTML = credits.map(c => `
-            <li><i class="fa-solid fa-check accent"></i> ${c}</li>
-        `).join('');
+        creditsList.innerHTML = credits.map(c => `<li><i class="fa-solid fa-check accent"></i> ${c}</li>`).join('');
     }
 
-    // 3. BOUTON DE COPIE URL
+    // --- COPIE URL ---
     const copyBtn = document.getElementById('btn-copy-pldmgr');
     if (copyBtn) {
         copyBtn.addEventListener('click', () => {
@@ -51,101 +45,140 @@ document.addEventListener('DOMContentLoaded', () => {
             if (urlText) {
                 navigator.clipboard.writeText(urlText).then(() => {
                     copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copié !';
-                    setTimeout(() => {
-                        copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copier';
-                    }, 2000);
+                    setTimeout(() => copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copier', 2000);
                 });
             }
         });
     }
 
-    // 4. MOTEUR DU PEGASUS STORE
-    let rawCatalogData = [];
-
-    const catalogSelect = document.getElementById('pegasus-catalog-select');
-    const searchInput = document.getElementById('pegasus-search-input');
-
-    if (catalogSelect) {
-        catalogSelect.addEventListener('change', (e) => {
-            fetchCatalog(e.target.value);
-        });
-    }
-
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            renderPegasusItems();
-        });
-    }
-
-    async function fetchCatalog(url) {
-        const container = document.getElementById('pegasus-store-grid-container');
+    // --- CHARGEMENT DU CHANGELOG.MD (NEWS & FEEDS) ---
+    async function loadChangelog() {
+        const container = document.getElementById('news-container');
         if (!container) return;
 
-        container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement des données du catalogue...</p>';
+        container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement du CHANGELOG.md...</p>';
 
         try {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`Code erreur HTTP: ${res.status}`);
-            
-            const data = await res.json();
+            const res = await fetch('https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/CHANGELOG.md');
+            if (!res.ok) throw new Error(`Code HTTP ${res.status}`);
+            const markdownText = await res.text();
 
-            // Tolérance multi-format des JSON
-            if (Array.isArray(data)) {
-                rawCatalogData = data;
-            } else if (typeof data === 'object' && data !== null) {
-                rawCatalogData = data.items || data.downloads || data.gameList || data.games || data.data || [];
+            if (window.marked) {
+                container.innerHTML = `<div class="item-card markdown-body">${window.marked.parse(markdownText)}</div>`;
             } else {
-                rawCatalogData = [];
+                container.innerHTML = `<div class="item-card"><pre style="white-space: pre-wrap;">${markdownText}</pre></div>`;
             }
-
-            renderPegasusItems();
-
         } catch (err) {
-            console.error("Erreur de chargement Pegasus Store :", err);
-            container.innerHTML = `<div class="item-card" style="border-color: var(--accent); width: 100%;">
-                <h3 style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de charger le catalogue</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Détail : ${err.message}</p>
-            </div>`;
+            container.innerHTML = `<p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Erreur au chargement du Changelog : ${err.message}</p>`;
         }
     }
 
-    function renderPegasusItems() {
+    // --- CHARGEMENT DE PAYLOADS.JSON (STORE JSON) ---
+    async function loadPayloadsJson() {
+        const container = document.getElementById('store-json-container');
+        if (!container) return;
+
+        container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement de payloads.json...</p>';
+
+        try {
+            const res = await fetch('json/payloads.json');
+            if (!res.ok) throw new Error(`Code HTTP ${res.status}`);
+            const data = await res.json();
+
+            const items = Array.isArray(data) ? data : (data.payloads || data.items || []);
+
+            if (items.length === 0) {
+                container.innerHTML = '<p class="section-desc">Aucun payload trouvé dans le JSON.</p>';
+                return;
+            }
+
+            container.className = 'store-grid';
+            container.innerHTML = items.map(item => `
+                <div class="item-card">
+                    <h3><i class="fa-solid fa-cube accent"></i> ${item.name || item.title || 'Payload'}</h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.5rem 0;">${item.description || 'Pas de description.'}</p>
+                    ${item.url ? `<a href="${item.url}" target="_blank" class="btn btn-primary btn-sm"><i class="fa-solid fa-download"></i> Télécharger</a>` : ''}
+                </div>
+            `).join('');
+        } catch (err) {
+            container.innerHTML = `<p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de lire payloads.json : ${err.message}</p>`;
+        }
+    }
+
+    // --- PEGASUS STORE DYNAMIQUE ---
+    let pegasusInit = false;
+
+    function initPegasusStore() {
+        if (pegasusInit) return;
+        pegasusInit = true;
+
+        const selectEl = document.getElementById('pegasus-catalog-select');
+        const searchEl = document.getElementById('pegasus-search-input');
+
+        if (selectEl) {
+            selectEl.addEventListener('change', (e) => fetchPegasusCatalog(e.target.value));
+            fetchPegasusCatalog(selectEl.value);
+        }
+
+        if (searchEl) {
+            searchEl.addEventListener('input', () => renderPegasusStore());
+        }
+    }
+
+    let pegasusItems = [];
+
+    async function fetchPegasusCatalog(url) {
         const container = document.getElementById('pegasus-store-grid-container');
-        const query = searchInput?.value.toLowerCase() || '';
+        if (!container) return;
+
+        container.innerHTML = '<p class="section-desc"><i class="fa-solid fa-spinner fa-spin"></i> Chargement du catalogue...</p>';
+
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`Code HTTP ${res.status}`);
+            const data = await res.json();
+
+            if (Array.isArray(data)) {
+                pegasusItems = data;
+            } else if (typeof data === 'object' && data !== null) {
+                pegasusItems = data.items || data.downloads || data.gameList || data.games || [];
+            } else {
+                pegasusItems = [];
+            }
+
+            renderPegasusStore();
+        } catch (err) {
+            container.innerHTML = `<p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Erreur catalogue : ${err.message}</p>`;
+        }
+    }
+
+    function renderPegasusStore() {
+        const container = document.getElementById('pegasus-store-grid-container');
+        const query = document.getElementById('pegasus-search-input')?.value.toLowerCase() || '';
 
         if (!container) return;
 
-        const filtered = rawCatalogData.filter(item => {
-            const title = item.title || item.name || item.filename || item.pkg_name || '';
+        const filtered = pegasusItems.filter(item => {
+            const title = item.title || item.name || item.filename || '';
             return String(title).toLowerCase().includes(query);
         });
 
         if (filtered.length === 0) {
-            container.innerHTML = '<p class="section-desc">Aucun élément disponible ou correspondant à la recherche.</p>';
+            container.innerHTML = '<p class="section-desc">Aucun élément trouvé.</p>';
             return;
         }
 
-        container.innerHTML = filtered.map(item => {
-            const title = item.title || item.name || item.filename || item.pkg_name || 'Fichier sans nom';
-            const link = item.url || item.downloadUrl || item.link || item.direct_link || '#';
-
-            return `
-                <div class="item-card" style="display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <h3 style="font-size: 0.95rem; word-break: break-word;"><i class="fa-solid fa-file-arrow-down accent"></i> ${title}</h3>
-                    </div>
-                    <a href="${link}" target="_blank" class="btn btn-primary btn-sm" style="margin-top: 1rem; width: 100%;">
-                        <i class="fa-solid fa-download"></i> Télécharger
-                    </a>
+        container.className = 'store-grid';
+        container.innerHTML = filtered.map(item => `
+            <div class="item-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 0.95rem; word-break: break-word;"><i class="fa-solid fa-download accent"></i> ${item.title || item.name || 'Fichier'}</h3>
                 </div>
-            `;
-        }).join('');
-    }
-
-    function loadPegasusStore() {
-        if (catalogSelect && rawCatalogData.length === 0) {
-            fetchCatalog(catalogSelect.value);
-        }
+                <a href="${item.url || item.downloadUrl || '#'}" target="_blank" class="btn btn-primary btn-sm" style="margin-top: 1rem;">
+                    <i class="fa-solid fa-download"></i> Télécharger
+                </a>
+            </div>
+        `).join('');
     }
 
 });
