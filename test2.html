@@ -236,9 +236,7 @@
     }
     .btn-open:hover { background: var(--brand-red-hover); }
 
-    /* =========================================================
-       COMPOSANTS DE TÉLÉCHARGEMENT RESTRUCTURÉS ET OPTIMISÉS
-       ========================================================= */
+    /* COMPOSANTS DE TÉLÉCHARGEMENT RESTRUCTURÉS */
     .dl-group-box {
       background: rgba(13, 21, 39, 0.6);
       border: 1px solid var(--line);
@@ -321,7 +319,7 @@
     }
     .btn-download-action:hover { background: var(--brand-red-hover); }
 
-    /* POP-UP / MODAL REDESIGNÉ POUR ADAPTATION PARFAITE (PHOTOS 1 & 2 CORRIGÉES) */
+    /* POP-UP / MODAL */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -376,7 +374,6 @@
     }
     .modal-close-btn:hover { color: #fff; background: var(--brand-red); border-color: var(--brand-red); }
 
-    /* EN-TÊTE COMPACT MODAL */
     .modal-top-header {
       padding: 20px 24px 16px;
       display: flex;
@@ -399,7 +396,6 @@
     .modal-header-info h2 { font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .modal-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 
-    /* CORPS DU MODAL (SCROLLABLE PROPREMENT) */
     .modal-body-scroll {
       padding: 20px 24px;
       overflow-y: auto;
@@ -416,10 +412,38 @@
     .modal-desc-header { font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
     .modal-desc-text { font-size: 0.84rem; color: #a4b7d3; line-height: 1.5; max-height: 100px; overflow-y: auto; }
 
-    /* PAGE PLEIN ÉCRAN */
-    #detailViewPage { display: none; width: 100%; min-height: 100vh; background: #060911; position: relative; padding-bottom: 80px; }
-    #detailViewPage.active { display: block; }
-    .detail-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 450px; background-size: cover; background-position: center top; filter: blur(32px) brightness(0.2); z-index: 1; mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%); -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%); }
+    /* PAGE PLEIN ÉCRAN CORRIGÉE POUR LE SCROLL */
+    #detailViewPage {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #060911;
+      z-index: 200;
+      overflow-y: auto; /* Active le scroll vertical */
+      overflow-x: hidden;
+      padding-bottom: 80px;
+    }
+
+    #detailViewPage.active {
+      display: block;
+    }
+
+    .detail-backdrop { 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 450px; 
+      background-size: cover; 
+      background-position: center top; 
+      filter: blur(32px) brightness(0.2); 
+      z-index: 1; 
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%); 
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%); 
+    }
     .detail-container { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; padding: 24px 30px; }
     .btn-back { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); background: rgba(13, 21, 39, 0.6); border: 1px solid var(--line); padding: 8px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; margin-bottom: 24px; transition: all 0.2s; }
     .btn-back:hover { color: #fff; border-color: var(--brand-red); }
@@ -554,7 +578,7 @@
     </div>
   </div>
 
-  <!-- VUE 3 : POP-UP / MODAL (MISE EN PAGE RÉNOVÉE) -->
+  <!-- VUE 3 : POP-UP / MODAL -->
   <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBackdrop(event)">
     <div class="modal-card">
       <button class="modal-close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
@@ -786,13 +810,19 @@ function openPage(x) {
   $("storeView").style.display = "none";
   $("headerControls").style.display = "none";
   $("detailViewPage").classList.add("active");
-  window.scrollTo(0, 0);
+  
+  // Bloque le scroll du fond et remonte la vue plein écran en haut
+  document.body.style.overflow = "hidden";
+  $("detailViewPage").scrollTop = 0;
 }
 
 function showStore() {
   $("detailViewPage").classList.remove("active");
   $("storeView").style.display = "block";
   $("headerControls").style.display = "flex";
+  
+  // Réactive le scroll principal
+  document.body.style.overflow = "";
   window.scrollTo(0, 0);
 }
 
@@ -814,14 +844,16 @@ function openModal(x) {
 
   renderOrganizedDownloads(x.rawLinks, "mLinksContainer");
   $("modalOverlay").classList.add("active");
+  document.body.style.overflow = "hidden";
 }
 
-function closeModal() { $("modalOverlay").classList.remove("active"); }
+function closeModal() { 
+  $("modalOverlay").classList.remove("active"); 
+  document.body.style.overflow = "";
+}
 function closeModalOnBackdrop(e) { if (e.target.id === "modalOverlay") closeModal(); }
 
-/* =========================================================
-   NOUVEL ALGORITHME INTELLIGENT DE REGROUPEMENT PAR FICHIER & HOST
-   ========================================================= */
+/* ALGORITHME DE REGROUPEMENT PAR FICHIER & HOST */
 const KNOWN_HOSTS = ["akirabox", "vikingfile", "datanodes", "filek", "vault", "pixeldrain", "1fichier", "gofile", "mega", "mediafire"];
 
 function extractHostName(label, url) {
@@ -849,13 +881,10 @@ function extractHostName(label, url) {
 
 function cleanLabel(rawLabel, host) {
   let cleaned = rawLabel;
-  
-  // Enlever le nom de l'hébergeur du titre s'il y est (ex: "DLC - AkiraBox" -> "DLC")
   KNOWN_HOSTS.forEach(h => {
     const reg = new RegExp(`[\\s\\-_]*\\b${h}\\b`, 'gi');
     cleaned = cleaned.replace(reg, '');
   });
-  
   cleaned = cleaned.trim().replace(/^[\s\-_]+|[\s\-_]+$/g, '');
   return cleaned.length > 0 ? cleaned : "Fichier Principal";
 }
@@ -863,7 +892,6 @@ function cleanLabel(rawLabel, host) {
 function categorizeLinks(rawLinks) {
   let list = [];
 
-  // Aplatissement du JSON
   if (Array.isArray(rawLinks)) {
     rawLinks.forEach((l, idx) => {
       if (typeof l === 'string') {
@@ -906,17 +934,14 @@ function categorizeLinks(rawLinks) {
       catKey = "game";
     }
 
-    // Génération du nom normalisé de la variant de fichier (ex: "DLC", "7.xx BackPort", "Part 1")
     let fileName = cleanLabel(item.label, host);
     
-    // Normalisation spécifique pour les backports
     if (catKey === "backport") {
       if (itemLabelLower.includes("7.xx")) fileName = "7.xx BackPort";
       else if (itemLabelLower.includes("4.xx")) fileName = "4.xx BackPort";
       else if (fileName === "Fichier Principal") fileName = "BackPort Fix";
     }
 
-    // Conservation des indices de parties (Part 1, Part 2, etc.)
     const partMatch = item.label.match(/part\s*\d+/i);
     if (partMatch) {
       fileName += ` (${partMatch[0].toUpperCase()})`;
@@ -926,7 +951,6 @@ function categorizeLinks(rawLinks) {
       categories[catKey].items[fileName] = [];
     }
     
-    // Ajout si cet hébergeur n'est pas déjà enregistré pour cette même variante
     if (!categories[catKey].items[fileName].some(h => h.host === host)) {
       categories[catKey].items[fileName].push({ host: host, url: item.url });
     }
