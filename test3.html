@@ -22,6 +22,7 @@
       --brand-red-hover: #e6004c;
       --accent-blue: #0070d1;
       --accent-cyan: #00d9ff;
+      --accent-green: #00e676;
       --radius: 14px;
     }
 
@@ -85,7 +86,8 @@
       align-items: center;
       gap: 10px;
       flex: 1;
-      max-width: 950px;
+      max-width: 1100px;
+      flex-wrap: wrap;
     }
     .search-box {
       position: relative;
@@ -228,6 +230,31 @@
     .badge.red { border-color: rgba(255, 0, 85, 0.4); color: var(--brand-red); background: rgba(255, 0, 85, 0.08); }
     .badge.cyan { border-color: rgba(0, 217, 255, 0.4); color: var(--accent-cyan); }
     .badge.blue { background: var(--accent-blue); color: #fff; font-weight: 700; border: none; }
+    .badge.green { border-color: rgba(0, 230, 118, 0.4); color: var(--accent-green); background: rgba(0, 230, 118, 0.08); }
+
+    /* BOUTONS D'ACTION (EXTERNAL SEARCH & COPY) */
+    .ext-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+    .btn-ext {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: #09101d;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-ext:hover { border-color: var(--text); background: var(--panel-hover); }
+    .btn-ext.yt:hover { border-color: #ff0000; color: #ff0000; background: rgba(255, 0, 0, 0.1); }
+    .btn-ext.ps:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(0, 112, 209, 0.1); }
+    .btn-ext.prospero:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(0, 217, 255, 0.1); }
+    .btn-ext.jdownloader { background: rgba(0, 230, 118, 0.12); border-color: rgba(0, 230, 118, 0.4); color: var(--accent-green); }
+    .btn-ext.jdownloader:hover { background: rgba(0, 230, 118, 0.25); border-color: var(--accent-green); }
 
     .btn-open {
       background: var(--brand-red);
@@ -241,6 +268,23 @@
       transition: background 0.2s;
     }
     .btn-open:hover { background: var(--brand-red-hover); }
+
+    /* LISTE DES LIENS DE TÉLÉCHARGEMENT */
+    .link-row {
+      background: #09101d;
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .link-info { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; }
+    .link-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .link-actions { display: flex; gap: 8px; }
 
     /* POP-UP / MODAL */
     .modal-overlay {
@@ -266,7 +310,7 @@
       border: 1px solid var(--line);
       border-radius: 18px;
       width: 100%;
-      max-width: 820px;
+      max-width: 850px;
       max-height: 88vh;
       display: flex;
       flex-direction: column;
@@ -317,7 +361,6 @@
     .modal-cover img { width: 100%; height: 100%; object-fit: cover; }
     .modal-header-info { flex: 1; overflow: hidden; padding-right: 35px; }
     .modal-header-info h2 { font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .modal-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 
     .modal-body-scroll {
       padding: 20px 24px;
@@ -340,9 +383,7 @@
       padding-bottom: 80px;
     }
 
-    #detailViewPage.active {
-      display: block;
-    }
+    #detailViewPage.active { display: block; }
 
     .detail-backdrop { 
       position: absolute; 
@@ -384,7 +425,7 @@
 </head>
 <body>
 
-  <!-- HEADER UNIFIÉ -->
+  <!-- TOP HEADER -->
   <header class="top-header">
     <div class="header-content">
       <div class="brand" onclick="showStore()">
@@ -401,6 +442,12 @@
           <option value="pfs">PFS Catalog</option>
           <option value="dlps">DLPS Catalog</option>
           <option value="pippo">Pippo Catalog</option>
+        </select>
+
+        <select id="sortBy" class="ctrl-select">
+          <option value="title">Tri : Titre (A-Z)</option>
+          <option value="size">Tri : Taille</option>
+          <option value="id">Tri : Title ID</option>
         </select>
 
         <div class="control-group" id="detailModeGroup" title="Mode d'affichage des détails">
@@ -449,10 +496,13 @@
 
         <div class="game-main-info">
           <h1 id="dTitle">Title</h1>
-          <div class="badges" style="margin-bottom:16px;">
+          <div class="badges" style="margin-bottom:12px;">
             <span class="badge blue" id="dCategory">PS5</span>
             <span class="badge" id="dVersionBadge">v1.00</span>
           </div>
+
+          <!-- BOUTONS YOUTUBE / PLAYSTATION / PROSPERO / JDOWNLOADER -->
+          <div class="ext-actions" id="dActions"></div>
 
           <div class="meta-inline-grid">
             <div class="meta-inline-item">
@@ -483,7 +533,10 @@
 
       <div class="panel-box">
         <div class="panel-box-title">
-          <span><i class="fa-solid fa-download"></i> Téléchargements Disponibles</span>
+          <span><i class="fa-solid fa-download"></i> Fichiers & Téléchargements</span>
+          <button class="btn-ext jdownloader" id="dBtnCopyAll" style="font-size:0.78rem; padding:4px 10px;">
+            <i class="fa-solid fa-copy"></i> Copier tous les liens (JDownloader)
+          </button>
         </div>
         <div id="dLinksContainer"></div>
       </div>
@@ -500,7 +553,7 @@
         <div class="modal-cover"><img id="mCover" src="" alt="Cover"></div>
         <div class="modal-header-info">
           <h2 id="mTitle">Title</h2>
-          <div class="modal-tags">
+          <div class="badges">
             <span class="badge red" id="mCategory">PS5</span>
             <span class="badge" id="mTitleId">PPSA00000</span>
             <span class="badge" id="mVersion">v1.00</span>
@@ -510,9 +563,19 @@
       </div>
 
       <div class="modal-body-scroll">
-        <div class="modal-desc-box" id="mDescPanel">
-          <div class="modal-desc-header"><i class="fa-solid fa-circle-info"></i> Informations sur la release</div>
-          <div class="modal-desc-text" id="mDesc"></div>
+        <!-- BOUTONS YOUTUBE / PLAYSTATION / PROSPERO EN POP-UP -->
+        <div class="ext-actions" id="mActions"></div>
+
+        <div class="panel-box" id="mDescPanel" style="margin-bottom:16px; padding:14px;">
+          <div style="font-weight:700; margin-bottom:6px; font-size:0.85rem;"><i class="fa-solid fa-circle-info"></i> Infos</div>
+          <div class="overview-text" id="mDesc" style="font-size:0.85rem;"></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h4 style="font-size:0.95rem; font-weight:700;"><i class="fa-solid fa-download"></i> Liens de téléchargement</h4>
+          <button class="btn-ext jdownloader" id="mBtnCopyAll" style="font-size:0.75rem; padding:4px 8px;">
+            <i class="fa-solid fa-copy"></i> Tout copier
+          </button>
         </div>
 
         <div id="mLinksContainer"></div>
@@ -562,6 +625,23 @@ function formatSize(val) {
   return n.toFixed(n >= 100 ? 0 : 1) + " " + u[i];
 }
 
+function parseLinks(raw) {
+  if (!raw) return [];
+  let list = Array.isArray(raw) ? raw : [raw];
+  return list.map(item => {
+    let url = typeof item === 'string' ? item : (item.url || item.link || '');
+    let name = typeof item === 'object' && item.name ? item.name : (url.split('/').pop() || 'Fichier');
+    let lower = (name + " " + url).toLowerCase();
+    
+    let type = "Jeu Base";
+    if (lower.includes("backport")) type = "Backport";
+    else if (lower.includes("dlc")) type = "DLC";
+    else if (lower.includes("update") || lower.includes("patch") || lower.includes("v1.")) type = "Update";
+    
+    return { name, url, type };
+  });
+}
+
 function normalizeItem(x) {
   return {
     title: x.title || x.name || "Titre non spécifié",
@@ -571,7 +651,7 @@ function normalizeItem(x) {
     version: x.version || x.app_ver || "v1.00",
     category: x.category || x.region || "PS5",
     description: x.description || x.summary || x.desc || "",
-    rawLinks: x.links || x.downloadLinks || x.urls || (x.url ? [x.url] : [])
+    links: parseLinks(x.links || x.downloadLinks || x.urls || x.url)
   };
 }
 
@@ -602,7 +682,16 @@ async function load() {
 
 function filtered() {
   const q = $("q").value.trim().toLowerCase();
-  return state.items.filter(x => !q || [x.title, x.titleId, x.category, x.version].some(v => String(v ?? "").toLowerCase().includes(q)));
+  const sortBy = $("sortBy").value;
+  
+  let list = state.items.filter(x => !q || [x.title, x.titleId, x.category, x.version].some(v => String(v ?? "").toLowerCase().includes(q)));
+  
+  return list.sort((a, b) => {
+    if (sortBy === "title") return a.title.localeCompare(b.title);
+    if (sortBy === "id") return a.titleId.localeCompare(b.titleId);
+    if (sortBy === "size") return parseFloat(b.size) - parseFloat(a.size);
+    return 0;
+  });
 }
 
 function render() {
@@ -688,16 +777,57 @@ function render() {
   }
 }
 
-function renderOrganizedDownloads(links, containerId) {
+/* GESTION DE LA COPIE DANS LE PRESSE-PAPIER (JDOWNLOADER) */
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Copié !';
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  });
+}
+
+function renderExternalActions(item) {
+  const ytUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(item.title + " PS5 gameplay trailer")}`;
+  const psUrl = `https://store.playstation.com/fr-fr/search/${encodeURIComponent(item.title)}`;
+  const prosperoUrl = `https://prospero.patches.pkg-zone.com/?q=${encodeURIComponent(item.titleId !== 'N/A' ? item.titleId : item.title)}`;
+
+  return `
+    <a href="${ytUrl}" target="_blank" class="btn-ext yt"><i class="fa-brands fa-youtube"></i> YouTube</a>
+    <a href="${psUrl}" target="_blank" class="btn-ext ps"><i class="fa-brands fa-playstation"></i> PS Store</a>
+    <a href="${prosperoUrl}" target="_blank" class="btn-ext prospero"><i class="fa-solid fa-shield-halved"></i> Prospero Patches</a>
+  `;
+}
+
+function renderDownloadLinks(links, containerId, btnCopyAllId) {
   const container = $(containerId);
+  const copyBtn = $(btnCopyAllId);
+  
   if (!links || links.length === 0) {
-    container.innerHTML = '<div style="color: var(--muted); font-size: 0.85rem;">Aucun lien de téléchargement disponible.</div>';
+    container.innerHTML = '<div style="color: var(--muted); font-size: 0.85rem;">Aucun lien disponible.</div>';
+    if(copyBtn) copyBtn.style.display = "none";
     return;
   }
-  container.innerHTML = links.map((link, i) => `
-    <div style="background: #09101d; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-      <span>Lien #${i + 1}</span>
-      <a href="${esc(typeof link === 'string' ? link : link.url)}" target="_blank" class="btn-open" style="text-decoration:none;">Télécharger</a>
+
+  if(copyBtn) {
+    copyBtn.style.display = "inline-flex";
+    const allUrls = links.map(l => l.url).join("\n");
+    copyBtn.onclick = (e) => copyText(allUrls, e.currentTarget);
+  }
+
+  container.innerHTML = links.map(link => `
+    <div class="link-row">
+      <div class="link-info">
+        <span class="badge ${link.type === 'Update' ? 'cyan' : link.type === 'DLC' ? 'red' : link.type === 'Backport' ? 'green' : 'blue'}">${link.type}</span>
+        <span class="link-name" title="${esc(link.name)}">${esc(link.name)}</span>
+      </div>
+      <div class="link-actions">
+        <button class="btn-ext jdownloader" onclick="copyText('${esc(link.url)}', this)" title="Copier pour JDownloader">
+          <i class="fa-solid fa-copy"></i> Copier
+        </button>
+        <a href="${esc(link.url)}" target="_blank" class="btn-open" style="text-decoration:none;">
+          <i class="fa-solid fa-download"></i> Télécharger
+        </a>
+      </div>
     </div>
   `).join("");
 }
@@ -725,6 +855,8 @@ function openPage(x) {
   $("dSpecCat").textContent = x.category;
   $("dSpecSize").textContent = x.size;
 
+  $("dActions").innerHTML = renderExternalActions(x);
+
   if (x.description && x.description.trim() !== "") {
     $("dDesc").textContent = x.description;
     $("descPanel").style.display = "block";
@@ -732,7 +864,7 @@ function openPage(x) {
     $("descPanel").style.display = "none";
   }
 
-  renderOrganizedDownloads(x.rawLinks, "dLinksContainer");
+  renderDownloadLinks(x.links, "dLinksContainer", "dBtnCopyAll");
 
   $("storeView").style.display = "none";
   $("headerControls").style.display = "none";
@@ -753,7 +885,6 @@ function showStore() {
   
   document.documentElement.style.overflow = "";
   document.body.style.overflow = "";
-  document.body.style.pointerEvents = "auto";
   
   window.scrollTo(0, 0);
 }
@@ -767,6 +898,8 @@ function openModal(x) {
   $("mVersion").textContent = x.version;
   $("mSize").textContent = x.size;
 
+  $("mActions").innerHTML = renderExternalActions(x);
+
   if (x.description && x.description.trim() !== "") {
     $("mDesc").textContent = x.description;
     $("mDescPanel").style.display = "block";
@@ -774,7 +907,7 @@ function openModal(x) {
     $("mDescPanel").style.display = "none";
   }
 
-  renderOrganizedDownloads(x.rawLinks, "mLinksContainer");
+  renderDownloadLinks(x.links, "mLinksContainer", "mBtnCopyAll");
   $("modalOverlay").classList.add("active");
   document.documentElement.style.overflow = "hidden";
   document.body.style.overflow = "hidden";
@@ -790,14 +923,15 @@ function closeModalOnBackdrop(e) {
   if (e.target.id === "modalOverlay") closeModal();
 }
 
-// Initialisation des événements au chargement
+// Initialisation au chargement de la page
 document.addEventListener("DOMContentLoaded", () => {
   setDetailMode(state.detailMode);
   
   $("catalog").addEventListener("change", load);
+  $("sortBy").addEventListener("change", render);
   $("q").addEventListener("input", render);
 
-  // Gestion des clics sur les cartes dans le conteneur principal
+  // Clic sur les cartes du catalogue
   $("mainContainer").addEventListener("click", (e) => {
     const card = e.target.closest("[data-i]");
     if (card) {
@@ -806,7 +940,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Boutons de changement de vue
+  // Boutons de changement de vue (Grille, Liste, Bannières, Tableau)
   $("btnGrid").onclick = () => { state.view = "grid"; updateViewBtns("btnGrid"); render(); };
   $("btnList").onclick = () => { state.view = "list"; updateViewBtns("btnList"); render(); };
   $("btnCards").onclick = () => { state.view = "cards"; updateViewBtns("btnCards"); render(); };
