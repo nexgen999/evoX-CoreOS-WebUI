@@ -27,16 +27,22 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
+    html, body {
+      width: 100%;
+      min-height: 100vh;
       background-color: var(--bg);
+    }
+
+    body {
       background-image: 
         radial-gradient(circle at 50% -10%, rgba(255, 0, 85, 0.12) 0%, transparent 60%),
         radial-gradient(circle at 0% 40%, rgba(0, 217, 255, 0.04) 0%, transparent 40%);
       color: var(--text);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      overflow-y: auto; /* Garantit le scroll par défaut sur la page principale */
     }
 
     /* TOP HEADER */
@@ -412,7 +418,7 @@
     .modal-desc-header { font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
     .modal-desc-text { font-size: 0.84rem; color: #a4b7d3; line-height: 1.5; max-height: 100px; overflow-y: auto; }
 
-    /* PAGE PLEIN ÉCRAN CORRIGÉE POUR LE SCROLL */
+    /* PAGE PLEIN ÉCRAN (DETAIL VIEW) */
     #detailViewPage {
       display: none;
       position: fixed;
@@ -422,7 +428,7 @@
       height: 100vh;
       background: #060911;
       z-index: 200;
-      overflow-y: auto; /* Active le scroll vertical */
+      overflow-y: auto; /* Active le scroll propre à la vue plein écran */
       overflow-x: hidden;
       padding-bottom: 80px;
     }
@@ -811,7 +817,8 @@ function openPage(x) {
   $("headerControls").style.display = "none";
   $("detailViewPage").classList.add("active");
   
-  // Bloque le scroll du fond et remonte la vue plein écran en haut
+  // Désactive le scroll du body uniquement en vue plein écran
+  document.documentElement.style.overflow = "hidden";
   document.body.style.overflow = "hidden";
   $("detailViewPage").scrollTop = 0;
 }
@@ -821,7 +828,8 @@ function showStore() {
   $("storeView").style.display = "block";
   $("headerControls").style.display = "flex";
   
-  // Réactive le scroll principal
+  // Réactive le scroll sur la page principale
+  document.documentElement.style.overflow = "";
   document.body.style.overflow = "";
   window.scrollTo(0, 0);
 }
@@ -844,11 +852,13 @@ function openModal(x) {
 
   renderOrganizedDownloads(x.rawLinks, "mLinksContainer");
   $("modalOverlay").classList.add("active");
+  document.documentElement.style.overflow = "hidden";
   document.body.style.overflow = "hidden";
 }
 
 function closeModal() { 
   $("modalOverlay").classList.remove("active"); 
+  document.documentElement.style.overflow = "";
   document.body.style.overflow = "";
 }
 function closeModalOnBackdrop(e) { if (e.target.id === "modalOverlay") closeModal(); }
