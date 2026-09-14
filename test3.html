@@ -439,9 +439,10 @@
         </div>
         
         <select id="catalog" class="ctrl-select">
+          <option value="pippo">Pippo Catalog</option>
           <option value="pfs">PFS Catalog</option>
           <option value="dlps">DLPS Catalog</option>
-          <option value="pippo">Pippo Catalog</option>
+          <option value="evoX-CoreOS">evoX-CoreOS Apps</option>
         </select>
 
         <select id="sortBy" class="ctrl-select">
@@ -457,8 +458,8 @@
 
         <div class="control-group">
           <button class="opt-btn active" id="btnGrid" title="Vue Grille"><i class="fa-solid fa-border-all"></i></button>
-          <button class="opt-btn" id="btnList" title="Vue Liste"><i class="fa-solid fa-list"></i></button>
           <button class="opt-btn" id="btnCards" title="Vue Bannière"><i class="fa-solid fa-id-card"></i></button>
+          <button class="opt-btn" id="btnList" title="Vue Liste"><i class="fa-solid fa-list"></i></button>
           <button class="opt-btn" id="btnTable" title="Vue Tableau"><i class="fa-solid fa-table-cells"></i></button>
         </div>
       </div>
@@ -585,6 +586,10 @@
 
 <script>
 const SOURCES = {
+  pippo: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pippo.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json"
+  ],
   dlps: [
     "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/dlps.json",
     "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json"
@@ -593,9 +598,9 @@ const SOURCES = {
     "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pfs.json",
     "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json"
   ],
-  pippo: [
-    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pippo.json",
-    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json"
+  evoX-CoreOS: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/catalog.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/catalog.json"
   ]
 };
 
@@ -789,7 +794,7 @@ function copyText(text, btn) {
 function renderExternalActions(item) {
   const ytUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(item.title + " PS5 gameplay trailer")}`;
   const psUrl = `https://store.playstation.com/fr-fr/search/${encodeURIComponent(item.title)}`;
-  const prosperoUrl = `https://prospero.patches.pkg-zone.com/?q=${encodeURIComponent(item.titleId !== 'N/A' ? item.titleId : item.title)}`;
+  const prosperoUrl = `https://prosperopatches.com/?q=${encodeURIComponent(item.titleId !== 'N/A' ? item.titleId : item.title)}`;
 
   return `
     <a href="${ytUrl}" target="_blank" class="btn-ext yt"><i class="fa-brands fa-youtube"></i> YouTube</a>
@@ -942,12 +947,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Boutons de changement de vue (Grille, Liste, Bannières, Tableau)
   $("btnGrid").onclick = () => { state.view = "grid"; updateViewBtns("btnGrid"); render(); };
-  $("btnList").onclick = () => { state.view = "list"; updateViewBtns("btnList"); render(); };
   $("btnCards").onclick = () => { state.view = "cards"; updateViewBtns("btnCards"); render(); };
+  $("btnList").onclick = () => { state.view = "list"; updateViewBtns("btnList"); render(); };
   $("btnTable").onclick = () => { state.view = "table"; updateViewBtns("btnTable"); render(); };
 
   function updateViewBtns(activeId) {
-    ["btnGrid", "btnList", "btnCards", "btnTable"].forEach(id => $(id).classList.toggle("active", id === activeId));
+    ["btnGrid", "btnCards", "btnList", "btnTable"].forEach(id => $(id).classList.toggle("active", id === activeId));
   }
 
   load();
