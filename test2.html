@@ -813,24 +813,32 @@ function openPage(x) {
 
   renderOrganizedDownloads(x.rawLinks, "dLinksContainer");
 
+  // Masque le catalogue principal et affiche la vue détails
   $("storeView").style.display = "none";
   $("headerControls").style.display = "none";
+  $("detailViewPage").style.display = "block";
   $("detailViewPage").classList.add("active");
   
-  // Désactive le scroll du body uniquement en vue plein écran
+  // Verrouille le body et réinitialise le scroll de la vue détails
   document.documentElement.style.overflow = "hidden";
   document.body.style.overflow = "hidden";
   $("detailViewPage").scrollTop = 0;
 }
 
 function showStore() {
+  // Masque totalement la vue détails
   $("detailViewPage").classList.remove("active");
+  $("detailViewPage").style.display = "none";
+  
+  // Rétablit la vue principale
   $("storeView").style.display = "block";
   $("headerControls").style.display = "flex";
   
-  // Réactive le scroll sur la page principale
+  // Libère le défilement global
   document.documentElement.style.overflow = "";
   document.body.style.overflow = "";
+  document.body.style.pointerEvents = "auto";
+  
   window.scrollTo(0, 0);
 }
 
