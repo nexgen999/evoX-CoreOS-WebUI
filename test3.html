@@ -344,21 +344,28 @@
     .btn-download-action:hover { background: var(--brand-red-hover); }
 
     .btn-jdownloader {
-      background: rgba(0, 230, 118, 0.15);
+      background: rgba(0, 230, 118, 0.12);
       border: 1px solid rgba(0, 230, 118, 0.4);
-      color: var(--accent-green);
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.95rem;
       cursor: pointer;
       transition: all 0.2s;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      padding: 6px;
     }
-    .btn-jdownloader:hover { background: rgba(0, 230, 118, 0.3); border-color: var(--accent-green); transform: scale(1.05); }
+    .btn-jdownloader img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .btn-jdownloader:hover { 
+      background: rgba(0, 230, 118, 0.25); 
+      border-color: var(--accent-green); 
+      transform: scale(1.08); 
+    }
 
     /* BOUTONS EXTERNES (PAGE DÉTAILS) */
     .external-links-bar {
@@ -495,7 +502,7 @@
     }
 
     #detailViewPage.active {
-      display: block;
+      display: block !important;
     }
 
     .detail-backdrop { 
@@ -669,7 +676,7 @@
         <div class="panel-box-title" style="display: flex; justify-content: space-between; align-items: center;">
           <span><i class="fa-solid fa-download"></i> Téléchargements Disponibles</span>
           <button class="btn-jdownloader" id="btnJDPage" onclick="copyAllJDownloader('dLinksContainer')" title="Copier tous les liens pour JDownloader">
-            <i class="fa-solid fa-rocket"></i>
+            <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jdownloader2.png" alt="JDownloader">
           </button>
         </div>
         <div id="dLinksContainer"></div>
@@ -705,7 +712,7 @@
         <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:12px;">
           <b style="font-size:0.9rem; color:#fff;">Fichiers & Liens</b>
           <button class="btn-jdownloader" onclick="copyAllJDownloader('mLinksContainer')" title="Copier tous les liens pour JDownloader">
-            <i class="fa-solid fa-rocket"></i>
+            <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jdownloader2.png" alt="JDownloader">
           </button>
         </div>
 
@@ -927,8 +934,11 @@ function render() {
 function openItem(index) {
   const x = filtered()[index];
   if (!x) return;
-  if (state.detailMode === "popup") openModal(x);
-  else openPage(x);
+  if (state.detailMode === "popup") {
+    openModal(x);
+  } else {
+    openPage(x);
+  }
 }
 
 function renderExternalButtons(item) {
