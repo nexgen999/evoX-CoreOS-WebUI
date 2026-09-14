@@ -347,17 +347,18 @@
       background: rgba(0, 230, 118, 0.15);
       border: 1px solid rgba(0, 230, 118, 0.4);
       color: var(--accent-green);
-      padding: 8px 16px;
+      width: 36px;
+      height: 36px;
       border-radius: 8px;
       font-weight: 700;
-      font-size: 0.83rem;
+      font-size: 0.95rem;
       cursor: pointer;
       transition: all 0.2s;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
     }
-    .btn-jdownloader:hover { background: rgba(0, 230, 118, 0.25); border-color: var(--accent-green); }
+    .btn-jdownloader:hover { background: rgba(0, 230, 118, 0.3); border-color: var(--accent-green); transform: scale(1.05); }
 
     /* BOUTONS EXTERNES (PAGE DÉTAILS) */
     .external-links-bar {
@@ -569,10 +570,10 @@
         </div>
         
         <select id="catalog" class="ctrl-select">
-          <option value="apps">evoX-CoreOS Apps</option>
+          <option value="pippo" selected>Pippo Catalog</option>
           <option value="pfs">PFS Catalog</option>
           <option value="dlps">DLPS Catalog</option>
-          <option value="pippo">Pippo Catalog</option>
+          <option value="apps">evoX-CoreOS Apps</option>
         </select>
 
         <select id="sortSelect" class="ctrl-select">
@@ -602,7 +603,7 @@
   <div id="storeView">
     <section class="hero-bar">
       <div class="stats-list">
-        <div class="stat-chip">Catalogue : <b id="catName">EVOX-COREOS APPS</b></div>
+        <div class="stat-chip">Catalogue : <b id="catName">PIPPO CATALOG</b></div>
         <div class="stat-chip">Éléments : <b id="count">0</b></div>
       </div>
     </section>
@@ -665,10 +666,10 @@
       </div>
 
       <div class="panel-box">
-        <div class="panel-box-title">
+        <div class="panel-box-title" style="display: flex; justify-content: space-between; align-items: center;">
           <span><i class="fa-solid fa-download"></i> Téléchargements Disponibles</span>
-          <button class="btn-jdownloader" id="btnJDPage" onclick="copyAllJDownloader('dLinksContainer')">
-            <i class="fa-solid fa-rocket"></i> Copier tous les liens (JDownloader)
+          <button class="btn-jdownloader" id="btnJDPage" onclick="copyAllJDownloader('dLinksContainer')" title="Copier tous les liens pour JDownloader">
+            <i class="fa-solid fa-rocket"></i>
           </button>
         </div>
         <div id="dLinksContainer"></div>
@@ -701,10 +702,10 @@
           <div class="modal-desc-text" id="mDesc"></div>
         </div>
 
-        <div style="display:flex; justify-space-between; align-items:center; margin-bottom:12px;">
+        <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:12px;">
           <b style="font-size:0.9rem; color:#fff;">Fichiers & Liens</b>
-          <button class="btn-jdownloader" onclick="copyAllJDownloader('mLinksContainer')">
-            <i class="fa-solid fa-rocket"></i> Tout copier (JDownloader)
+          <button class="btn-jdownloader" onclick="copyAllJDownloader('mLinksContainer')" title="Copier tous les liens pour JDownloader">
+            <i class="fa-solid fa-rocket"></i>
           </button>
         </div>
 
@@ -717,21 +718,21 @@
 
 <script>
 const SOURCES = {
-  apps: [
-    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/catalog.json",
-    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/catalog.json"
-  ],
-  dlps: [
-    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/dlps.json",
-    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json"
+  pippo: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pippo.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json"
   ],
   pfs: [
     "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pfs.json",
     "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pfs.json"
   ],
-  pippo: [
-    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pippo.json",
-    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/pippo.json"
+  dlps: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/dlps.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/dlps.json"
+  ],
+  apps: [
+    "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/catalog.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/catalog.json"
   ]
 };
 
@@ -934,12 +935,10 @@ function renderExternalButtons(item) {
   const encodeTitle = encodeURIComponent(item.title);
   const titleIdRaw = (item.titleId && item.titleId !== "N/A") ? item.titleId.trim().toUpperCase() : "";
 
-  // Lien direct vers la page Prospero Patches si un Title ID (ex: PPSA09789) est présent
   const prosperoIdUrl = titleIdRaw 
     ? `https://prosperopatches.com/${encodeURIComponent(titleIdRaw)}`
     : `https://prosperopatches.com/search?q=${encodeTitle}&p=1`;
 
-  // Lien de recherche par nom sur Prospero Patches avec /search?q=...&p=1
   const prosperoNameUrl = `https://prosperopatches.com/search?q=${encodeTitle}&p=1`;
 
   return `
@@ -992,7 +991,6 @@ function openPage(x) {
 
   $("storeView").style.display = "none";
   $("headerControls").style.display = "none";
-  $("detailViewPage").style.display = "block";
   $("detailViewPage").classList.add("active");
   
   document.documentElement.style.overflow = "hidden";
@@ -1002,7 +1000,6 @@ function openPage(x) {
 
 function showStore() {
   $("detailViewPage").classList.remove("active");
-  $("detailViewPage").style.display = "none";
   
   $("storeView").style.display = "block";
   $("headerControls").style.display = "flex";
@@ -1043,7 +1040,6 @@ function closeModal() {
 }
 function closeModalOnBackdrop(e) { if (e.target.id === "modalOverlay") closeModal(); }
 
-/* ALGORITHME AMÉLIORÉ DE REGROUPEMENT DES FICHIERS & HOSTS */
 const KNOWN_HOSTS = ["akirabox", "vikingfile", "datanodes", "filek", "vault", "pixeldrain", "1fichier", "gofile", "mega", "mediafire", "github"];
 
 function extractHostName(label, url) {
