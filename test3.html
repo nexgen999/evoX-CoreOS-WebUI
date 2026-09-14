@@ -381,6 +381,7 @@
     }
     .ext-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
     .ext-btn.prospero { background: #2d134b; border-color: #6a2fb4; color: #d6adff; }
+    .ext-btn.prospero-id { background: #4a154b; border-color: #a82fb4; color: #f3adff; }
     .ext-btn.psn { background: #00439c; border-color: #0070d1; }
     .ext-btn.yt { background: #cc0000; border-color: #ff3333; }
 
@@ -700,7 +701,7 @@
           <div class="modal-desc-text" id="mDesc"></div>
         </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="display:flex; justify-space-between; align-items:center; margin-bottom:12px;">
           <b style="font-size:0.9rem; color:#fff;">Fichiers & Liens</b>
           <button class="btn-jdownloader" onclick="copyAllJDownloader('mLinksContainer')">
             <i class="fa-solid fa-rocket"></i> Tout copier (JDownloader)
@@ -930,17 +931,32 @@ function openItem(index) {
 }
 
 function renderExternalButtons(item) {
-  const queryIdOrTitle = (item.titleId && item.titleId !== "N/A") ? item.titleId : item.title;
-  const encodeId = encodeURIComponent(queryIdOrTitle);
   const encodeTitle = encodeURIComponent(item.title);
+  const titleIdRaw = (item.titleId && item.titleId !== "N/A") ? item.titleId.trim().toUpperCase() : "";
+
+  // Lien direct vers la page Prospero Patches si un Title ID (ex: PPSA09789) est présent
+  const prosperoIdUrl = titleIdRaw 
+    ? `https://prosperopatches.com/${encodeURIComponent(titleIdRaw)}`
+    : `https://prosperopatches.com/search?q=${encodeTitle}&p=1`;
+
+  // Lien de recherche par nom sur Prospero Patches avec /search?q=...&p=1
+  const prosperoNameUrl = `https://prosperopatches.com/search?q=${encodeTitle}&p=1`;
 
   return `
-    <a href="https://prosperopatches.com/?s=${encodeId}" target="_blank" class="ext-btn prospero" title="Rechercher des mises à jour sur Prospero Patches">
-      <i class="fa-solid fa-box-open"></i> Prospero Patches
+    <a href="${prosperoNameUrl}" target="_blank" class="ext-btn prospero" title="Rechercher ${esc(item.title)} par nom sur Prospero Patches">
+      <i class="fa-solid fa-magnifying-glass"></i> Prospero (Nom)
     </a>
+
+    ${titleIdRaw ? `
+    <a href="${prosperoIdUrl}" target="_blank" class="ext-btn prospero-id" title="Voir la page directe ${esc(titleIdRaw)} sur Prospero Patches">
+      <i class="fa-solid fa-box-open"></i> Prospero (${esc(titleIdRaw)})
+    </a>
+    ` : ''}
+
     <a href="https://store.playstation.com/search/${encodeTitle}" target="_blank" class="ext-btn psn" title="Rechercher sur le PlayStation Store">
       <i class="fa-brands fa-playstation"></i> PS Store
     </a>
+
     <a href="https://www.youtube.com/results?search_query=${encodeTitle}+gameplay+trailer" target="_blank" class="ext-btn yt" title="Rechercher sur YouTube">
       <i class="fa-brands fa-youtube"></i> YouTube
     </a>
