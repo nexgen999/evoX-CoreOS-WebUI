@@ -186,6 +186,22 @@
     .card-grid .title { font-weight: 700; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-grid .meta { color: var(--muted); font-size: 0.78rem; margin-top: 4px; }
 
+    .view-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+    .card-banner {
+      background: var(--panel-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      display: flex;
+      gap: 14px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .card-banner:hover { border-color: var(--brand-red); transform: translateY(-3px); }
+    .card-banner .thumb { width: 100px; height: 130px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+    .card-banner img { width: 100%; height: 100%; object-fit: cover; }
+    .card-banner .details { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+
     .view-list { display: flex; flex-direction: column; gap: 8px; }
     .card-list {
       display: grid;
@@ -202,22 +218,6 @@
     .card-list:hover { border-color: var(--brand-red); background: var(--panel-hover); }
     .card-list .thumb { width: 50px; height: 60px; border-radius: 6px; overflow: hidden; background: #04070d; }
     .card-list img { width: 100%; height: 100%; object-fit: cover; }
-
-    .view-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
-    .card-banner {
-      background: var(--panel-card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      display: flex;
-      gap: 14px;
-      padding: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .card-banner:hover { border-color: var(--brand-red); transform: translateY(-3px); }
-    .card-banner .thumb { width: 100px; height: 130px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
-    .card-banner img { width: 100%; height: 100%; object-fit: cover; }
-    .card-banner .details { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
 
     .view-table { width: 100%; border-collapse: collapse; background: var(--panel-card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
     .view-table th, .view-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--line); font-size: 0.88rem; }
@@ -489,16 +489,11 @@
     /* PAGE PLEIN ÉCRAN (DETAIL VIEW) */
     #detailViewPage {
       display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      min-height: 100vh;
       background: #060911;
-      z-index: 500;
-      overflow-y: auto;
-      overflow-x: hidden;
       padding-bottom: 80px;
+      position: relative;
     }
 
     #detailViewPage.active {
@@ -596,10 +591,11 @@
           <button class="opt-btn" id="btnModePopup" onclick="setDetailMode('popup')"><i class="fa-solid fa-window-restore"></i> Pop-up</button>
         </div>
 
+        <!-- ORDRE MODIFIÉ : Grille -> Bannière -> Liste -> Tableau -->
         <div class="control-group">
           <button class="opt-btn active" id="btnGrid" title="Vue Grille"><i class="fa-solid fa-border-all"></i></button>
-          <button class="opt-btn" id="btnList" title="Vue Liste"><i class="fa-solid fa-list"></i></button>
           <button class="opt-btn" id="btnCards" title="Vue Bannière"><i class="fa-solid fa-id-card"></i></button>
+          <button class="opt-btn" id="btnList" title="Vue Liste"><i class="fa-solid fa-list"></i></button>
           <button class="opt-btn" id="btnTable" title="Vue Tableau"><i class="fa-solid fa-table-cells"></i></button>
         </div>
       </div>
@@ -871,18 +867,6 @@ function render() {
         </div>
       </article>`).join("");
   } 
-  else if (state.view === "list") {
-    container.className = "view-list";
-    container.innerHTML = items.map((x, i) => `
-      <article class="card-list" data-i="${i}">
-        <div class="thumb"><img loading="lazy" src="${esc(x.icon)}" onerror="this.src='${fallback}'"></div>
-        <div>
-          <div class="title">${esc(x.title)}</div>
-          <div class="meta">${esc(x.titleId)} · ${esc(x.size)} · ${esc(x.version)}</div>
-        </div>
-        <button class="btn-open">Ouvrir</button>
-      </article>`).join("");
-  }
   else if (state.view === "cards") {
     container.className = "view-cards";
     container.innerHTML = items.map((x, i) => `
@@ -899,6 +883,18 @@ function render() {
             <span class="badge">${esc(x.version)}</span>
           </div>
         </div>
+      </article>`).join("");
+  }
+  else if (state.view === "list") {
+    container.className = "view-list";
+    container.innerHTML = items.map((x, i) => `
+      <article class="card-list" data-i="${i}">
+        <div class="thumb"><img loading="lazy" src="${esc(x.icon)}" onerror="this.src='${fallback}'"></div>
+        <div>
+          <div class="title">${esc(x.title)}</div>
+          <div class="meta">${esc(x.titleId)} · ${esc(x.size)} · ${esc(x.version)}</div>
+        </div>
+        <button class="btn-open">Ouvrir</button>
       </article>`).join("");
   }
   else if (state.view === "table") {
@@ -999,19 +995,17 @@ function openPage(x) {
 
   renderOrganizedDownloads(x.rawLinks, "dLinksContainer");
 
+  // MASQUER LE STORE ET AFFICHER LA PAGE
+  $("storeView").style.display = "none";
   const page = $("detailViewPage");
   page.classList.add("active");
-  page.scrollTop = 0;
-  
-  document.documentElement.style.overflow = "hidden";
-  document.body.style.overflow = "hidden";
+  window.scrollTo(0, 0);
 }
 
 function showStore() {
   $("detailViewPage").classList.remove("active");
-  
-  document.documentElement.style.overflow = "";
-  document.body.style.overflow = "";
+  $("storeView").style.display = "block";
+  window.scrollTo(0, 0);
 }
 
 function openModal(x) {
@@ -1239,10 +1233,11 @@ $("sortSelect").addEventListener("change", render);
 
 setDetailMode(state.detailMode);
 
+/* VUES DANS L'ORDRE RECONFIGURÉ */
 const views = [
   { btn: "btnGrid", name: "grid" },
-  { btn: "btnList", name: "list" },
   { btn: "btnCards", name: "cards" },
+  { btn: "btnList", name: "list" },
   { btn: "btnTable", name: "table" }
 ];
 
