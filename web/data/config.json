@@ -11,13 +11,15 @@
       { "name": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json" },
       { "name": "PKGs", "url": "https://nexgen999.github.io/evoX-CoreOS/json/pkg.json" },
       { "name": "FFPFSC", "url": "https://nexgen999.github.io/evoX-CoreOS/json/ffpfsc.json" },
-      { "name": "Apps", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" }
+      { "name": "Apps", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" },
+      { "name": "PS5 Super PLDMGR", "url": "https://nexgen999.github.io/PS5-Super-PLDMGR-Auto-Updater/json/payloads.json" }
     ],
     "changelog": "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/CHANGELOG.md",
     "pegasus": [
       { "name": "DLPS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/dlps.json" },
       { "name": "Pippo Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pippo.json" },
-      { "name": "PFS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pfs.json" }
+      { "name": "PFS Catalog", "url": "https://pegasus-catalog.fly.dev/catalogs/pfs.json" },
+      { "name": "evoX Catalog", "url": "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/catalog.json" }
     ]
   },
   "webkit": [
@@ -101,7 +103,8 @@
       { "name": "PKG AIO", "file": "PS5_pkg_aio_latest.zip", "icon": "fa-box" },
       { "name": "FFPFSC AIO", "file": "PS5_ffpfsc_aio_latest.zip", "icon": "fa-bolt" },
       { "name": "Apps AIO", "file": "PS5_apps_aio_latest.zip", "icon": "fa-window-restore" },
-      { "name": "Ultimate Pack AIO", "file": "PS5_ultimate_pack_latest.zip", "icon": "fa-crown" }
+      { "name": "Ultimate Pack AIO", "file": "PS5_ultimate_pack_latest.zip", "icon": "fa-crown" },
+      { "name": "TeeKay87-HEN-Cheats-Collection", "file": "https://github.com/TeeKay87/HEN-Cheats-Collection/archive/refs/heads/master.zip", "icon": "fa-solid fa-gamepad" }
     ]
   },
   "credits": [
@@ -115,6 +118,7 @@
   "socials": [
     { "platform": "github", "url": "https://github.com/nexgen999", "icon": "fa-brands fa-github" },
     { "platform": "pegasus-store", "url": "https://nexgen999.github.io/evoX-CoreOS-WebUI/pegasus-store_en.html", "icon": "fa-solid fa-store" },
-    { "platform": "discord", "url": "https://discord.gg", "icon": "fa-brands fa-discord" }
+    { "platform": "X", "url": "https://discord.gg", "icon": "fa-brands fa-discord" },
+    { "platform": "discord", "url": "https://x.com/nexgen999", "icon": "fa-brands fa-x-twitter" }
   ]
 }
