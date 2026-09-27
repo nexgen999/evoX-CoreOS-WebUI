@@ -114,6 +114,7 @@
   ],
   "socials": [
     { "platform": "github", "url": "https://github.com/nexgen999", "icon": "fa-brands fa-github" },
+    { "platform": "pegasus-store", "url": "https://nexgen999.github.io/evoX-CoreOS-WebUI/pegasus-store_en.html", "icon": "fa-solid fa-store" },
     { "platform": "discord", "url": "https://discord.gg", "icon": "fa-brands fa-discord" }
   ]
 }
