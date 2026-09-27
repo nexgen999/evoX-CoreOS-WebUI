@@ -103,8 +103,7 @@
       { "name": "PKG AIO", "file": "PS5_pkg_aio_latest.zip", "icon": "fa-box" },
       { "name": "FFPFSC AIO", "file": "PS5_ffpfsc_aio_latest.zip", "icon": "fa-bolt" },
       { "name": "Apps AIO", "file": "PS5_apps_aio_latest.zip", "icon": "fa-window-restore" },
-      { "name": "Ultimate Pack AIO", "file": "PS5_ultimate_pack_latest.zip", "icon": "fa-crown" },
-      { "name": "TeeKay87-HEN-Cheats-Collection", "file": "https://github.com/TeeKay87/HEN-Cheats-Collection/archive/refs/heads/master.zip", "icon": "fa-solid fa-gamepad" }
+      { "name": "Ultimate Pack AIO", "file": "PS5_ultimate_pack_latest.zip", "icon": "fa-crown" }
     ]
   },
   "credits": [
