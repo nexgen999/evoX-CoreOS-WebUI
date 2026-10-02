@@ -11,8 +11,7 @@
       { "name": "Payloads", "url": "https://nexgen999.github.io/evoX-CoreOS/json/payloads.json" },
       { "name": "PKGs", "url": "https://nexgen999.github.io/evoX-CoreOS/json/pkg.json" },
       { "name": "FFPFSC", "url": "https://nexgen999.github.io/evoX-CoreOS/json/ffpfsc.json" },
-      { "name": "Apps", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" },
-      { "name": "PS5 Super PLDMGR", "url": "https://nexgen999.github.io/PS5-Super-PLDMGR-Auto-Updater/json/payloads.json" }
+      { "name": "Apps", "url": "https://nexgen999.github.io/evoX-CoreOS/json/apps.json" }
     ],
     "changelog": "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/CHANGELOG.md",
     "pegasus": [
@@ -109,7 +108,7 @@
   "credits": [
     "nexgen999",
     "ItsPLK for PLDMGR",
-    "Master, Mustafa, SeregonWar, maj0r, ArkSama",
+    "Master, Mustafa, SeregonWar, StonedModder, maj0r, ArkSama",
     "aldostools, VoX DoN,BX-AM",
     "Pippo, Phoenixx, Pegasus Dev, DLPS Team",
     "All Scene Community"
@@ -117,6 +116,7 @@
   "socials": [
     { "platform": "github", "url": "https://github.com/nexgen999", "icon": "fa-brands fa-github" },
     { "platform": "pegasus-store", "url": "https://nexgen999.github.io/evoX-CoreOS-WebUI/pegasus-store_en.html", "icon": "fa-solid fa-store" },
+    { "platform": "homebrew.page", "url": "https://homebrew.page", "icon": "fa-solid fa-bag-shopping" },
     { "platform": "X", "url": "https://discord.gg", "icon": "fa-brands fa-discord" },
     { "platform": "discord", "url": "https://x.com/nexgen999", "icon": "fa-brands fa-x-twitter" }
   ]
