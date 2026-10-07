@@ -600,9 +600,8 @@ const SOURCES = {
     "https://homebrew.page/catalog/v1.json"
   ],
   blackbox: [
-    // Remplace ce lien par l'URL de ton fichier généré (ex: GitHub Pages ou RAW)
-    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/blackbox_catalog.json",
-    "blackbox_catalog.json"
+    "blackbox_catalog.json",
+    "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pegasus-dl/blackbox_catalog.json"
   ],
   pippo: [
     "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/pippo.json",
@@ -657,51 +656,121 @@ function formatSize(val) {
   return n.toFixed(n >= 100 ? 0 : 1) + " " + u[i];
 }
 
-function extractAllLinks(obj, defaultTitle) {
+/* DEEP LINK EXTRACTION FOR CATALOGS */
+function extractAllLinks(obj, defaultTitle, catalogKey) {
   let rawLinks = [];
-  if (obj.download_url) rawLinks.push({ url: obj.download_url, name: defaultTitle });
-  if (Array.isArray(obj.files)) {
-    obj.files.forEach(f => {
-      let u = typeof f === "string" ? f : f.url;
-      let n = typeof f === "object" ? f.name : defaultTitle;
-      if (u) rawLinks.push({ url: u, name: n });
-    });
+
+  if (catalogKey === "homebrew") {
+    if (obj.artifact_url && typeof obj.artifact_url === "string" && obj.artifact_url.trim().startsWith("http")) {
+      rawLinks.push({ url: obj.artifact_url.trim(), name: defaultTitle || "Artifact Download" });
+    }
+  } else {
+    const ignoredKeys = [
+      "source_repo", "downloadSource", "download_source", "icon_url", "posterUrl", "poster_url", "poster", 
+      "image", "cover", "banner", "page", "icon", "metadataUrl", "metadata_url", "links", "downloadLinks", 
+      "urls", "download_urls", "files", "assets", "versions", "releases", "downloads", "attachments", "mirrors"
+    ];
+
+    function walk(data, currentLabel = "") {
+      if (!data) return;
+
+      if (typeof data === "string") {
+        let trimmed = data.trim();
+        if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+          let splitUrls = trimmed.split(/[\n,\s]+/);
+          splitUrls.forEach(url => {
+            if (url.startsWith("http://") || url.startsWith("https://")) {
+              rawLinks.push({ url, name: currentLabel || defaultTitle || "Download File" });
+            }
+          });
+        }
+        return;
+      }
+
+      if (Array.isArray(data)) {
+        data.forEach(item => walk(item, currentLabel));
+        return;
+      }
+
+      if (typeof data === "object") {
+        if (data.url || data.link || data.download_url || data.pkg_url || data.path || data.artifact_url) {
+          let u = data.url || data.link || data.download_url || data.pkg_url || data.path || data.artifact_url;
+          let name = data.name || data.filename || data.title || data.label || data.version || currentLabel || defaultTitle;
+          if (typeof u === "string") {
+            walk(u, name);
+          }
+        }
+
+        const targetKeys = ["links", "downloadLinks", "urls", "download_urls", "files", "assets", "versions", "releases", "downloads", "attachments", "mirrors"];
+        for (let key of targetKeys) {
+          if (data[key]) walk(data[key], currentLabel);
+        }
+
+        for (let k in data) {
+          if (ignoredKeys.includes(k)) continue;
+          if (typeof data[k] === "string" || typeof data[k] === "object") {
+            walk(data[k], k);
+          }
+        }
+      }
+    }
+
+    walk(obj);
   }
-  
+
   const seen = new Set();
   const result = [];
+
   for (let item of rawLinks) {
     if (!item.url || seen.has(item.url)) continue;
     seen.add(item.url);
+
+    let urlName = item.url.split('/').pop().split('?')[0];
+    let name = item.name && item.name !== defaultTitle ? item.name : (urlName || defaultTitle || "Download File");
+    let lower = (name + " " + item.url).toLowerCase();
     
-    let lower = (item.name + " " + item.url).toLowerCase();
     let type = "Base Game";
     if (lower.includes("backport")) type = "Backport";
     else if (lower.includes("dlc")) type = "DLC";
-    else if (lower.includes("update") || lower.includes("patch")) type = "Update";
-    else if (lower.includes(".pkg") || lower.includes(".elf")) type = "Homebrew";
+    else if (lower.includes("update") || lower.includes("patch") || lower.includes("v1.")) type = "Update";
+    else if (lower.includes("homebrew") || lower.includes(".pkg") || lower.includes(".elf") || lower.includes(".bin") || lower.includes(".apk")) type = "Homebrew";
     
-    result.push({ name: item.name, url: item.url, type });
+    result.push({ name, url: item.url, type });
   }
+
   return result;
 }
 
-function normalizeItem(x, index) {
-  const rawSize = x.size || x.sizeBytes || x.file_size;
-  const title = x.name || x.title || "Untitled Item";
+function normalizeItem(x, index, catalogKey) {
+  const rawSize = x.sizeBytes || x.size || x.file_size || x.package_size || x.pkg_size;
+  const rawDate = x.date || x.updated_at || x.created_at || x.added || x.released || null;
+  const title = x.name || x.title || x.app_name || "Untitled Item";
+  const rawId = x.id || x.titleId || x.gameId || x.game_id || x.pkg_id || x.app_id || "";
+
+  let links = [];
+  if (Array.isArray(x.files) && x.files.length > 0) {
+    links = x.files.map(f => ({
+      name: typeof f === "object" ? (f.name || title) : title,
+      url: typeof f === "object" ? f.url : f,
+      type: "Base Game"
+    }));
+  } else {
+    links = extractAllLinks(x, title, catalogKey);
+  }
 
   return {
     originalIndex: index,
     title: title,
-    titleId: x.id || x.titleId || "N/A",
-    icon: x.cover || x.image || x.icon || "",
+    titleId: rawId ? String(rawId).trim().split('-')[0].toUpperCase() : "N/A",
+    icon: x.cover || x.poster || x.image || x.posterUrl || x.icon_url || x.icon || "",
     size: formatSize(rawSize),
     sizeBytes: parseSizeBytes(rawSize),
-    version: x.version || "v1.00",
-    category: x.category || "PS5",
-    description: x.description || "",
-    sourceRepo: x.repo || "",
-    links: extractAllLinks(x, title)
+    dateParsed: rawDate ? new Date(rawDate).getTime() : 0,
+    version: x.version || x.app_ver || x.latest_version || "v1.00",
+    category: x.category || x.region || x.type || "PS5",
+    description: x.description || x.summary || x.desc || x.about || "",
+    sourceRepo: x.repo || x.source_repo || "",
+    links: links
   };
 }
 
@@ -711,21 +780,49 @@ async function load() {
   if (key === 'evox') displayName = 'EVOX-COREOS APPS';
   else if (key === 'homebrew') displayName = 'HOMEBREW CATALOG';
   else if (key === 'blackbox') displayName = 'BLACKBOX CATALOG';
+  else if (key === 'pippo') displayName = 'PIPPO CATALOG';
+  else if (key === 'dlps') displayName = 'DLPS CATALOG';
+  else if (key === 'pfs') displayName = 'PFS CATALOG';
 
   $("catName").textContent = displayName;
   $("mainContainer").innerHTML = '<div class="empty-msg"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>';
   $("empty").hidden = true;
 
   let loadedData = null;
-  for (let url of SOURCES[key]) {
+  const sourcesList = Array.isArray(SOURCES[key]) ? SOURCES[key] : [SOURCES[key]];
+
+  for (let url of sourcesList) {
     try {
       const res = await fetch(url, { cache: "no-store" });
-      if (res.ok) { loadedData = await res.json(); break; }
-    } catch (e) {}
+      if (res.ok) { 
+        loadedData = await res.json(); 
+        break; 
+      }
+    } catch (e) {
+      console.warn(`Impossible de charger : ${url}`);
+    }
   }
 
-  if (loadedData && Array.isArray(loadedData)) {
-    state.items = loadedData.map((x, i) => normalizeItem(x, i));
+  if (loadedData) {
+    let rawItems = [];
+    
+    if (Array.isArray(loadedData)) {
+      rawItems = loadedData;
+    } else if (loadedData.apps && Array.isArray(loadedData.apps)) {
+      rawItems = loadedData.apps;
+    } else if (loadedData.packages && Array.isArray(loadedData.packages)) {
+      rawItems = loadedData.packages;
+    } else if (loadedData.releases && Array.isArray(loadedData.releases)) {
+      rawItems = loadedData.releases;
+    } else if (loadedData.games && Array.isArray(loadedData.games)) {
+      rawItems = loadedData.games;
+    } else if (loadedData.items && Array.isArray(loadedData.items)) {
+      rawItems = loadedData.items;
+    } else if (typeof loadedData === 'object') {
+      rawItems = Object.keys(loadedData).map(k => ({ id: k, ...loadedData[k] }));
+    }
+
+    state.items = rawItems.map((x, i) => normalizeItem(x, i, key));
     render();
   } else {
     state.items = [];
@@ -745,6 +842,12 @@ function filtered() {
     if (sortBy === "title-desc") return b.title.localeCompare(a.title);
     if (sortBy === "size-asc") return a.sizeBytes - b.sizeBytes;
     if (sortBy === "size-desc") return b.sizeBytes - a.sizeBytes;
+    if (sortBy === "date-asc") {
+      return (a.dateParsed || a.originalIndex) - (b.dateParsed || b.originalIndex);
+    }
+    if (sortBy === "date-desc") {
+      return (b.dateParsed || (state.items.length - b.originalIndex)) - (a.dateParsed || (state.items.length - a.originalIndex));
+    }
     return 0;
   });
 }
@@ -832,6 +935,7 @@ function render() {
   }
 }
 
+/* CLIPBOARD COPY HANDLER */
 function copyText(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
     const orig = btn.innerHTML;
@@ -842,7 +946,8 @@ function copyText(text, btn) {
 
 function renderExternalActions(item) {
   const currentCatalog = $("catalog").value;
-  if (currentCatalog === "homebrew" || currentCatalog === "blackbox") {
+
+  if (currentCatalog === "homebrew") {
     const repoUrl = item.sourceRepo ? item.sourceRepo : `https://github.com/search?q=${encodeURIComponent(item.title)}`;
     return `
       <a href="${esc(repoUrl)}" target="_blank" class="btn-ext github">
@@ -853,12 +958,15 @@ function renderExternalActions(item) {
 
   const ytUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(item.title + " PS5 gameplay trailer")}`;
   const psUrl = `https://store.playstation.com/en-us/search/${encodeURIComponent(item.title)}`;
+  
   const prosperoIdUrl = `https://prosperopatches.com/search?q=${encodeURIComponent(item.titleId !== 'N/A' ? item.titleId : item.title)}&p=1`;
+  const prosperoTitleUrl = `https://prosperopatches.com/search?q=${encodeURIComponent(item.title)}&p=1`;
 
   return `
     <a href="${ytUrl}" target="_blank" class="btn-ext yt"><i class="fa-brands fa-youtube"></i> YouTube</a>
     <a href="${psUrl}" target="_blank" class="btn-ext ps"><i class="fa-brands fa-playstation"></i> PS Store</a>
-    <a href="${prosperoIdUrl}" target="_blank" class="btn-ext prospero"><i class="fa-solid fa-shield-halved"></i> Prospero</a>
+    <a href="${prosperoIdUrl}" target="_blank" class="btn-ext prospero"><i class="fa-solid fa-shield-halved"></i> Prospero (Title ID)</a>
+    <a href="${prosperoTitleUrl}" target="_blank" class="btn-ext prospero"><i class="fa-solid fa-magnifying-glass"></i> Prospero (Title)</a>
   `;
 }
 
@@ -911,7 +1019,7 @@ function openPage(x) {
   $("dBackdrop").style.backgroundImage = `url('${coverUrl}')`;
   $("dTitle").textContent = x.title;
   $("dCategory").textContent = x.category;
-  $("dVersionBadge").textContent = x.version;
+  $("dVersionBadge").textContent = x.version.startsWith('v') ? x.version : 'v' + x.version;
   $("dTitleId").textContent = x.titleId;
   $("dSize").textContent = x.size;
   $("dSpecId").textContent = x.titleId;
@@ -987,6 +1095,7 @@ function closeModalOnBackdrop(e) {
   if (e.target.id === "modalOverlay") closeModal();
 }
 
+// Initialization on load
 document.addEventListener("DOMContentLoaded", () => {
   setDetailMode(state.detailMode);
   
@@ -994,6 +1103,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("sortBy").addEventListener("change", render);
   $("q").addEventListener("input", render);
 
+  // Click handler for catalog items
   $("mainContainer").addEventListener("click", (e) => {
     const card = e.target.closest("[data-i]");
     if (card) {
@@ -1002,6 +1112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // View switch buttons
   $("btnGrid").onclick = () => { state.view = "grid"; updateViewBtns("btnGrid"); render(); };
   $("btnCards").onclick = () => { state.view = "cards"; updateViewBtns("btnCards"); render(); };
   $("btnList").onclick = () => { state.view = "list"; updateViewBtns("btnList"); render(); };
