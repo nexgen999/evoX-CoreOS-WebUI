@@ -97,10 +97,6 @@ function loadDashboardInfo() {
     }
 }
 
-/**
- * Récupère dynamiquement les packs AIO depuis pack_aio.json
- * et génère la table HTML détaillée sans échec d'interpolation
- */
 async function loadReleases() {
     const container = document.getElementById('aio-packs-container') || document.getElementById('aio-packs-grid');
     if (!container) return;
@@ -195,21 +191,73 @@ function copyToClipboard(text, btnElement) {
     });
 }
 
+/**
+ * Charge dynamiquement l'arborescence des fichiers .md du dossier docs via l'API GitHub
+ */
 async function loadWikiTree() {
     const wikiContent = document.getElementById('wiki-content');
     const wikiTree = document.getElementById('wiki-tree');
-    
+    if (!wikiContent || !wikiTree) return;
+
+    const repoUser = config.github?.user || 'nexgen999';
+    const repoName = config.github?.dataRepository || 'evoX-CoreOS-WebUI';
+    const apiUrl = `https://api.github.com/repos/${repoUser}/${repoName}/contents/docs`;
+
     try {
-        const res = await fetch('docs/index.md');
-        if (res.ok) {
-            const md = await res.text();
-            wikiContent.innerHTML = marked.parse(md);
-        } else {
-            wikiContent.innerHTML = "<p>Aucune documentation dans `docs/index.md`.</p>";
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error('API GitHub indisponible');
+        
+        const files = await res.json();
+        const mdFiles = files.filter(f => f.name.endsWith('.md'));
+
+        if (mdFiles.length === 0) {
+            wikiTree.innerHTML = '<p style="padding:1rem; font-size:0.85rem;">Aucun document trouvé.</p>';
+            return;
+        }
+
+        let listHtml = '<ul style="list-style:none; padding:0; margin:0;">';
+        mdFiles.forEach((f, idx) => {
+            const activeClass = idx === 0 ? 'style="font-weight:bold; color:var(--accent); cursor:pointer; padding:0.4rem 0;"' : 'style="cursor:pointer; padding:0.4rem 0;"';
+            listHtml += `<li onclick="loadWikiPage('${f.path}', this)" ${activeClass}><i class="fa-solid fa-file-lines"></i> ${f.name}</li>`;
+        });
+        listHtml += '</ul>';
+
+        wikiTree.innerHTML = listHtml;
+
+        // Charge le premier fichier (ex: index.md) par défaut
+        if (mdFiles.length > 0) {
+            loadWikiPage(mdFiles[0].path);
         }
     } catch (e) {
-        wikiContent.innerHTML = "<p>Erreur de chargement du wiki.</p>";
+        console.warn('Fallback wiki direct :', e);
+        // Fallback local au cas où l'API est bloquée
+        wikiTree.innerHTML = '<ul><li onclick="loadWikiPage(\'docs/index.md\', this)" style="cursor:pointer;"><i class="fa-solid fa-file"></i> index.md</li></ul>';
+        loadWikiPage('docs/index.md');
+    }
+}
+
+/**
+ * Lit et affiche le contenu du fichier .md sélectionné
+ */
+async function loadWikiPage(filePath, element) {
+    const wikiContent = document.getElementById('wiki-content');
+    if (!wikiContent) return;
+
+    if (element) {
+        document.querySelectorAll('#wiki-tree li').forEach(el => {
+            el.style.fontWeight = 'normal';
+            el.style.color = '';
+        });
+        element.style.fontWeight = 'bold';
+        element.style.color = 'var(--accent)';
     }
 
-    wikiTree.innerHTML = `<ul><li onclick="loadWikiTree()"><i class="fa-solid fa-file"></i> index.md</li></ul>`;
+    try {
+        const res = await fetch(filePath);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const md = await res.text();
+        wikiContent.innerHTML = marked.parse(md);
+    } catch (e) {
+        wikiContent.innerHTML = `<p style="color: var(--accent); padding:1rem;"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de charger la page (${filePath}).</p>`;
+    }
 }
