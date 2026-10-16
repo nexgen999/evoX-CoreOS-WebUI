@@ -98,11 +98,11 @@ function loadDashboardInfo() {
 }
 
 /**
- * Récupère dynamiquement les packs AIO depuis le JSON sur GitHub
- * et les affiche sous forme de tableau détaillé
+ * Récupère dynamiquement les packs AIO depuis pack_aio.json
  */
 async function loadReleases() {
-    const container = document.getElementById('aio-packs-container');
+    // Vérification des deux conteneurs possibles pour éviter les erreurs
+    const container = document.getElementById('aio-packs-container') || document.getElementById('aio-packs-grid');
     if (!container) return;
 
     const packAioUrl = config.releases?.aio_pack_json || 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pack/pack_aio.json';
@@ -112,37 +112,41 @@ async function loadReleases() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         
         const packsData = await res.json();
-        const items = Array.isArray(packsData) ? packsData : (packsData.packs || packsData.releases || []);
+        const items = Array.isArray(packsData) ? packsData : (packsData.packs || []);
 
         if (items.length === 0) {
-            container.innerHTML = '<p style="padding: 2rem; text-align: center;">Aucun pack AIO disponible pour le moment.</p>';
+            container.innerHTML = '<p style="padding: 2rem; text-align: center;">Aucun pack AIO disponible.</p>';
             return;
         }
 
+        container.className = 'store-list-view';
         container.innerHTML = `
             <table class="store-table">
                 <thead>
                     <tr>
                         <th>Nom du Pack</th>
+                        <th>Type</th>
+                        <th>Taille</th>
                         <th>Fichier Archive</th>
-                        <th>Description</th>
                         <th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     ${items.map(pack => {
-                        const name = pack.name || pack.title || 'Pack AIO';
-                        const fileUrl = pack.url || pack.file || pack.downloadUrl || '#';
-                        const description = pack.description || 'Pack AIO disponible en téléchargement direct.';
-                        const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1) || 'Fichier.zip';
+                        const name = pack.display_name || pack.name || 'Pack AIO';
+                        const fileName = pack.filename || 'archive.zip';
+                        const fileUrl = pack.url || '#';
+                        const packType = pack.pack_type ? pack.pack_type.toUpperCase() : 'AIO';
+                        const size = pack.size_mb ? `\${pack.size_mb} Mo` : '-';
 
                         return `
                             <tr>
                                 <td><strong>\${name}</strong></td>
+                                <td><span class="badge">\${packType}</span></td>
+                                <td><span style="color: var(--text-muted); font-size: 0.85rem;">\${size}</span></td>
                                 <td><span class="badge" style="background: var(--bg-hover); color: var(--accent);"><i class="fa-solid fa-file-zipper"></i> \${fileName}</span></td>
-                                <td class="table-desc">\${description}</td>
                                 <td style="text-align: center;">
-                                    <a href="\${fileUrl}" target="_blank" class="btn btn-secondary btn-sm" title="Télécharger le fichier">
+                                    <a href="\${fileUrl}" target="_blank" class="btn btn-secondary btn-sm" title="Télécharger le pack">
                                         <i class="fa-solid fa-download"></i>
                                     </a>
                                 </td>
@@ -154,10 +158,10 @@ async function loadReleases() {
         `;
 
     } catch (err) {
-        console.error('Erreur lors du chargement des packs AIO distant :', err);
+        console.error('Erreur lors du chargement des packs AIO :', err);
         container.innerHTML = `
             <div style="padding: 1.5rem; text-align: center;">
-                <p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de charger la liste des packs AIO.</p>
+                <p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de charger la liste des packs AIO (${err.message}).</p>
             </div>`;
     }
 }
