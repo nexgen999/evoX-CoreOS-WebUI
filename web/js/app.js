@@ -99,6 +99,7 @@ function loadDashboardInfo() {
 
 /**
  * Récupère dynamiquement les packs AIO depuis pack_aio.json
+ * et génère la table HTML détaillée sans échec d'interpolation
  */
 async function loadReleases() {
     const container = document.getElementById('aio-packs-container') || document.getElementById('aio-packs-grid');
@@ -108,7 +109,7 @@ async function loadReleases() {
 
     try {
         const res = await fetch(packAioUrl);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         
         const packsData = await res.json();
         const items = Array.isArray(packsData) ? packsData : (packsData.packs || []);
@@ -118,50 +119,47 @@ async function loadReleases() {
             return;
         }
 
-        container.className = 'store-list-view';
-        container.innerHTML = `
-            <table class="store-table">
-                <thead>
-                    <tr>
-                        <th>Nom du Pack</th>
-                        <th>Type</th>
-                        <th>Taille</th>
-                        <th>Fichier Archive</th>
-                        <th style="text-align: center;">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${items.map(pack => {
-                        const name = pack.display_name || pack.name || 'Pack AIO';
-                        const fileName = pack.filename || 'archive.zip';
-                        const fileUrl = pack.url || '#';
-                        const packType = pack.pack_type ? pack.pack_type.toUpperCase() : 'AIO';
-                        const size = pack.size_mb ? `\${pack.size_mb} Mo` : '-';
+        let rowsHtml = '';
+        for (let i = 0; i < items.length; i++) {
+            const pack = items[i];
+            const name = pack.display_name || pack.name || 'Pack AIO';
+            const fileName = pack.filename || 'archive.zip';
+            const fileUrl = pack.url || '#';
+            const packType = pack.pack_type ? pack.pack_type.toUpperCase() : 'AIO';
+            const size = pack.size_mb ? pack.size_mb + ' Mo' : '-';
 
-                        return `
-                            <tr>
-                                <td><strong>\${name}</strong></td>
-                                <td><span class="badge">\${packType}</span></td>
-                                <td><span style="color: var(--text-muted); font-size: 0.85rem;">\${size}</span></td>
-                                <td><span class="badge" style="background: var(--bg-hover); color: var(--accent);"><i class="fa-solid fa-file-zipper"></i> \${fileName}</span></td>
-                                <td style="text-align: center;">
-                                    <a href="\${fileUrl}" target="_blank" class="btn btn-secondary btn-sm" title="Télécharger le pack">
-                                        <i class="fa-solid fa-download"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-        `;
+            rowsHtml += '<tr>' +
+                '<td><strong>' + name + '</strong></td>' +
+                '<td><span class="badge">' + packType + '</span></td>' +
+                '<td><span style="color: var(--text-muted); font-size: 0.85rem;">' + size + '</span></td>' +
+                '<td><span class="badge" style="background: var(--bg-hover); color: var(--accent);"><i class="fa-solid fa-file-zipper"></i> ' + fileName + '</span></td>' +
+                '<td style="text-align: center;">' +
+                    '<a href="' + fileUrl + '" target="_blank" class="btn btn-secondary btn-sm" title="Télécharger le pack">' +
+                        '<i class="fa-solid fa-download"></i>' +
+                    '</a>' +
+                '</td>' +
+            '</tr>';
+        }
+
+        container.className = 'store-list-view';
+        container.innerHTML = '<table class="store-table">' +
+            '<thead>' +
+                '<tr>' +
+                    '<th>Nom du Pack</th>' +
+                    '<th>Type</th>' +
+                    '<th>Taille</th>' +
+                    '<th>Fichier Archive</th>' +
+                    '<th style="text-align: center;">Action</th>' +
+                '</tr>' +
+            '</thead>' +
+            '<tbody>' +
+                rowsHtml +
+            '</tbody>' +
+        '</table>';
 
     } catch (err) {
         console.error('Erreur lors du chargement des packs AIO :', err);
-        container.innerHTML = `
-            <div style="padding: 1.5rem; text-align: center;">
-                <p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de charger la liste des packs AIO (${err.message}).</p>
-            </div>`;
+        container.innerHTML = '<div style="padding: 1.5rem; text-align: center;"><p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de charger la liste des packs AIO.</p></div>';
     }
 }
 
