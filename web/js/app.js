@@ -5,7 +5,7 @@ function renderTileIcon(iconInput, defaultIcon = 'fa-box') {
         return `<i class="fa-solid ${defaultIcon} accent"></i>`;
     }
     
-    if (iconInput.startsWith('http://') || iconInput.startsWith('https://') || iconInput.includes('/') || iconInput.match(/\.(png|jpg|jpeg|svg|webp)$/i)) {
+    if (iconInput.startsWith('http://') || iconInput.startsWith('https://') || iconInput.includes('/') || iconInput.match(/\.(png|jpg|jpeg|svg|webp)\$/i)) {
         return `<img src="${iconInput}" alt="icon" class="tile-avatar-img">`;
     }
 
@@ -99,13 +99,13 @@ function loadDashboardInfo() {
 
 /**
  * Récupère dynamiquement les packs AIO depuis le JSON sur GitHub
+ * et les affiche sous forme de tableau détaillé
  */
 async function loadReleases() {
-    const container = document.getElementById('aio-packs-grid');
+    const container = document.getElementById('aio-packs-container');
     if (!container) return;
 
-    // URL distante du fichier pack_aio.json
-    const packAioUrl = 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pack/pack_aio.json';
+    const packAioUrl = config.releases?.aio_pack_json || 'https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pack/pack_aio.json';
 
     try {
         const res = await fetch(packAioUrl);
@@ -115,38 +115,49 @@ async function loadReleases() {
         const items = Array.isArray(packsData) ? packsData : (packsData.packs || packsData.releases || []);
 
         if (items.length === 0) {
-            container.innerHTML = '<p style="grid-column: 1 / -1;">Aucun pack AIO disponible pour le moment.</p>';
+            container.innerHTML = '<p style="padding: 2rem; text-align: center;">Aucun pack AIO disponible pour le moment.</p>';
             return;
         }
 
-        container.innerHTML = items.map(pack => {
-            const name = pack.name || pack.title || 'Pack AIO';
-            const fileUrl = pack.url || pack.file || pack.downloadUrl || '#';
-            const icon = pack.icon || 'fa-box-archive';
-            const description = pack.description || 'Pack AIO disponible en téléchargement direct.';
-            const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1) || 'Télécharger';
+        container.innerHTML = `
+            <table class="store-table">
+                <thead>
+                    <tr>
+                        <th>Nom du Pack</th>
+                        <th>Fichier Archive</th>
+                        <th>Description</th>
+                        <th style="text-align: center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${items.map(pack => {
+                        const name = pack.name || pack.title || 'Pack AIO';
+                        const fileUrl = pack.url || pack.file || pack.downloadUrl || '#';
+                        const description = pack.description || 'Pack AIO disponible en téléchargement direct.';
+                        const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1) || 'Fichier.zip';
 
-            return `
-                <div class="item-card">
-                    <div>
-                        <div class="tile-header">
-                            ${renderTileIcon(icon, 'fa-box-archive')}
-                            <h3 style="margin: 0;">${name}</h3>
-                        </div>
-                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">${description}</p>
-                    </div>
-                    <a href="${fileUrl}" target="_blank" class="btn btn-primary" style="margin-top: 1rem; width: 100%; justify-content: center; text-decoration: none;">
-                        <i class="fa-solid fa-download"></i> ${fileName}
-                    </a>
-                </div>
-            `;
-        }).join('');
+                        return `
+                            <tr>
+                                <td><strong>\${name}</strong></td>
+                                <td><span class="badge" style="background: var(--bg-hover); color: var(--accent);"><i class="fa-solid fa-file-zipper"></i> \${fileName}</span></td>
+                                <td class="table-desc">\${description}</td>
+                                <td style="text-align: center;">
+                                    <a href="\${fileUrl}" target="_blank" class="btn btn-secondary btn-sm" title="Télécharger le fichier">
+                                        <i class="fa-solid fa-download"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
 
     } catch (err) {
         console.error('Erreur lors du chargement des packs AIO distant :', err);
         container.innerHTML = `
-            <div style="grid-column: 1 / -1; padding: 1rem; background: var(--panel-bg, #1a1a1a); border-radius: 8px; border: 1px solid var(--border);">
-                <p><i class="fa-solid fa-triangle-exclamation accent"></i> Impossible de charger la liste des packs AIO.</p>
+            <div style="padding: 1.5rem; text-align: center;">
+                <p style="color: var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de charger la liste des packs AIO.</p>
             </div>`;
     }
 }
