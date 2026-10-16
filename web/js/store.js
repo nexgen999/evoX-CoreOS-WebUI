@@ -7,7 +7,7 @@ let currentViewMode = 'grid'; // 'grid' ou 'list'
 function formatVersion(ver) {
     if (!ver) return '';
     const clean = String(ver).replace(/^v+/i, '').trim();
-    return clean ? `v${clean}` : '';
+    return clean ? 'v' + clean : '';
 }
 
 function extractItemsFromJSON(data) {
@@ -57,7 +57,7 @@ async function loadStoreData(sources) {
             });
 
         } catch (e) {
-            console.warn(`Erreur de chargement pour ${source.name}:`, e);
+            console.warn('Erreur de chargement pour ' + source.name + ':', e);
         }
     }
 
@@ -125,58 +125,65 @@ function renderStoreItems(items) {
         items.forEach(item => {
             const card = document.createElement('div');
             card.className = 'item-card';
-            card.innerHTML = `
-                <div>
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-                        <h3>${item.title}</h3>
-                        ${item.version ? `<span class="badge" style="background:var(--bg-hover); color:var(--accent); font-size:0.75rem;">\${item.version}</span>` : ''}
-                    </div>
-                    <div style="margin: 0.4rem 0; display:flex; gap:0.4rem; flex-wrap:wrap;">
-                        <span class="badge">${item.masterCategory}</span>
-                        ${item.subcategory !== 'Non spécifié' ? `<span class="badge" style="opacity:0.8; background:rgba(255,255,255,0.08);">\${item.subcategory}</span>` : ''}
-                    </div>
-                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top:0.5rem;">
-                        ${item.description}
-                    </p>
-                </div>
-                <a href="${item.url}" target="_blank" class="btn btn-secondary" style="margin-top: 0.75rem; text-align:center;">
-                    <i class="fa-solid fa-download"></i> Télécharger
-                </a>
-            `;
+            
+            let badgeVersion = item.version ? '<span class="badge" style="background:var(--bg-hover); color:var(--accent); font-size:0.75rem;">' + item.version + '</span>' : '';
+            let badgeSubcat = item.subcategory !== 'Non spécifié' ? '<span class="badge" style="opacity:0.8; background:rgba(255,255,255,0.08);">' + item.subcategory + '</span>' : '';
+
+            card.innerHTML = '<div>' +
+                '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">' +
+                    '<h3>' + item.title + '</h3>' +
+                    badgeVersion +
+                '</div>' +
+                '<div style="margin: 0.4rem 0; display:flex; gap:0.4rem; flex-wrap:wrap;">' +
+                    '<span class="badge">' + item.masterCategory + '</span>' +
+                    badgeSubcat +
+                '</div>' +
+                '<p style="color: var(--text-muted); font-size: 0.85rem; margin-top:0.5rem;">' +
+                    item.description +
+                '</p>' +
+            '</div>' +
+            '<a href="' + item.url + '" target="_blank" class="btn btn-secondary" style="margin-top: 0.75rem; text-align:center;">' +
+                '<i class="fa-solid fa-download"></i> Télécharger' +
+            '</a>';
+
             container.appendChild(card);
         });
     } else {
         container.className = 'store-list-view';
+        let rows = '';
+
+        items.forEach(item => {
+            let subBadge = item.subcategory !== 'Non spécifié' ? '<span class="badge" style="opacity:0.8;">' + item.subcategory + '</span>' : '<span style="opacity:0.4;">-</span>';
+            let verText = item.version ? item.version : '-';
+
+            rows += '<tr>' +
+                '<td><strong>' + item.title + '</strong></td>' +
+                '<td><span class="badge">' + item.masterCategory + '</span></td>' +
+                '<td>' + subBadge + '</td>' +
+                '<td>' + verText + '</td>' +
+                '<td class="table-desc">' + item.description + '</td>' +
+                '<td>' +
+                    '<a href="' + item.url + '" target="_blank" class="btn btn-secondary btn-sm">' +
+                        '<i class="fa-solid fa-download"></i>' +
+                    '</a>' +
+                '</td>' +
+            '</tr>';
+        });
+
         const table = document.createElement('table');
         table.className = 'store-table';
-        table.innerHTML = `
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Fichier JSON</th>
-                    <th>Sous-Catégorie</th>
-                    <th>Version</th>
-                    <th>Description</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${items.map(item => `
-                    <tr>
-                        <td><strong>\${item.title}</strong></td>
-                        <td><span class="badge">\${item.masterCategory}</span></td>
-                        <td>\${item.subcategory !== 'Non spécifié' ? `<span class="badge" style="opacity:0.8;">${item.subcategory}</span>` : '<span style="opacity:0.4;">-</span>'}</td>
-                        <td>\${item.version ? item.version : '-'}</td>
-                        <td class="table-desc">\${item.description}</td>
-                        <td>
-                            <a href="\${item.url}" target="_blank" class="btn btn-secondary btn-sm">
-                                <i class="fa-solid fa-download"></i>
-                            </a>
-                        </td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        `;
+        table.innerHTML = '<thead>' +
+            '<tr>' +
+                '<th>Nom</th>' +
+                '<th>Fichier JSON</th>' +
+                '<th>Sous-Catégorie</th>' +
+                '<th>Version</th>' +
+                '<th>Description</th>' +
+                '<th>Action</th>' +
+            '</tr>' +
+        '</thead>' +
+        '<tbody>' + rows + '</tbody>';
+
         container.appendChild(table);
     }
 }
