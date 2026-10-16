@@ -22,6 +22,10 @@
       { "name": "evoX Catalog", "url": "https://nexgen999.github.io/evoX-CoreOS/json/pegasus-dl/catalog.json" }
     ]
   },
+  "wiki": [
+    { "name": "index.md", "path": "docs/index.md" },
+    { "name": "Full-Y2JB-YouTube-Block.md", "path": "docs/Full-Y2JB-YouTube-Block.md" }
+  ],
   "releases": {
     "aio_pack_json": "https://raw.githubusercontent.com/nexgen999/evoX-CoreOS/main/json/pack/pack_aio.json"
   },
