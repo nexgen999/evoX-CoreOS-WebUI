@@ -192,47 +192,33 @@ function copyToClipboard(text, btnElement) {
 }
 
 /**
- * Charge dynamiquement l'arborescence des fichiers .md du dossier docs via l'API GitHub
+ * Charge la liste des fichiers Wiki depuis config.json ou fallback
  */
 async function loadWikiTree() {
     const wikiContent = document.getElementById('wiki-content');
     const wikiTree = document.getElementById('wiki-tree');
     if (!wikiContent || !wikiTree) return;
 
-    const repoUser = config.github?.user || 'nexgen999';
-    const repoName = config.github?.dataRepository || 'evoX-CoreOS-WebUI';
-    const apiUrl = `https://api.github.com/repos/${repoUser}/${repoName}/contents/docs`;
+    // Utilise la liste déclarée dans config.json, sinon liste par défaut
+    const pages = config.wiki || [
+        { name: "index.md", path: "docs/index.md" },
+        { name: "02-config.md", path: "docs/02-config.md" },
+        { name: "Full-Y2JB-YouTube-Block.md", path: "docs/Full-Y2JB-YouTube-Block.md" }
+    ];
 
-    try {
-        const res = await fetch(apiUrl);
-        if (!res.ok) throw new Error('API GitHub indisponible');
-        
-        const files = await res.json();
-        const mdFiles = files.filter(f => f.name.endsWith('.md'));
+    let listHtml = '<ul style="list-style:none; padding:0; margin:0;">';
+    pages.forEach((p, idx) => {
+        const activeStyle = idx === 0 
+            ? 'style="font-weight:bold; color:var(--accent); cursor:pointer; padding:0.4rem 0;"' 
+            : 'style="cursor:pointer; padding:0.4rem 0;"';
+        listHtml += `<li onclick="loadWikiPage('${p.path}', this)" ${activeStyle}><i class="fa-solid fa-file-lines"></i> ${p.name}</li>`;
+    });
+    listHtml += '</ul>';
 
-        if (mdFiles.length === 0) {
-            wikiTree.innerHTML = '<p style="padding:1rem; font-size:0.85rem;">Aucun document trouvé.</p>';
-            return;
-        }
+    wikiTree.innerHTML = listHtml;
 
-        let listHtml = '<ul style="list-style:none; padding:0; margin:0;">';
-        mdFiles.forEach((f, idx) => {
-            const activeClass = idx === 0 ? 'style="font-weight:bold; color:var(--accent); cursor:pointer; padding:0.4rem 0;"' : 'style="cursor:pointer; padding:0.4rem 0;"';
-            listHtml += `<li onclick="loadWikiPage('${f.path}', this)" ${activeClass}><i class="fa-solid fa-file-lines"></i> ${f.name}</li>`;
-        });
-        listHtml += '</ul>';
-
-        wikiTree.innerHTML = listHtml;
-
-        // Charge le premier fichier (ex: index.md) par défaut
-        if (mdFiles.length > 0) {
-            loadWikiPage(mdFiles[0].path);
-        }
-    } catch (e) {
-        console.warn('Fallback wiki direct :', e);
-        // Fallback local au cas où l'API est bloquée
-        wikiTree.innerHTML = '<ul><li onclick="loadWikiPage(\'docs/index.md\', this)" style="cursor:pointer;"><i class="fa-solid fa-file"></i> index.md</li></ul>';
-        loadWikiPage('docs/index.md');
+    if (pages.length > 0) {
+        loadWikiPage(pages[0].path);
     }
 }
 
