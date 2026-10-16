@@ -101,7 +101,6 @@ function loadDashboardInfo() {
  * Récupère dynamiquement les packs AIO depuis pack_aio.json
  */
 async function loadReleases() {
-    // Vérification des deux conteneurs possibles pour éviter les erreurs
     const container = document.getElementById('aio-packs-container') || document.getElementById('aio-packs-grid');
     if (!container) return;
 
