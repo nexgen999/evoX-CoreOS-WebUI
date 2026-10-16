@@ -1,6 +1,15 @@
 let rawStoreData = [];
 let currentViewMode = 'grid'; // 'grid' ou 'list'
 
+/**
+ * Nettoie et formate la version pour éviter les doublons ("vv1.0" -> "v1.0")
+ */
+function formatVersion(ver) {
+    if (!ver) return '';
+    const clean = String(ver).replace(/^v+/i, '').trim();
+    return clean ? `v${clean}` : '';
+}
+
 function extractItemsFromJSON(data) {
     if (Array.isArray(data)) return data;
     if (typeof data === 'object' && data !== null) {
@@ -42,7 +51,7 @@ async function loadStoreData(sources) {
                     subcategory: item.subcategory || item.sub_category || item.type || item.section || item.category || 'Non spécifié',
                     description: item.description || item.desc || item.info || 'Aucune description fournie.',
                     url: item.url || item.download || item.download_url || item.link || item.path || '#',
-                    version: item.version || item.ver || '',
+                    version: formatVersion(item.version || item.ver || ''),
                     sourceName: source.name
                 });
             });
@@ -120,11 +129,11 @@ function renderStoreItems(items) {
                 <div>
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
                         <h3>${item.title}</h3>
-                        ${item.version ? `<span class="badge" style="background:var(--bg-hover); color:var(--accent); font-size:0.75rem;">v${item.version}</span>` : ''}
+                        ${item.version ? `<span class="badge" style="background:var(--bg-hover); color:var(--accent); font-size:0.75rem;">\${item.version}</span>` : ''}
                     </div>
                     <div style="margin: 0.4rem 0; display:flex; gap:0.4rem; flex-wrap:wrap;">
                         <span class="badge">${item.masterCategory}</span>
-                        ${item.subcategory !== 'Non spécifié' ? `<span class="badge" style="opacity:0.8; background:rgba(255,255,255,0.08);">${item.subcategory}</span>` : ''}
+                        ${item.subcategory !== 'Non spécifié' ? `<span class="badge" style="opacity:0.8; background:rgba(255,255,255,0.08);">\${item.subcategory}</span>` : ''}
                     </div>
                     <p style="color: var(--text-muted); font-size: 0.85rem; margin-top:0.5rem;">
                         ${item.description}
@@ -154,13 +163,13 @@ function renderStoreItems(items) {
             <tbody>
                 ${items.map(item => `
                     <tr>
-                        <td><strong>${item.title}</strong></td>
-                        <td><span class="badge">${item.masterCategory}</span></td>
-                        <td>${item.subcategory !== 'Non spécifié' ? `<span class="badge" style="opacity:0.8;">${item.subcategory}</span>` : '<span style="opacity:0.4;">-</span>'}</td>
-                        <td>${item.version ? `v${item.version}` : '-'}</td>
-                        <td class="table-desc">${item.description}</td>
+                        <td><strong>\${item.title}</strong></td>
+                        <td><span class="badge">\${item.masterCategory}</span></td>
+                        <td>\${item.subcategory !== 'Non spécifié' ? `<span class="badge" style="opacity:0.8;">${item.subcategory}</span>` : '<span style="opacity:0.4;">-</span>'}</td>
+                        <td>\${item.version ? item.version : '-'}</td>
+                        <td class="table-desc">\${item.description}</td>
                         <td>
-                            <a href="${item.url}" target="_blank" class="btn btn-secondary btn-sm">
+                            <a href="\${item.url}" target="_blank" class="btn btn-secondary btn-sm">
                                 <i class="fa-solid fa-download"></i>
                             </a>
                         </td>
