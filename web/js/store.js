@@ -2,11 +2,22 @@ let rawStoreData = [];
 let currentViewMode = 'grid'; // 'grid' ou 'list'
 
 /**
- * Nettoie et formate la version pour éviter les doublons ("vv1.0" -> "v1.0")
+ * Nettoie et formate la version :
+ * - Si c'est un texte sans chiffre au début (ex: "Source-Fixe"), on le laisse tel quel.
+ * - Si ça commence par un chiffre (ex: "1.0"), on ajoute "v" -> "v1.0".
+ * - Si ça contient déjà un ou plusieurs "v" devant des chiffres (ex: "vv1.0"), on formate propre -> "v1.0".
  */
 function formatVersion(ver) {
     if (!ver) return '';
-    const clean = String(ver).replace(/^v+/i, '').trim();
+    const str = String(ver).trim();
+    
+    // Si la valeur commence par une lettre puis du texte sans chiffre direct (ex: "Source-Fixe", "ps5-web-file")
+    if (/^[a-zA-Z]{2,}/.test(str) && !/^v\d/i.test(str)) {
+        return str;
+    }
+    
+    // Si c'est un numéro de version avec ou sans 'v' au début
+    const clean = str.replace(/^v+/i, '').trim();
     return clean ? 'v' + clean : '';
 }
 
