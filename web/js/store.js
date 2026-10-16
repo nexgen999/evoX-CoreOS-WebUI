@@ -204,14 +204,17 @@ function setStoreViewMode(mode) {
     filterStore();
 }
 
-document.getElementById('store-search')?.addEventListener('input', filterStore);
+// Écouteurs d'événements
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('store-search')?.addEventListener('input', filterStore);
 
-document.getElementById('store-category-filter')?.addEventListener('change', () => {
-    updateSubcategories();
-    filterStore();
+    document.getElementById('store-category-filter')?.addEventListener('change', () => {
+        updateSubcategories();
+        filterStore();
+    });
+
+    document.getElementById('store-subcategory-filter')?.addEventListener('change', filterStore);
+
+    document.getElementById('btn-view-grid')?.addEventListener('click', () => setStoreViewMode('grid'));
+    document.getElementById('btn-view-list')?.addEventListener('click', () => setStoreViewMode('list'));
 });
-
-document.getElementById('store-subcategory-filter')?.addEventListener('change', filterStore);
-
-document.getElementById('btn-view-grid')?.addEventListener('click', () => setStoreViewMode('grid'));
-document.getElementById('btn-view-list')?.addEventListener('click', () => setStoreViewMode('list'));
